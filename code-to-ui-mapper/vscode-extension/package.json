@@ -1,13 +1,13 @@
 {
   "name": "code-to-ui-mapper-vscode-extension",
-  "displayName": "Code-to-UI Mapper",
+  "displayName": "Code-to-UI-Mapper",
   "description": "VS Code extension to find React components in the browser UI.",
   "version": "0.1.0",
   "private": true,
   "publisher": "cline-dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-repo/code-to-ui-mapper.git"
+    "url": "https://github.com/lucidlayer/code-to-ui-mapper.git"
   },
   "engines": {
     "vscode": "^1.80.0"
