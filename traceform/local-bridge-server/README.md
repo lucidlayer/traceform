@@ -1,6 +1,8 @@
 # Traceform - Local Bridge Server (Deprecated)
 
-**DEPRECATED:** This standalone server is no longer required. Its functionality has been integrated directly into the `traceform-vscode` extension. Please install the VS Code extension (`LucidLayer.traceform-vscode`) from the Marketplace instead of running this server manually. The code remains here for reference purposes.
+**DEPRECATED: Use the Traceform VS Code Extension instead. This standalone server is no longer required.**
+
+This was a Node.js WebSocket server for bridging VS Code and the browser extension. Now integrated into the VS Code extension.
 
 ---
 

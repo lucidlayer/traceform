@@ -1,12 +1,10 @@
-# docs
+# Traceform Documentation
 
-Developer documentation for the Traceform toolchain.
+Developer and contributor documentation for the Traceform toolchain.
 
 ## Contents
 
-- Setup guide for local testing
-- Architecture diagram
-- How to add new component frameworks (e.g., Vue, Svelte)
-- Troubleshooting (e.g., why a component might not show up)
-- Privacy model (what data is shared or local-only)
-- Known limitations (dynamic HOC components, portals)
+- `test_plan_and_deployment.md` – How to test and deploy the Traceform toolchain
+- (Add more docs here as needed)
+
+See the [Traceform root README](../README.md) for an overview and quick start.
