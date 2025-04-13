@@ -1,5 +1,5 @@
 # CodeMap Root
-timestamp: 2025-04-12T19:22:50Z # Updated timestamp
+timestamp: 2025-04-12T19:30:55Z # Updated timestamp
 
 ## PROJECT_STRUCTURE
 code-to-ui-mapper/
@@ -16,10 +16,10 @@ code-to-ui-mapper/
   vscode-extension/ [EDITOR]
     src/extension.ts #VSC_EXT "VS Code extension entry, command registration" @pattern[VSCodeCommand] @index[extensions] @tasks[TASK_003]
     src/client.ts #VSC_CLIENT "WebSocket client" @pattern[WebSocketClient] @index[extensions] @tasks[TASK_003]
-    package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md # Config files @tasks[TASK_003]
+    package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_003]
   local-bridge-server/ [SERVER]
-    src/index.ts #BRIDGE_SERVER "WebSocket server, relays highlight commands" @pattern[WebSocketServer] @index[servers]
-    package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md # Config files
+    src/index.ts #BRIDGE_SERVER "WebSocket server, relays highlight commands" @pattern[WebSocketServer] @index[servers] @tasks[TASK_004]
+    package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_004]
   example-react-app/ [APP]
     src/components/Button.tsx #EX_BTN "Reusable Button" @pattern[Component] @index[components]
     src/components/Avatar.tsx #EX_AVATAR "Reusable Avatar" @pattern[Component] @index[components]
