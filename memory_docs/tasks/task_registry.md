@@ -1,16 +1,7 @@
 # Task Registry
-timestamp: 2025-04-12T19:33:45Z # Updated timestamp
+timestamp: 2025-04-12T21:01:44Z # Updated timestamp
 
 ## Active Tasks
-
-- TASK_005: "Example React App" | Status: Not Started | Components: #EX_BTN, #EX_AVATAR, #EX_CARD, #EX_HEADER, #EX_FOOTER, #EX_HOME, #EX_PROFILE | [Confidence: HIGH]
-  Subtasks: 0/6 complete | Owner: Unassigned
-
-- TASK_006: "Populate Component/Service Indexes" | Status: Not Started | Components: All | [Confidence: HIGH]
-  Subtasks: 0/4 complete | Owner: Unassigned
-
-- TASK_007: "Test Plan & Deployment Guide" | Status: Not Started | Components: All | [Confidence: HIGH]
-  Subtasks: 0/3 complete | Owner: Unassigned
 
 ## Completed Tasks
 - TASK_001: "Babel Plugin: Inject data-component" | Status: Completed | Archive: tasks/archive/task_001_babel_plugin.md
@@ -21,4 +12,10 @@ timestamp: 2025-04-12T19:33:45Z # Updated timestamp
   Components: #VSC_EXT, #VSC_CLIENT | Completed: 2025-04-12 | Key Decisions: #ARCH_001, #TECH_002, #IMPL_004
 - TASK_004: "Local Bridge Server" | Status: Completed* (*Testing deferred*) | Archive: tasks/archive/task_004_bridge_server.md
   Components: #BRIDGE_SERVER | Completed: 2025-04-12 | Key Decisions: #ARCH_001, #TECH_002, #IMPL_004
+- TASK_005: "Example React App" | Status: Completed* (*Testing deferred*) | Archive: tasks/archive/task_005_example_app.md
+  Components: #EX_BTN, #EX_AVATAR, #EX_CARD, #EX_HEADER, #EX_FOOTER, #EX_HOME, #EX_PROFILE | Completed: 2025-04-12 | Key Decisions: None generated
+- TASK_006: "Populate Component/Service Indexes" | Status: Completed | Archive: tasks/archive/task_006_populate_indexes.md
+  Components: All | Completed: 2025-04-12 | Key Decisions: None generated
+- TASK_007: "Test Plan & Deployment Guide" | Status: Completed | Archive: tasks/archive/task_007_test_plan_deployment.md
+  Components: All | Completed: 2025-04-12 | Key Decisions: None generated
 <!-- List completed tasks here as the project progresses -->
