@@ -1,5 +1,5 @@
 # Active Context
-timestamp: 2025-04-13T02:12:00Z # Updated timestamp - Project v0.1 complete
+timestamp: 2025-04-13T11:46:00Z # Updated timestamp - Planning TASK_009
 
 ## Current Focus
 - Project v0.1 (MVP + DX improvements) is complete.
@@ -20,6 +20,7 @@ timestamp: 2025-04-13T02:12:00Z # Updated timestamp - Project v0.1 complete
 - Chrome/Edge as primary browser extension targets.
 - WebSocket protocol for all inter-process communication.
 - Airbnb + Prettier lint/format enforced everywhere.
+- [#DX_003] Handle Bridge Server Port Conflict (9901) by checking port and notifying user, not killing process. (Added 2025-04-13)
 
 ## Immediate Priorities
-- None. Awaiting user direction for next phase (maintenance, new features, etc.).
+- Implement TASK_009: Bridge Server Port Conflict Handling.

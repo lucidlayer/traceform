@@ -1,5 +1,5 @@
 # Progress
-timestamp: 2025-04-13T02:10:30Z # Updated timestamp
+timestamp: 2025-04-13T11:46:00Z # Updated timestamp
 
 ## Completed
 - Monorepo structure scaffolded with all subproject directories and README files.
@@ -30,8 +30,10 @@ timestamp: 2025-04-13T02:10:30Z # Updated timestamp
   - Published Babel Plugin to npm (`@lucidlayer/babel-plugin-traceform@0.1.1`).
   - Published VS Code Extension to Marketplace (`LucidLayer.code-to-ui-mapper-vscode-extension@0.1.0`).
   - Updated documentation for new setup.
+  - Made decision #DX_003 regarding bridge server port conflict handling (check and notify, don't kill).
 
 ## In Progress
+- TASK_009: Implement Bridge Server Port Conflict Handling
 
 ## Pending
 - Ongoing maintenance: Address bugs or refinements based on user feedback.

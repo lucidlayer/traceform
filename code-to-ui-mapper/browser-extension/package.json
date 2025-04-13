@@ -1,6 +1,6 @@
 {
   "name": "code-to-ui-mapper-browser-extension",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Browser extension component for Code-to-UI Mapper",
   "private": true,
   "scripts": {
@@ -8,7 +8,8 @@
     "format": "prettier --write .",
     "build:bundle": "esbuild src/background.ts src/content.ts src/overlay.ts --bundle --outdir=dist --format=esm",
     "build:copy": "copy manifest.json dist\\manifest.json && copy src\\styles.css dist\\styles.css",
-    "build": "npm run build:bundle && npm run build:copy"
+    "build": "npm run build:bundle && npm run build:copy",
+    "package:local": "npm version patch --no-git-tag-version && npm run build"
   },
   "keywords": [
     "chrome",

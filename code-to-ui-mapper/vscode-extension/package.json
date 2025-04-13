@@ -2,7 +2,7 @@
   "name": "code-to-ui-mapper-vscode-extension",
   "displayName": "Code-to-UI-Mapper",
   "description": "VS Code extension to find React components in the browser UI.",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "private": false,
   "publisher": "LucidLayer",
   "repository": {
@@ -25,9 +25,60 @@
       {
         "command": "code-to-ui-mapper.findInUI",
         "title": "Code-to-UI: Find Component in UI"
+      },
+      {
+        "command": "code-mapper.startServer",
+        "title": "Start Bridge Server",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "code-mapper.stopServer",
+        "title": "Stop Bridge Server",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "code-mapper.restartServer",
+        "title": "Restart Bridge Server",
+        "icon": "$(debug-restart)"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "code-mapper-container",
+          "title": "Code Mapper",
+          "icon": "$(link)"
+        }
+      ]
+    },
+    "views": {
+      "code-mapper-container": [
+        {
+          "id": "codeMapperBridgeStatus",
+          "name": "Bridge Server Status",
+          "icon": "$(server-process)",
+          "contextualTitle": "Bridge Server"
+        }
+      ]
+    },
     "menus": {
+      "view/title": [
+        {
+          "command": "code-mapper.startServer",
+          "when": "view == codeMapperBridgeStatus && viewItem == server-stopped || viewItem == server-error || viewItem == server-port-conflict",
+          "group": "navigation"
+        },
+        {
+          "command": "code-mapper.stopServer",
+          "when": "view == codeMapperBridgeStatus && viewItem == server-running",
+          "group": "navigation"
+        },
+        {
+          "command": "code-mapper.restartServer",
+          "when": "view == codeMapperBridgeStatus && viewItem == server-running || viewItem == server-error || viewItem == server-port-conflict",
+          "group": "navigation"
+        }
+      ],
       "editor/context": [
         {
           "when": "resourceLangId == javascript || resourceLangId == typescript || resourceLangId == javascriptreact || resourceLangId == typescriptreact",
@@ -43,7 +94,8 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
     "format": "prettier --write src/**/*.ts",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "package:local": "npm version patch --no-git-tag-version && npm run compile && npx --yes @vscode/vsce@latest package --allow-star-activation"
   },
   "dependencies": {
     "ws": "^8.16.0"
