@@ -25,6 +25,9 @@ type ExtensionMessage =
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
+  private _disposables: vscode.Disposable[] = [];
+  private _statusListener?: (status: ServerStatus) => void;
+  private _logListener?: (logEntry: string) => void;
 
   constructor(private readonly _extensionUri: vscode.Uri) { } // Keep extension URI for resource paths
 
@@ -44,51 +47,66 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
     // --- Message Handling ---
-    webviewView.webview.onDidReceiveMessage(async (data: ExtensionMessage) => {
-      switch (data.type) {
-        case 'startServer': {
-          vscode.commands.executeCommand('code-mapper.startServer');
-          break;
+    this._disposables.push(
+      webviewView.webview.onDidReceiveMessage(async (data: ExtensionMessage) => {
+        switch (data.type) {
+          case 'startServer': {
+            vscode.commands.executeCommand('code-mapper.startServer');
+            break;
+          }
+          case 'stopServer': {
+            vscode.commands.executeCommand('code-mapper.stopServer');
+            break;
+          }
+          case 'restartServer': {
+            vscode.commands.executeCommand('code-mapper.restartServer');
+            break;
+          }
+          case 'clearLogs': {
+            // Although logs are cleared in webview, we could potentially clear the server buffer too if needed
+            // For now, just acknowledge or do nothing on the extension side
+            break;
+          }
+          case 'getInitialState': {
+            // Send initial status and logs when webview requests it
+            this.updateStatusDisplay(getServerStatus());
+            this.sendInitialLogs();
+            break;
+          }
         }
-        case 'stopServer': {
-          vscode.commands.executeCommand('code-mapper.stopServer');
-          break;
-        }
-        case 'restartServer': {
-          vscode.commands.executeCommand('code-mapper.restartServer');
-          break;
-        }
-        case 'clearLogs': {
-          // Although logs are cleared in webview, we could potentially clear the server buffer too if needed
-          // For now, just acknowledge or do nothing on the extension side
-          break;
-        }
-        case 'getInitialState': {
-          // Send initial status and logs when webview requests it
-          this.updateStatusDisplay(getServerStatus());
-          this.sendInitialLogs();
-          break;
-        }
-      }
-    });
+      })
+    );
 
     // --- Event Listeners ---
     // Listen for status changes from the bridge server
-    bridgeServerStatusEmitter.on('statusChange', (status: ServerStatus) => {
+    this._statusListener = (status: ServerStatus): void => {
       console.log('[SidebarProvider] Received status change:', status); // For debugging
       this.updateStatusDisplay(status);
-    });
+    };
+    bridgeServerStatusEmitter.on('statusChange', this._statusListener);
 
     // Listen for new log messages from the bridge server
-    bridgeServerLogEmitter.on('newLog', (logEntry: string) => {
+    this._logListener = (logEntry: string): void => {
       this.sendLogMessage(logEntry);
-    });
+    };
+    bridgeServerLogEmitter.on('newLog', this._logListener);
 
-    // Optional: Handle view disposal
+    // Clean up listeners when view is disposed
     webviewView.onDidDispose(() => {
-      // Clean up listeners if necessary, though emitters might handle this
-      // bridgeServerStatusEmitter.off('statusChange', ...); // Need to store listener reference
-      // bridgeServerLogEmitter.off('newLog', ...); // Need to store listener reference
+      // Clean up all VS Code disposables
+      this._disposables.forEach(d => d.dispose());
+      this._disposables = [];
+      
+      // Clean up event emitter listeners
+      if (this._statusListener) {
+        bridgeServerStatusEmitter.off('statusChange', this._statusListener);
+        this._statusListener = undefined;
+      }
+      if (this._logListener) {
+        bridgeServerLogEmitter.off('newLog', this._logListener);
+        this._logListener = undefined;
+      }
+      
       this._view = undefined;
     });
 

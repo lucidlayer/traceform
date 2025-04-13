@@ -34,7 +34,15 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 
 	// Register the provider for the 'codeMapperBridgeStatus' view defined in package.json
 	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider('codeMapperBridgeStatus', sidebarProvider)
+		vscode.window.registerWebviewViewProvider(
+			'codeMapperBridgeStatus',
+			sidebarProvider,
+			{
+				webviewOptions: {
+					retainContextWhenHidden: true // Keep the webview state when hidden
+				}
+			}
+		)
 	);
 	outputChannel.appendLine('Bridge Server Status sidebar webview registered.');
 	// --- End Register Sidebar ---
