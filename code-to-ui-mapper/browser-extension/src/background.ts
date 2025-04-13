@@ -1,4 +1,4 @@
-const BRIDGE_SERVER_URL = 'ws://localhost:8765'; // Default bridge server URL
+const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Default bridge server URL (Updated to match server)
 let socket: WebSocket | null = null;
 let reconnectInterval = 5000; // Start with 5 seconds reconnect interval
 const maxReconnectInterval = 60000; // Max 1 minute interval

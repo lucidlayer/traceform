@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import * as vscode from 'vscode';
 
-const BRIDGE_SERVER_URL = 'ws://localhost:8765'; // Must match bridge server
+const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Must match bridge server (Updated)
 let socket: WebSocket | null = null;
 let reconnectInterval = 5000;
 const maxReconnectInterval = 60000;

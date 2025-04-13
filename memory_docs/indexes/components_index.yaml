@@ -1,4 +1,4 @@
-timestamp: 2025-04-12T17:40:58Z
+timestamp: 2025-04-12T20:45:30Z # Updated timestamp
 components:
   #BABEL_PLUGIN: &{
     name: InjectComponentIdPlugin,
@@ -43,54 +43,33 @@ components:
     ]
   }
 
-  #EXT_BG: &{
-    name: BackgroundScript,
-    parameters: [
-      wsMessage: HighlightCommand
-    ],
-    >relays: [HighlightCommand to content script],
-    pattern: WebSocketRelay,
-    tests: [
-      {scenario: "WebSocket message", result: "Relays to content script"}
-    ]
-  }
-
   #VSC_EXT: &{
     name: VSCodeExtension,
     ^critical,
     parameters: [
       selection: string
     ],
-    >calls: [#VSC_CLIENT.sendHighlightCommand],
+    >calls: [#VSC_CLIENT.sendHighlightCommand], # Note: #VSC_CLIENT is in services index
     pattern: VSCodeCommand,
     tests: [
       {scenario: "Right-click command", result: "Extracts component name and sends"}
     ]
   }
 
-  #VSC_CLIENT: &{
-    name: VSCodeWebSocketClient,
-    parameters: [
-      componentName: string
-    ],
-    >sends: [HighlightCommand to bridge server],
-    pattern: WebSocketClient,
-    tests: [
-      {scenario: "Send command", result: "Message sent to server"}
-    ]
+  #EX_APP: &{ # Added entry
+    name: App,
+    parameters: [],
+    >uses: [#EX_HEADER, #EX_FOOTER, #EX_HOME, #EX_PROFILE], # Based on typical App structure
+    pattern: RootComponent,
+    tests: []
   }
 
-  #BRIDGE_SERVER: &{
-    name: BridgeServer,
-    ^critical,
-    parameters: [
-      wsMessage: HighlightCommand
-    ],
-    >broadcasts: [HighlightCommand to browser clients],
-    pattern: WebSocketServer,
-    tests: [
-      {scenario: "Receives command", result: "Broadcasts to all clients"}
-    ]
+  #EX_MAIN: &{ # Added entry
+    name: Main,
+    parameters: [],
+    >renders: [#EX_APP],
+    pattern: EntryPoint,
+    tests: []
   }
 
   #EX_BTN: &{

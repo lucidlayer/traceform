@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-const PORT = 8765; // Port used by clients
+const PORT = 9901; // Port used by clients (Aligned with documentation)
 
 // Keep track of connected clients (browser extensions)
 const clients = new Set<WebSocket>(); // Store connected browser extension clients

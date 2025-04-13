@@ -1,28 +1,43 @@
-# example-react-app
+# Code-to-UI Mapper - Example React App
 
-Example React application for testing the Code-to-UI Mapper toolchain.
+This is a sample React application built with Vite and TypeScript, designed to demonstrate and test the functionality of the Code-to-UI Mapper toolchain.
 
 ## Purpose
 
-- Serves as a testbed for the Babel plugin, browser extension, and VS Code extension.
-- Demonstrates mapping between code and UI with realistic use cases.
+- Provides a target application where the `babel-plugin-inject-id` can inject `data-component` attributes.
+- Includes various reusable components (Button, Card, Avatar, etc.) and pages (Home, Profile) to test highlighting different elements.
+- Serves as the UI endpoint for the Browser Extension to display highlights triggered from the VS Code Extension via the Local Bridge Server.
 
-## Tech Stack
+## Setup & Running
 
-- React (Vite or CRA)
-- React Router
+1.  **Install Dependencies:**
+    ```bash
+    cd code-to-ui-mapper/example-react-app
+    npm install
+    ```
+2.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
+    This will start the Vite development server, typically on `http://localhost:5173`. The `babel-plugin-inject-id` (configured in `vite.config.ts`) should be active in this mode, injecting `data-component` attributes into the rendered HTML.
 
-## Structure
+## Testing the Toolchain
 
-- `src/components/` – Reusable components (Button, Avatar, etc.)
-- `src/pages/` – Page components (Home, Profile, etc.)
-- `src/App.jsx` – Main app component
-- `src/main.jsx` – Entry point
-- `vite.config.js` – Vite configuration
-- `index.html` – HTML entry point
+1.  Ensure the `local-bridge-server` is running (`npm start` in its directory).
+2.  Ensure the `browser-extension` is built and loaded unpacked in your browser.
+3.  Ensure the `vscode-extension` is running (e.g., by pressing `F5` in its directory).
+4.  Run this `example-react-app` using `npm run dev`.
+5.  Open the app in your browser (e.g., `http://localhost:5173`).
+6.  In VS Code, open a component file from this project (e.g., `src/components/Button.tsx`).
+7.  Select the component name (e.g., `Button`).
+8.  Right-click and choose "Code-to-UI: Find Component in UI".
+9.  Observe the browser window - all instances of the Button component should be highlighted by the browser extension's overlay.
 
-## Features
+## Project Structure
 
-- Components reused in multiple places
-- Route with hidden components by default
-- Dynamic prop changes for testing
+- `src/components/`: Reusable UI components.
+- `src/pages/`: Page-level components (HomePage, ProfilePage).
+- `src/App.tsx`: Main application layout and routing setup.
+- `src/main.tsx`: Application entry point, renders the React app.
+- `vite.config.ts`: Vite configuration, including Babel plugin integration for development.
+- `index.html`: Main HTML entry point.
