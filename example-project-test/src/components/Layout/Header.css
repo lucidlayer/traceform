@@ -1,0 +1,79 @@
+.header {
+  background-color: #ffffff; /* White background */
+  padding: 1rem 0;
+  border-bottom: 1px solid #dee2e6; /* Light grey border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  max-width: 1200px; /* Or your preferred max width */
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-link {
+  text-decoration: none;
+  color: inherit; /* Inherit color from body */
+}
+
+.logo-link h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #343a40; /* Dark grey */
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem; /* Space between links */
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li a {
+  text-decoration: none;
+  color: #495057; /* Medium grey */
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-links li a:hover {
+  color: #007bff; /* Link blue on hover */
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-input {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ced4da; /* Light grey border */
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.cart-icon {
+  font-size: 1.5rem; /* Make icon larger */
+  text-decoration: none;
+  color: #495057;
+  position: relative; /* For positioning the count */
+}
+
+.cart-count {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: #dc3545; /* Red background for count */
+  color: white;
+  border-radius: 50%;
+  padding: 0.1em 0.4em;
+  font-size: 0.7rem;
+  font-weight: bold;
+  line-height: 1;
+}

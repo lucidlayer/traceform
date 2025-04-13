@@ -1,0 +1,72 @@
+.home-page {
+  padding: 2rem 1rem; /* Add some padding */
+}
+
+.hero-section {
+  background-color: #e9ecef; /* Light grey background */
+  padding: 4rem 1rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+}
+
+.hero-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.hero-section p {
+  font-size: 1.2rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+
+.cta-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.cta-button:hover {
+  background-color: #0056b3;
+}
+
+.featured-products,
+.categories-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.featured-products h3,
+.categories-section h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #495057;
+}
+
+/* Placeholder styles for grids */
+.product-grid-placeholder,
+.category-grid-placeholder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+  gap: 1rem;
+  text-align: center;
+}
+
+.product-card-placeholder,
+.category-grid-placeholder div {
+  border: 1px solid #dee2e6;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
