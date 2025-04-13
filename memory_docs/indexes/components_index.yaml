@@ -1,0 +1,159 @@
+timestamp: 2025-04-12T17:40:58Z
+components:
+  #BABEL_PLUGIN: &{
+    name: InjectComponentIdPlugin,
+    ^critical,
+    parameters: [
+      file: string,
+      ast: BabelAST
+    ],
+    >injects: [data-component attribute],
+    pattern: BabelVisitor,
+    tests: [
+      {scenario: "Function component", result: "Injects attribute"},
+      {scenario: "Class component", result: "Injects attribute"},
+      {scenario: "HOC/Fragment", result: "Skips or handles correctly"}
+    ]
+  }
+
+  #EXT_CONTENT: &{
+    name: ContentScript,
+    ^critical,
+    parameters: [
+      message: HighlightCommand
+    ],
+    >calls: [#EXT_OVERLAY.highlightComponent],
+    pattern: DOMScanner,
+    tests: [
+      {scenario: "Receives highlight command", result: "Queries DOM and calls overlay"}
+    ]
+  }
+
+  #EXT_OVERLAY: &{
+    name: OverlayRenderer,
+    parameters: [
+      componentName: string,
+      nodes: NodeList
+    ],
+    >renders: [HighlightBox],
+    pattern: OverlayBox,
+    tests: [
+      {scenario: "Multiple nodes", result: "Draws overlays for all"},
+      {scenario: "No nodes", result: "No overlays"}
+    ]
+  }
+
+  #EXT_BG: &{
+    name: BackgroundScript,
+    parameters: [
+      wsMessage: HighlightCommand
+    ],
+    >relays: [HighlightCommand to content script],
+    pattern: WebSocketRelay,
+    tests: [
+      {scenario: "WebSocket message", result: "Relays to content script"}
+    ]
+  }
+
+  #VSC_EXT: &{
+    name: VSCodeExtension,
+    ^critical,
+    parameters: [
+      selection: string
+    ],
+    >calls: [#VSC_CLIENT.sendHighlightCommand],
+    pattern: VSCodeCommand,
+    tests: [
+      {scenario: "Right-click command", result: "Extracts component name and sends"}
+    ]
+  }
+
+  #VSC_CLIENT: &{
+    name: VSCodeWebSocketClient,
+    parameters: [
+      componentName: string
+    ],
+    >sends: [HighlightCommand to bridge server],
+    pattern: WebSocketClient,
+    tests: [
+      {scenario: "Send command", result: "Message sent to server"}
+    ]
+  }
+
+  #BRIDGE_SERVER: &{
+    name: BridgeServer,
+    ^critical,
+    parameters: [
+      wsMessage: HighlightCommand
+    ],
+    >broadcasts: [HighlightCommand to browser clients],
+    pattern: WebSocketServer,
+    tests: [
+      {scenario: "Receives command", result: "Broadcasts to all clients"}
+    ]
+  }
+
+  #EX_BTN: &{
+    name: Button,
+    parameters: [
+      children: ReactNode,
+      onClick: () => void,
+      variant: 'primary' | 'secondary'
+    ],
+    >usedBy: [#EX_HEADER, #EX_HOME, #EX_PROFILE, #EX_CARD],
+    pattern: Component,
+    tests: [
+      {scenario: "Multiple instances", result: "All highlighted"}
+    ]
+  }
+
+  #EX_AVATAR: &{
+    name: Avatar,
+    parameters: [
+      src: string,
+      alt: string,
+      size: 'sm' | 'md' | 'lg'
+    ],
+    >usedBy: [#EX_HEADER, #EX_PROFILE, #EX_CARD],
+    pattern: Component,
+    tests: [
+      {scenario: "Dynamic size", result: "Correct attribute injected"}
+    ]
+  }
+
+  #EX_CARD: &{
+    name: Card,
+    parameters: [
+      children: ReactNode,
+      title: string
+    ],
+    >usedBy: [#EX_HOME, #EX_PROFILE],
+    pattern: Component
+  }
+
+  #EX_HEADER: &{
+    name: Header,
+    parameters: [],
+    >uses: [#EX_AVATAR, #EX_BTN],
+    pattern: Component
+  }
+
+  #EX_FOOTER: &{
+    name: Footer,
+    parameters: [],
+    pattern: Component
+  }
+
+  #EX_HOME: &{
+    name: HomePage,
+    parameters: [],
+    >uses: [#EX_HEADER, #EX_CARD, #EX_BTN, #EX_FOOTER],
+    pattern: Page
+  }
+
+  #EX_PROFILE: &{
+    name: ProfilePage,
+    parameters: [],
+    >uses: [#EX_HEADER, #EX_AVATAR, #EX_CARD, #EX_FOOTER],
+    pattern: Page
+  }
