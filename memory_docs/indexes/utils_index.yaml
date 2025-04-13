@@ -1,0 +1,45 @@
+timestamp: 2025-04-12T17:43:30Z
+
+functions:
+  #INJECT_ID: &{
+    name: injectComponentId,
+    parameters: [
+      node: ASTNode,
+      id: string
+    ],
+    description: "Injects a unique data-component-id attribute into a JSX AST node during Babel transform.",
+    usedBy: [#BABEL_PLUGIN],
+    pattern: ASTMutation,
+    tests: [
+      {scenario: "Valid JSX node", result: "Returns node with injected attribute"},
+      {scenario: "Node already has id", result: "Replaces existing id"}
+    ]
+  }
+
+  #FORMAT_HL_MSG: &{
+    name: formatHighlightMessage,
+    parameters: [
+      componentId: string
+    ],
+    description: "Formats a highlight command message for WebSocket transmission.",
+    usedBy: [#BRIDGE_SERVER, #EXT_BG, #VSC_CLIENT],
+    pattern: MessageFormatter,
+    tests: [
+      {scenario: "Valid componentId", result: "Returns correct message object"},
+      {scenario: "Empty componentId", result: "Returns error or null"}
+    ]
+  }
+
+  #PARSE_TREE: &{
+    name: parseComponentTree,
+    parameters: [
+      rootElement: HTMLElement
+    ],
+    description: "Parses the DOM to build a tree of React components with their IDs.",
+    usedBy: [#EXAMPLE_APP],
+    pattern: DOMTraversal,
+    tests: [
+      {scenario: "Valid DOM", result: "Returns correct tree structure"},
+      {scenario: "No components", result: "Returns empty tree"}
+    ]
+  }
