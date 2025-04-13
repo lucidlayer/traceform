@@ -1,5 +1,9 @@
 # Code-to-UI Mapper - Local Bridge Server
 
+**DEPRECATED:** This standalone server is no longer required. Its functionality has been integrated directly into the `code-to-ui-mapper-vscode-extension`. Please install the VS Code extension from the Marketplace instead of running this server manually. The code remains here for reference purposes.
+
+---
+
 This Node.js application acts as a simple WebSocket server, bridging communication between the VS Code extension and the browser extension components of the Code-to-UI Mapper toolchain.
 
 ## Features

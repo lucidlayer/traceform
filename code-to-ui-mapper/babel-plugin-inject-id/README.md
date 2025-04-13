@@ -1,6 +1,6 @@
-# babel-plugin-inject-id
+# @lucidlayer/babel-plugin-traceform
 
-Babel plugin that injects a `data-component="ComponentName"` attribute into the root JSX element of React components during development builds. This helps map UI elements back to source code.
+Babel plugin that injects a `data-component="ComponentName"` attribute into the root JSX element of React components during development builds. This helps map UI elements back to source code as part of the Traceform toolset.
 
 ## Purpose
 
@@ -11,9 +11,9 @@ Babel plugin that injects a `data-component="ComponentName"` attribute into the 
 ## Installation
 
 ```bash
-npm install --save-dev babel-plugin-inject-id
+npm install --save-dev @lucidlayer/babel-plugin-traceform
 # or
-yarn add --dev babel-plugin-inject-id
+yarn add --dev @lucidlayer/babel-plugin-traceform
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ module.exports = function (api) {
   ];
 
   if (isDevelopment) {
-    plugins.push('babel-plugin-inject-id'); // Add the plugin for development
+    plugins.push('@lucidlayer/babel-plugin-traceform'); // Add the plugin for development
   }
 
   return {
@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => ({
       babel: {
         plugins: [
           // Add the plugin only in development mode
-          ...(mode === 'development' ? ['babel-plugin-inject-id'] : []),
+          ...(mode === 'development' ? ['@lucidlayer/babel-plugin-traceform'] : []),
         ],
       },
     }),

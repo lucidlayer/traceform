@@ -6,8 +6,8 @@ A developer tool that bridges React component definitions in code with their liv
 
 - `babel-plugin-inject-id/` – Babel plugin to inject `data-component` attributes
 - `browser-extension/` – Browser extension for DOM highlighting
-- `vscode-extension/` – VS Code extension for "Find in UI"
-- `local-bridge-server/` – Local WebSocket bridge between VS Code and browser
+- `vscode-extension/` – VS Code extension for "Find in UI" (includes integrated bridge server)
+- `local-bridge-server/` – (Deprecated) Original standalone WebSocket bridge server logic (now integrated into `vscode-extension`)
 - `example-react-app/` – Testbed React app
 - `docs/` – Developer documentation (includes Test Plan & Deployment Guide)
 

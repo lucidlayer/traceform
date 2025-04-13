@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
 import * as vscode from 'vscode';
+import { stopBridgeServer } from './bridgeServer'; // Import server stop function
 
 const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Must match bridge server (Updated)
 let socket: WebSocket | null = null;
@@ -98,6 +99,8 @@ export function disconnectWebSocketClient() {
       statusItem = null;
   }
   connectionStatus = 'disconnected';
+  // We don't stop the server here directly, as deactivate in extension.ts handles it.
+  // However, if this client were the *only* reason the server runs, we might call stopBridgeServer() here.
 }
 
 // Initialize status bar item on load

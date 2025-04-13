@@ -1,24 +1,25 @@
 # CodeMap Root
-timestamp: 2025-04-12T22:22:33Z # Updated timestamp - MVP Implementation & Testing Setup Complete
+timestamp: 2025-04-12T23:59:24Z # Updated timestamp - TASK_008 Completed
 
 ## PROJECT_STRUCTURE
 code-to-ui-mapper/
   babel-plugin-inject-id/ [TOOLING]
-    src/index.ts #BABEL_PLUGIN "Injects data-component attribute" @pattern[BabelVisitor] @index[plugins] @tasks[TASK_001]
+    src/index.ts #BABEL_PLUGIN "Injects data-component attribute" @pattern[BabelVisitor] @index[plugins] @tasks[TASK_001, TASK_008]
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, jest.config.js, __tests__/index.test.ts # Added test files
   browser-extension/ [BROWSER]
-    src/content.ts #EXT_CONTENT "Content script, listens for highlight commands" @pattern[DOMScanner] @index[extensions] @tasks[TASK_002]
+    src/content.ts #EXT_CONTENT "Content script, listens for highlight commands" @pattern[DOMScanner] @index[extensions] @tasks[TASK_002, TASK_008]
     src/overlay.ts #EXT_OVERLAY "Overlay rendering logic" @pattern[OverlayBox] @index[extensions] @tasks[TASK_002]
     src/background.ts #EXT_BG "Background script, WebSocket relay" @pattern[WebSocketRelay] @index[extensions] @tasks[TASK_002]
     src/styles.css # Styling for overlays @tasks[TASK_002]
     manifest.json # Extension manifest @tasks[TASK_002]
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_002]
   vscode-extension/ [EDITOR]
-    src/extension.ts #VSC_EXT "VS Code extension entry, command registration" @pattern[VSCodeCommand] @index[extensions] @tasks[TASK_003]
-    src/client.ts #VSC_CLIENT "WebSocket client" @pattern[WebSocketClient] @index[extensions] @tasks[TASK_003]
+    src/extension.ts #VSC_EXT "VS Code extension entry, command registration, integrated server" @pattern[VSCodeCommand] @index[extensions] @tasks[TASK_003, TASK_008]
+    src/client.ts #VSC_CLIENT "WebSocket client" @pattern[WebSocketClient] @index[extensions] @tasks[TASK_003, TASK_008]
+    src/bridgeServer.ts # Integrated bridge server logic @tasks[TASK_008]
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_003]
-  local-bridge-server/ [SERVER]
-    src/index.ts #BRIDGE_SERVER "WebSocket server, relays highlight commands" @pattern[WebSocketServer] @index[servers] @tasks[TASK_004]
+  local-bridge-server/ [SERVER] #DEPRECATED
+    src/index.ts #BRIDGE_SERVER "WebSocket server, relays highlight commands" @pattern[WebSocketServer] @index[servers] @tasks[TASK_004, TASK_008] #DEPRECATED
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_004]
   example-react-app/ [APP]
     src/components/Button.tsx #EX_BTN "Reusable Button" @pattern[Component] @index[components] @tasks[TASK_005]
@@ -49,26 +50,24 @@ code-to-ui-mapper/
 
 ## FLOW_DIAGRAMS
 
-### System Architecture
+### System Architecture (Updated)
 ```mermaid
 flowchart TD
-    VSC[VS Code Extension] -- WebSocket/API --> LBS[Local Bridge Server]
-    LBS -- WebSocket/API --> BE[Browser Extension]
+    VSC[VS Code Extension (incl. Bridge Server)] -- WebSocket --> BE[Browser Extension]
     BE -- DOM Scan (data-component) --> APP[Instrumented React App]
     APP -- Built with --> BABEL[Babel Plugin (Inject ID)]
 ```
 
-### Highlight Flow
+### Highlight Flow (Updated)
 ```mermaid
 sequenceDiagram
     participant Dev as Developer
-    participant VSCode as VS Code Extension
-    participant Bridge as Local Bridge Server
+    participant VSCode as VS Code Extension (incl. Bridge)
     participant Browser as Browser Extension
     participant DOM as React App DOM
 
     Dev->>VSCode: Right-click "Find in UI"
-    VSCode->>Bridge: Send {component: "Button"}
-    Bridge->>Browser: Broadcast {component: "Button"}
+    VSCode->>VSCode: Process command, get component name
+    VSCode->>Browser: Broadcast {component: "Button"} via integrated WebSocket server
     Browser->>DOM: Query [data-component="Button"]
     Browser->>DOM: Overlay highlights

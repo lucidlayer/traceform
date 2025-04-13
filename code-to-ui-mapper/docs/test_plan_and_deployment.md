@@ -128,8 +128,9 @@ This guide details how to set up and run all components of the Code-to-UI Mapper
 - **Node.js:** Version 18 or higher (Verify with `node -v`).
 - **npm:** Usually included with Node.js (Verify with `npm -v`).
 - **Supported Browser:** Google Chrome or Microsoft Edge (for loading the unpacked extension).
-- **VS Code:** The code editor itself (for running the VS Code extension).
+- **VS Code:** The code editor itself.
 - **Git:** For cloning the repository if you haven't already.
+- **vsce (Optional):** `npm install -g @vscode/vsce` if you intend to package the VS Code extension locally. Not required for standard use.
 
 ### Step-by-Step Setup & Execution
 
@@ -140,111 +141,93 @@ This guide details how to set up and run all components of the Code-to-UI Mapper
     ```
 
 2.  **Install Dependencies for All Subprojects:**
-    Navigate into each subproject directory and run `npm install`. It's recommended to open separate terminals for each component for easier management.
+    Install dependencies for the components you need to interact with directly (Browser Extension for loading, Example App for testing). The Babel Plugin and VS Code Extension will be installed from their respective registries.
     ```bash
-    # In terminal 1: Babel Plugin
-    cd babel-plugin-inject-id
-    npm install
-    cd ..
-
-    # In terminal 2: Bridge Server
-    cd local-bridge-server
-    npm install
-    cd ..
-
-    # In terminal 3: Browser Extension
+    # In terminal 1: Browser Extension (for loading unpacked)
     cd browser-extension
     npm install
     cd ..
 
-    # In terminal 4: VS Code Extension
-    cd vscode-extension
-    npm install
-    cd ..
-
-    # In terminal 5: Example React App
+    # In terminal 2: Example React App (for testing the setup)
     cd example-react-app
+    # Install the published Babel plugin
+    npm install --save-dev @lucidlayer/babel-plugin-traceform@0.1.1
+    # Install other dependencies
     npm install
     cd ..
+
+    # Note: No separate install needed for vscode-extension (install from Marketplace)
+    # Note: No separate install needed for local-bridge-server (integrated into vscode-extension)
+    # Note: No separate install needed for babel-plugin-inject-id (installed into example-react-app from npm)
     ```
-    *Note: You can potentially use workspace tools like `npm workspaces` or `lerna` in the future to manage this more efficiently, but manual installation works for now.*
 
-3.  **Build All Packages:**
-    Run the build command in each subproject directory. This compiles TypeScript and prepares distributable files.
+3.  **Build Required Packages:**
+    Build the Browser Extension to prepare its `dist` directory for loading.
     ```bash
-    # In terminal 1: Babel Plugin
-    cd babel-plugin-inject-id && npm run build && cd ..
-
-    # In terminal 2: Bridge Server (build might be optional if running directly with ts-node, but good practice)
-    cd local-bridge-server && npm run build && cd ..
-
-    # In terminal 3: Browser Extension
+    # In terminal 1: Browser Extension
     cd browser-extension && npm run build && cd ..
 
-    # In terminal 4: VS Code Extension
-    cd vscode-extension && npm run build && cd ..
-
-    # In terminal 5: Example React App (build is for production, use dev server for testing)
-    # No build needed here for local dev testing, we'll use the dev server.
+    # Note: No build needed for Example React App (using dev server)
+    # Note: No build needed for VS Code Extension (installed from Marketplace)
+    # Note: Babel Plugin build is only needed if developing the plugin itself.
     ```
 
-4.  **Start the Bridge Server:**
-    Keep this running in its own terminal.
-    ```bash
-    # In terminal 2:
-    cd local-bridge-server
-    npm start
-    # Expected output: Server listening on port 9901 (or similar confirmation)
-    ```
+4.  **(Removed) Start the Bridge Server:**
+    *This step is no longer necessary. The Bridge Server is now automatically managed by the VS Code extension.*
 
 5.  **Load the Browser Extension:**
     *   Open Chrome/Edge.
     *   Navigate to `chrome://extensions` or `edge://extensions`.
     *   Enable "Developer mode" (usually a toggle in the top-right corner).
     *   Click "Load unpacked".
-    *   Select the `code-to-ui-mapper/browser-extension/dist` directory.
+    *   Select the `code-to-ui-mapper/browser-extension/dist` directory (ensure you ran the build step first).
     *   The extension icon should appear in your browser toolbar.
 
-6.  **Run the VS Code Extension (Debugging Mode):**
-    *   Open the `code-to-ui-mapper` root folder in VS Code.
-    *   Navigate to the "Run and Debug" view (Ctrl+Shift+D or Cmd+Shift+D).
-    *   Select "Run Extension" from the dropdown menu.
-    *   Press F5 or click the green play button.
-    *   A new VS Code window ([Extension Development Host]) will open with the extension running. Use *this* window for testing the "Find in UI" command.
+6.  **Install and Run the VS Code Extension:**
+    *   Open VS Code.
+    *   Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X).
+    *   Search for `LucidLayer.code-to-ui-mapper-vscode-extension` in the Marketplace.
+    *   Click "Install".
+    *   The extension will activate automatically. The integrated Bridge Server will start in the background (check VS Code Output panel for "Code-to-UI Mapper" logs if needed).
+    *   Use your regular VS Code window for testing the "Find in UI" command.
 
 7.  **Run the Example React App (Development Server):**
     Keep this running in its own terminal.
     ```bash
-    # In terminal 5:
+    # In a dedicated terminal:
     cd example-react-app
     npm run dev
     # Expected output: Server running at http://localhost:5173 (or similar)
     ```
-    *   Open the provided URL (e.g., `http://localhost:5173`) in the browser where you loaded the extension (Step 5).
+    *   Open the provided URL (e.g., `http://localhost:5173`) in the browser where you loaded the unpacked Browser Extension (Step 5).
 
-### End-to-End Testing & Validation
+### End-to-End Testing & Validation (Updated Setup)
 
-Now that all components are running, perform the end-to-end tests outlined in **Section 6: End-to-End Integration (Highlight Flow)** of the Test Plan above.
+With the VS Code extension installed from the Marketplace and the Browser Extension loaded unpacked:
+1.  Ensure the Example React App is running (`npm run dev` in `example-react-app`).
+2.  Open the Example React App URL in your browser.
+3.  Open the `code-to-ui-mapper/example-react-app` folder in VS Code (ensure the `LucidLayer.code-to-ui-mapper-vscode-extension` is installed and active).
+4.  Perform the end-to-end tests outlined in **Section 6: End-to-End Integration (Highlight Flow)** of the Test Plan above, using your main VS Code window (not an Extension Development Host).
 
-**Key Validation Points:**
--   Triggering "Find in UI" from the **[Extension Development Host]** VS Code window highlights the correct component in the browser running the Example React App.
--   Check the terminal output for the **Bridge Server** (Terminal 2) - you should see connection messages from both extensions and `HIGHLIGHT_COMPONENT` messages being received and broadcast.
--   Check the **Browser's Developer Console** (F12) on the Example React App page. Look for logs from the Content Script confirming message reception and element finding. Check the Background Script logs via the `chrome://extensions` page (find the extension and click "Service worker" or similar).
--   Check the **VS Code Debug Console** in the *original* VS Code window (where you pressed F5). Look for logs from the VS Code extension confirming connection and message sending.
+**Key Validation Points (Updated):**
+-   Triggering "Find in UI" from your main VS Code window highlights the correct component in the browser.
+-   Check the **VS Code Output Panel** for the "Code-to-UI Mapper" channel. You should see logs indicating the Bridge Server started, client connections (from the browser extension), and `HIGHLIGHT_COMPONENT` messages being processed.
+-   Check the **Browser's Developer Console** (F12) on the Example React App page for Content Script logs. Check Background Script logs via the `chrome://extensions` page.
+-   *(No separate Bridge Server terminal to check)*.
 
-### Troubleshooting Tips
+### Troubleshooting Tips (Updated)
 -   **No Highlight:**
-    *   Verify the Bridge Server is running and didn't crash (check Terminal 2).
-    *   Verify both extensions successfully connected to the Bridge Server (check server logs, extension logs).
-    *   Ensure the `data-component` attribute exists on the target element in the browser DOM (use browser dev tools).
-    *   Check for errors in the Browser Console and VS Code Debug Console.
-    *   Ensure you are using the **[Extension Development Host]** VS Code window to trigger the command.
+    *   Verify the VS Code extension is active and the integrated Bridge Server started correctly (check VS Code Output Panel for "Code-to-UI Mapper").
+    *   Verify the Browser Extension successfully connected to the Bridge Server (check VS Code Output Panel logs and Browser Extension background script logs).
+    *   Ensure the `@lucidlayer/babel-plugin-traceform` is correctly configured in the `example-react-app`'s Babel/Vite config and that `data-component` attributes exist in the DOM.
+    *   Check for errors in the Browser Console and VS Code Output Panel.
+    *   Ensure you are using your main VS Code window.
 -   **Connection Issues:**
-    *   Confirm the Bridge Server is running on the expected port (9901).
-    *   Check for firewall issues blocking local connections.
-    *   Restart the Bridge Server and reload/re-run the extensions.
+    *   Confirm the integrated Bridge Server started on the expected port (9901) by checking the VS Code Output Panel. If another process is using the port, the extension should log an error.
+    *   Check firewall settings if the browser extension cannot connect.
+    *   Try restarting VS Code (which restarts the extension and server) and reloading the unpacked browser extension.
 -   **Build Errors:**
-    *   Ensure `npm install` completed successfully in all subprojects.
-    *   Check for TypeScript or ESLint errors in the specific subproject's terminal output.
+    *   Ensure `npm install` completed successfully in the `browser-extension` and `example-react-app` directories.
+    *   Check for TypeScript or ESLint errors in the specific subproject's terminal output during the build.
 
 ---
