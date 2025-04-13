@@ -1,23 +1,27 @@
 import * as vscode from 'vscode';
 import { initializeClient, connectWebSocketClient, sendHighlightCommand, disconnectWebSocketClient } from './client';
-import { startBridgeServer, stopBridgeServer } from './bridgeServer'; // Import server functions
+import { startBridgeServer, stopBridgeServer } from './bridgeServer';
+
+// Create an output channel specifically for this extension
+const outputChannel = vscode.window.createOutputChannel("Code-to-UI-Mapper");
 
 // This method is called when your extension is activated
 export async function activate(context: vscode.ExtensionContext) { // Make activate async
-	console.log('Activating Code-to-UI Mapper extension...');
+	outputChannel.appendLine('Activating Code-to-UI Mapper extension...');
 
 	try {
-		// Start the integrated bridge server first
-		await startBridgeServer();
-		console.log('Integrated bridge server started successfully.');
+		// Start the integrated bridge server first, passing the channel
+		await startBridgeServer(outputChannel);
+		outputChannel.appendLine('Integrated bridge server started successfully.');
 
 		// Initialize and connect the WebSocket client (which connects to the integrated server)
-		initializeClient(context); // Sets up status bar, registers disconnect cleanup
+		initializeClient(context, outputChannel); // Pass channel to client setup
 		connectWebSocketClient(); // Initial connection attempt
 
 	} catch (error) {
-		console.error('Failed to activate extension:', error);
-		vscode.window.showErrorMessage(`Code-to-UI Mapper failed to start: ${error instanceof Error ? error.message : String(error)}`);
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		outputChannel.appendLine(`Failed to activate extension: ${errorMessage}`);
+		vscode.window.showErrorMessage(`Code-to-UI Mapper failed to start: ${errorMessage}`);
 		// Don't register command if server failed to start
 		return;
 	}
@@ -48,7 +52,7 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		}
 
 		// Send the command via the WebSocket client
-		const success = sendHighlightCommand(componentName);
+		const success = sendHighlightCommand(componentName); // Client logs internally now
 
 		// Provide feedback based on whether the command was sent
 		if (success) {
@@ -61,15 +65,17 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 
 	context.subscriptions.push(findInUICommand);
 
-	console.log('Code-to-UI Mapper extension activated.');
+	outputChannel.appendLine('Code-to-UI Mapper extension activated.');
 }
 
 // This method is called when your extension is deactivated
 export async function deactivate() { // Make deactivate async
-  console.log('Deactivating Code-to-UI Mapper extension...');
+  outputChannel.appendLine('Deactivating Code-to-UI Mapper extension...');
   // Ensure WebSocket client is closed first
-  disconnectWebSocketClient();
+  disconnectWebSocketClient(); // Client logs internally now
   // Stop the integrated bridge server
-  await stopBridgeServer();
-  console.log('Code-to-UI Mapper extension deactivated.');
+  await stopBridgeServer(outputChannel); // Pass channel for logging
+  outputChannel.appendLine('Code-to-UI Mapper extension deactivated.');
+  // Dispose the channel itself? Usually not necessary, VS Code handles it.
+  // outputChannel.dispose();
 }

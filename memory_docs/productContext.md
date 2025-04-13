@@ -1,5 +1,5 @@
 # Product Context
-timestamp: 2025-04-12T16:59:12Z
+timestamp: 2025-04-13T02:10:00Z
 
 ## Problem Space
 Frontend codebases are often sprawling, making it difficult for developers to connect code (React components) to their visual representation in the UI. Traditional browser devtools allow UI-to-code inspection, but the reverse—starting from code and finding all live UI instances—is missing. This gap leads to tedious workflows, missed edge cases, and onboarding friction for new developers.
@@ -17,3 +17,8 @@ Frontend codebases are often sprawling, making it difficult for developers to co
 - Value proposition: Reduces time to trace code-to-UI, prevents missed UI breakages, and improves developer productivity.
 - MVP focuses on React, Chrome/Edge, and VS Code for maximum impact and ease of adoption.
 - The architecture is extensible for future support of other frameworks (Vue, Svelte) and browsers (Firefox).
+
+## Competitor Analysis [Confidence: MEDIUM]
+- **Primary Competitor:** The standard 'React Developer Tools' browser extension. It allows inspection of component hierarchy, state, and props, and uses source maps to link back to source code. However, it lacks the direct 'click UI element -> jump to IDE source code line' functionality.
+- **Alternative Workflow Tools:** Tools like 'Microsoft Edge DevTools for VS Code' integrate inspection capabilities directly within the IDE, offering a different debugging approach compared to the browser-centric interaction of `code-to-ui-mapper`.
+- **Unique Value Proposition:** `code-to-ui-mapper`'s core mechanism—using injected IDs via a build tool (Babel plugin) combined with a browser extension and VSCode extension bridge for direct code navigation—appears to be a unique approach based on initial research. Source maps can be fragile, whereas injected IDs offer a potentially more robust link.
