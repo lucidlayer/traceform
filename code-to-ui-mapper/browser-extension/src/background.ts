@@ -1,7 +1,7 @@
 const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Default bridge server URL (Updated to match server)
 let socket: WebSocket | null = null;
-let reconnectInterval = 5000; // Start with 5 seconds reconnect interval
-const maxReconnectInterval = 60000; // Max 1 minute interval
+let reconnectInterval = 1000; // Start with 1 second reconnect interval
+const maxReconnectInterval = 10000; // Max 10 seconds interval
 
 console.log('Code-to-UI Mapper: Background service worker started.');
 
@@ -17,7 +17,7 @@ function connectWebSocket() {
   socket.onopen = () => {
     console.log('WebSocket connection established.');
     // Reset reconnect interval on successful connection
-    reconnectInterval = 5000;
+    reconnectInterval = 1000; // Reset to the new initial interval
     // Optional: Update extension icon or title to show active connection
     chrome.action.setTitle({ title: 'Code-to-UI Mapper (Connected)' });
     // chrome.action.setIcon({ path: "images/icon_active16.png" }); // If you have active icons

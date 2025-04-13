@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { initializeClient, connectWebSocketClient, sendHighlightCommand, disconnectWebSocketClient } from './client';
 import { startBridgeServer, stopBridgeServer } from './bridgeServer';
-import { BridgeServerStatusProvider } from './sidebarProvider'; // Import the sidebar provider
+import { SidebarProvider } from './sidebarProvider'; // Import the new WebviewView provider
 
 // Create an output channel specifically for this extension
 const outputChannel = vscode.window.createOutputChannel("Code-to-UI-Mapper");
-let bridgeServerProvider: BridgeServerStatusProvider; // Hold reference to provider
+// No need to hold a global reference to the provider instance anymore for refresh
 
 // This method is called when your extension is activated
 export async function activate(context: vscode.ExtensionContext) { // Make activate async
@@ -29,9 +29,14 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 	}
 
 	// --- Register Sidebar ---
-	bridgeServerProvider = new BridgeServerStatusProvider(context);
-	vscode.window.registerTreeDataProvider('codeMapperBridgeStatus', bridgeServerProvider);
-	outputChannel.appendLine('Bridge Server Status sidebar view registered.');
+	// Instantiate the new provider, passing the extension's URI for resource loading
+	const sidebarProvider = new SidebarProvider(context.extensionUri);
+
+	// Register the provider for the 'codeMapperBridgeStatus' view defined in package.json
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider('codeMapperBridgeStatus', sidebarProvider)
+	);
+	outputChannel.appendLine('Bridge Server Status sidebar webview registered.');
 	// --- End Register Sidebar ---
 
 
@@ -82,8 +87,7 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		} catch (error) {
 			// Error is already logged and shown by startBridgeServer
 		}
-		// Refresh sidebar explicitly after command attempt
-		bridgeServerProvider?.refresh();
+		// No need to refresh sidebar, it listens for status changes reactively
 	});
 
 	const stopServerCommand = vscode.commands.registerCommand('code-mapper.stopServer', async () => {
@@ -91,8 +95,7 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		// Disconnect client first? Or let stop server handle client termination?
 		// disconnectWebSocketClient(); // Disconnect client before stopping server
 		await stopBridgeServer(outputChannel);
-		// Refresh sidebar explicitly after command attempt
-		bridgeServerProvider?.refresh();
+		// No need to refresh sidebar, it listens for status changes reactively
 	});
 
 	const restartServerCommand = vscode.commands.registerCommand('code-mapper.restartServer', async () => {
@@ -107,8 +110,7 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		} catch (error) {
 			// Errors handled internally by start/stop
 		}
-		// Refresh sidebar explicitly after command attempt
-		bridgeServerProvider?.refresh();
+		// No need to refresh sidebar, it listens for status changes reactively
 	});
 
 

@@ -1,10 +1,14 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import * as vscode from 'vscode';
 import * as net from 'net'; // Import Node.js net module for port checking
-import { EventEmitter } from 'events'; // Import EventEmitter
+import { EventEmitter } from 'events';
 
 // Define a type for our logger to allow console or OutputChannel
 type Logger = Pick<vscode.OutputChannel, 'appendLine'>;
+
+const MAX_LOG_BUFFER_SIZE = 200; // Store the last 200 log entries
+const logBuffer: string[] = [];
+const logEmitter = new EventEmitter(); // Emitter for log messages
 
 // Define possible server statuses
 export type ServerStatus = 'stopped' | 'starting' | 'running' | 'stopping' | 'error' | 'port-conflict';
@@ -14,14 +18,38 @@ let wss: WebSocketServer | null = null;
 let currentStatus: ServerStatus = 'stopped'; // Track current status
 const statusEmitter = new EventEmitter(); // Emitter for status changes
 
+// Internal log function
+function log(message: string) {
+  const timestamp = new Date().toLocaleTimeString();
+  const logEntry = `[${timestamp}] ${message}`;
+
+  // Add to buffer and trim if necessary
+  logBuffer.push(logEntry);
+  if (logBuffer.length > MAX_LOG_BUFFER_SIZE) {
+    logBuffer.shift(); // Remove the oldest entry
+  }
+
+  // Emit event for sidebar
+  logEmitter.emit('newLog', logEntry);
+
+  // Also log to the original output channel
+  logger.appendLine(logEntry);
+}
+
 // Function to update status and emit event
 function updateStatus(newStatus: ServerStatus) {
   if (currentStatus !== newStatus) {
     currentStatus = newStatus;
     statusEmitter.emit('statusChange', currentStatus);
-    logger.appendLine(`[Bridge Server Status] Changed to: ${currentStatus}`);
+    log(`[Status] Changed to: ${currentStatus}`); // Use internal log function
   }
 }
+
+// Export getter for logs and emitter for listeners
+export function getLogs(): string[] {
+  return [...logBuffer]; // Return a copy
+}
+export const bridgeServerLogEmitter = logEmitter;
 
 // Export getter for status and emitter for listeners
 export function getServerStatus(): ServerStatus {
@@ -31,7 +59,7 @@ export const bridgeServerStatusEmitter = statusEmitter;
 
 
 // Default logger uses console.log if no OutputChannel is provided
-let logger: Logger = { appendLine: (value: string) => console.log(value) };
+let logger: Logger = { appendLine: (value: string) => console.log(value) }; // This remains for the initial setup before startBridgeServer provides the real one
 const clients = new Set<WebSocket>(); // Store connected browser extension clients
 
 // Define expected message structure (can be shared or redefined)
@@ -78,13 +106,13 @@ function checkExistingServer(): Promise<boolean> {
     let pongReceived = false;
 
     const timeout = setTimeout(() => {
-      logger.appendLine(`[PING Check] Timeout waiting for PONG from existing server on port ${PORT}.`);
+      log(`[PING Check] Timeout waiting for PONG from existing server on port ${PORT}.`); // Use log
       tempWs.terminate(); // Close the connection attempt
       resolve(false); // Assume not responsive or not our server
     }, 2000); // 2-second timeout for the check
 
     tempWs.on('open', () => {
-      logger.appendLine(`[PING Check] Connection opened to existing server on port ${PORT}. Sending PING.`);
+      log(`[PING Check] Connection opened to existing server on port ${PORT}. Sending PING.`); // Use log
       tempWs.send(JSON.stringify({ type: 'PING' }));
     });
 
@@ -92,7 +120,7 @@ function checkExistingServer(): Promise<boolean> {
       try {
         const message = JSON.parse(messageBuffer.toString());
         if (message.type === 'PONG') {
-          logger.appendLine(`[PING Check] Received PONG from existing server.`);
+          log(`[PING Check] Received PONG from existing server.`); // Use log
           pongReceived = true;
           clearTimeout(timeout);
           tempWs.close();
@@ -104,7 +132,7 @@ function checkExistingServer(): Promise<boolean> {
     });
 
     tempWs.on('error', (err) => {
-      logger.appendLine(`[PING Check] Error connecting or communicating with existing server on port ${PORT}: ${err.message}`);
+      log(`[PING Check] Error connecting or communicating with existing server on port ${PORT}: ${err.message}`); // Use log
       clearTimeout(timeout);
       resolve(false); // Assume not responsive or not our server
     });
@@ -113,7 +141,7 @@ function checkExistingServer(): Promise<boolean> {
       clearTimeout(timeout);
       if (!pongReceived) {
         // Closed without receiving PONG (or after timeout)
-        logger.appendLine(`[PING Check] Connection to existing server closed without receiving PONG.`);
+        log(`[PING Check] Connection to existing server closed without receiving PONG.`); // Use log
         resolve(false);
       }
       // If pongReceived is true, the promise was already resolved
@@ -125,28 +153,28 @@ function checkExistingServer(): Promise<boolean> {
 // Accept the output channel as an argument
 export async function startBridgeServer(outputChannel: Logger): Promise<void> { // Make function async
   if (currentStatus === 'starting' || currentStatus === 'running') {
-    logger.appendLine('[Bridge Server] Start requested but already starting or running.');
+    log('[Server] Start requested but already starting or running.'); // Use log
     return Promise.resolve(); // Or maybe reject? For now, resolve.
   }
-  updateStatus('starting');
-  logger = outputChannel; // Use the provided channel for logging
+  logger = outputChannel; // Use the provided channel for logging FIRST
+  updateStatus('starting'); // Then update status (which uses log)
 
   // --- Proactive Port Check & Ping ---
   try {
     const portBusy = await isPortInUse(PORT);
     if (portBusy) {
-      logger.appendLine(`⚠️ Port ${PORT} is already in use. Checking if it's a responsive bridge server...`);
+      log(`⚠️ Port ${PORT} is already in use. Checking if it's a responsive bridge server...`); // Use log
       try {
         const isExistingServerResponsive = await checkExistingServer();
         if (isExistingServerResponsive) {
-          logger.appendLine(`✅ Existing bridge server on port ${PORT} is responsive. Not starting a new one.`);
+          log(`✅ Existing bridge server on port ${PORT} is responsive. Not starting a new one.`); // Use log
           // Assuming the existing server is running correctly
           updateStatus('running'); // Update status to running as we are using the existing one
           return Promise.resolve();
         } else {
            // Existing server is not responsive or not ours
            const errorMsg = `Port ${PORT} is in use but the process is not a responsive bridge server.`;
-           logger.appendLine(`❌ ${errorMsg}`);
+           log(`❌ ${errorMsg}`); // Use log
            vscode.window.showErrorMessage(errorMsg + ' Please close the conflicting application.');
            updateStatus('port-conflict'); // Set status
            throw new Error(errorMsg);
@@ -154,18 +182,18 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
       } catch (pingError) {
          // Error during the ping check itself
          const errorMsg = `Port ${PORT} is in use, and failed to verify the existing process: ${pingError instanceof Error ? pingError.message : String(pingError)}`;
-         logger.appendLine(`❌ ${errorMsg}`);
+         log(`❌ ${errorMsg}`); // Use log
          vscode.window.showErrorMessage(errorMsg + ' Please close the conflicting application.');
          updateStatus('error'); // Set status
          throw new Error(errorMsg);
       }
     } else {
-       logger.appendLine(`✅ Port ${PORT} is available.`);
+       log(`✅ Port ${PORT} is available.`); // Use log
     }
   } catch (err) {
      // Catch errors from isPortInUse or the ping check block
      const errorMsg = `Error during port check/ping for port ${PORT}: ${err instanceof Error ? err.message : String(err)}`;
-     logger.appendLine(`❌ ${errorMsg}`);
+     log(`❌ ${errorMsg}`); // Use log
      // Don't show vscode error message again if it was already shown
      if (!(err instanceof Error && err.message.includes(`Port ${PORT} is in use`))) {
         vscode.window.showErrorMessage(errorMsg);
@@ -183,37 +211,37 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
   return new Promise((resolve, reject) => { // Keep the promise for the actual server start
     // Double check state, although start should prevent re-entry if running/starting
     if (wss || currentStatus === 'running') {
-      logger.appendLine('Bridge server already running (unexpected state before creating new server).');
+      log('[Server] Already running (unexpected state before creating new server).'); // Use log
       updateStatus('running'); // Ensure status is correct
       resolve();
       return;
     }
 
-    logger.appendLine(`Attempting to start integrated WebSocket server on port ${PORT}...`);
+    log(`Attempting to start WebSocket server on port ${PORT}...`); // Use log
     try {
       wss = new WebSocketServer({ port: PORT });
 
       wss.on('listening', () => {
-        logger.appendLine(`✅ Integrated WebSocket server listening on ws://localhost:${PORT}`);
+        log(`✅ WebSocket server listening on ws://localhost:${PORT}`); // Use log
         updateStatus('running'); // Update status on successful listen
         resolve();
       });
 
       wss.on('connection', (ws: WebSocket) => {
-        logger.appendLine('🔌 [Integrated Server] Client connected.');
+        log('🔌 Client connected.'); // Use log
         clients.add(ws);
 
         // Handle messages (expecting from this extension's client.ts)
         ws.on('message', (messageBuffer: Buffer) => {
           const messageString = messageBuffer.toString();
-          logger.appendLine(`➡️ [Integrated Server] Received message: ${messageString}`); // Log full string
+          log(`➡️ Received message: ${messageString}`); // Use log
 
           try {
             const parsedMessage = JSON.parse(messageString);
 
             if (isValidHighlightMessage(parsedMessage)) {
               // Valid command, broadcast to all *other* connected clients (browsers)
-              logger.appendLine(`📢 [Integrated Server] Broadcasting highlight command for: ${parsedMessage.componentName}`);
+              log(`📢 Broadcasting highlight command for: ${parsedMessage.componentName}`); // Use log
               clients.forEach((client) => {
                 // Don't send back to the sender (which is the VS Code client itself)
                 // Also check if the client connection is still open
@@ -224,30 +252,30 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
             } else if (parsedMessage.type === 'PING') {
               // Respond to PING messages immediately
               ws.send(JSON.stringify({ type: 'PONG' }));
-              logger.appendLine('🏓 [Integrated Server] Responded to PING with PONG.');
+              log('🏓 Responded to PING with PONG.'); // Use log
             } else {
-              logger.appendLine(`⚠️ [Integrated Server] Received invalid or unknown message format: ${JSON.stringify(parsedMessage)}`);
+              log(`⚠️ Received invalid or unknown message format: ${JSON.stringify(parsedMessage)}`); // Use log
             }
           } catch (error) {
              const errorMessage = error instanceof Error ? error.message : String(error);
-            logger.appendLine(`❌ [Integrated Server] Failed to parse incoming message as JSON: ${errorMessage}`);
+            log(`❌ Failed to parse incoming message as JSON: ${errorMessage}`); // Use log
           }
         });
 
         ws.on('close', () => {
-          logger.appendLine('🔌 [Integrated Server] Client disconnected.');
+          log('🔌 Client disconnected.'); // Use log
           clients.delete(ws);
         });
 
         ws.on('error', (error: Error) => {
-          logger.appendLine(`[Integrated Server] WebSocket error on client connection: ${error.message}`);
+          log(`WebSocket error on client connection: ${error.message}`); // Use log
           clients.delete(ws); // Remove client on error too
         });
       });
 
       wss.on('error', (error: Error & { code?: string }) => {
-        const errorMessage = `❌ [Integrated Server] WebSocket Server Error: ${error.message}`;
-        logger.appendLine(errorMessage);
+        const errorMessage = `❌ WebSocket Server Error: ${error.message}`;
+        log(errorMessage); // Use log
         if (error.code === 'EADDRINUSE') {
            // This specific error is handled by the proactive check now, but keep for safety
            updateStatus('port-conflict');
@@ -263,7 +291,7 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.appendLine(`❌ Failed to initialize WebSocketServer: ${errorMessage}`);
+        log(`❌ Failed to initialize WebSocketServer: ${errorMessage}`); // Use log
         vscode.window.showErrorMessage(`Failed to start Bridge Server: ${errorMessage}`);
         updateStatus('error');
         wss = null;
@@ -275,15 +303,15 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
 // Accept the output channel as an argument
 export function stopBridgeServer(outputChannel: Logger): Promise<void> {
   if (currentStatus === 'stopped' || currentStatus === 'stopping') {
-     logger.appendLine('[Bridge Server] Stop requested but already stopping or stopped.');
+     log('[Server] Stop requested but already stopping or stopped.'); // Use log
      return Promise.resolve();
   }
-  updateStatus('stopping');
-  logger = outputChannel; // Use the provided channel
+  logger = outputChannel; // Use the provided channel FIRST
+  updateStatus('stopping'); // Then update status (which uses log)
 
   return new Promise((resolve) => {
     if (wss) {
-      logger.appendLine('\n🔌 Shutting down integrated WebSocket server...');
+      log('\n🔌 Shutting down WebSocket server...'); // Use log
       // Close client connections first
       clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -294,17 +322,17 @@ export function stopBridgeServer(outputChannel: Logger): Promise<void> {
 
       wss.close((err) => {
         if (err) {
-          logger.appendLine(`[Integrated Server] Error closing WebSocket server: ${err.message}`);
+          log(`Error closing WebSocket server: ${err.message}`); // Use log
            updateStatus('error'); // Update status if closing failed
         } else {
-          logger.appendLine('[Integrated Server] WebSocket server closed.');
+          log('WebSocket server closed.'); // Use log
            updateStatus('stopped'); // Update status on successful close
         }
         wss = null;
         resolve();
       });
     } else {
-      logger.appendLine('[Integrated Server] Server not running.');
+      log('[Server] Not running.'); // Use log
       updateStatus('stopped'); // Ensure status is stopped if wss was already null
       resolve();
     }
