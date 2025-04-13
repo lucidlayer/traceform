@@ -55,5 +55,8 @@ Thumbs.db
 *.swp
 *~
 
+# Cline rules
+.clinerules
+
 # Memory Bank (tracked by its own git repo)
 memory_docs/
