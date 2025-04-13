@@ -1,0 +1,65 @@
+.product-card {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden; /* Ensures image corners are rounded */
+  background-color: #ffffff;
+  transition: box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allow link area to grow */
+}
+
+.product-image {
+  width: 100%;
+  height: 200px; /* Fixed height for consistency */
+  object-fit: cover; /* Cover the area without distortion */
+  display: block;
+}
+
+.product-info {
+  padding: 1rem;
+  text-align: center;
+  flex-grow: 1; /* Allow info section to push button down */
+}
+
+.product-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #343a40;
+}
+
+.product-price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 0.5rem; /* Space before button */
+}
+
+.add-to-cart-button {
+  background-color: #28a745; /* Green */
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  border-radius: 0 0 8px 8px; /* Round bottom corners */
+  width: 100%; /* Make button full width */
+  margin-top: auto; /* Push button to the bottom */
+}
+
+.add-to-cart-button:hover {
+  background-color: #218838; /* Darker green */
+}
