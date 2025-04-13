@@ -13,6 +13,12 @@ const logEmitter = new EventEmitter(); // Emitter for log messages
 // Define possible server statuses
 export type ServerStatus = 'stopped' | 'starting' | 'running' | 'stopping' | 'error' | 'port-conflict';
 
+// Define the payload for status updates
+export type StatusUpdatePayload = {
+  status: ServerStatus;
+  port?: number; // Include port only when relevant (e.g., running)
+};
+
 const PORT = 9901; // Port for the integrated bridge server
 let wss: WebSocketServer | null = null;
 let currentStatus: ServerStatus = 'stopped'; // Track current status
@@ -40,8 +46,12 @@ function log(message: string) {
 function updateStatus(newStatus: ServerStatus) {
   if (currentStatus !== newStatus) {
     currentStatus = newStatus;
-    statusEmitter.emit('statusChange', currentStatus);
-    log(`[Status] Changed to: ${currentStatus}`); // Use internal log function
+    const payload: StatusUpdatePayload = { status: newStatus };
+    if (newStatus === 'running') {
+      payload.port = PORT; // Include port when running
+    }
+    statusEmitter.emit('statusChange', payload); // Emit the payload object
+    log(`[Status] Changed to: ${currentStatus}${newStatus === 'running' ? ` on port ${PORT}` : ''}`); // Log port too
   }
 }
 

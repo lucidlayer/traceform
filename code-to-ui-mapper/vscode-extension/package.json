@@ -2,7 +2,7 @@
   "name": "code-to-ui-mapper-vscode-extension",
   "displayName": "Code-to-UI-Mapper",
   "description": "VS Code extension to find React components in the browser UI.",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": false,
   "publisher": "LucidLayer",
   "repository": {
@@ -99,6 +99,7 @@
     "package:local": "npm version patch --no-git-tag-version && npm run compile && npx --yes @vscode/vsce@latest package --allow-star-activation"
   },
   "dependencies": {
+    "@vscode/webview-ui-toolkit": "^1.4.0",
     "ws": "^8.16.0"
   },
   "devDependencies": {

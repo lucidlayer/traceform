@@ -1,15 +1,16 @@
 import * as vscode from 'vscode';
 import {
-  getServerStatus,
+  getServerStatus, // Ensure only one import remains
   bridgeServerStatusEmitter,
   ServerStatus,
+  StatusUpdatePayload, // Import the payload type
   getLogs, // Import log getter
   bridgeServerLogEmitter // Import log emitter
 } from './bridgeServer'; // Import status and log related items
 
 // Define the type for messages sent TO the webview
 type WebviewMessage =
-  | { type: 'updateStatus'; status: ServerStatus }
+  | { type: 'updateStatus'; payload: StatusUpdatePayload } // Use the payload type
   | { type: 'logMessage'; data: string }
   | { type: 'initialLogs'; logs: string[] };
 
@@ -26,7 +27,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
   _doc?: vscode.TextDocument;
   private _disposables: vscode.Disposable[] = [];
-  private _statusListener?: (status: ServerStatus) => void;
+  private _statusListener?: (payload: StatusUpdatePayload) => void; // Expect payload
   private _logListener?: (logEntry: string) => void;
 
   constructor(private readonly _extensionUri: vscode.Uri) { } // Keep extension URI for resource paths
@@ -69,7 +70,14 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           }
           case 'getInitialState': {
             // Send initial status and logs when webview requests it
-            this.updateStatusDisplay(getServerStatus());
+            // Construct the initial payload
+            const initialStatus = getServerStatus();
+            const initialPayload: StatusUpdatePayload = { status: initialStatus };
+            if (initialStatus === 'running') {
+              // If already running on init, try to get port (might need adjustment in bridgeServer if port isn't stored)
+              // For now, we'll assume it might not be available on initial sync, port is optional
+            }
+            this.updateStatusDisplay(initialPayload);
             this.sendInitialLogs();
             break;
           }
@@ -79,9 +87,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
     // --- Event Listeners ---
     // Listen for status changes from the bridge server
-    this._statusListener = (status: ServerStatus): void => {
-      console.log('[SidebarProvider] Received status change:', status); // For debugging
-      this.updateStatusDisplay(status);
+    this._statusListener = (payload: StatusUpdatePayload): void => { // Expect payload
+      console.log('[SidebarProvider] Received status change:', payload); // For debugging
+      this.updateStatusDisplay(payload); // Pass payload
     };
     bridgeServerStatusEmitter.on('statusChange', this._statusListener);
 
@@ -115,9 +123,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
   // --- Methods to Send Data to Webview ---
 
-  private updateStatusDisplay(status: ServerStatus) {
+  private updateStatusDisplay(payload: StatusUpdatePayload) { // Accept payload
     if (this._view) {
-      this._view.webview.postMessage({ type: 'updateStatus', status: status } as WebviewMessage);
+      // Send the whole payload object
+      this._view.webview.postMessage({ type: 'updateStatus', payload: payload } as WebviewMessage);
     }
   }
 
@@ -138,15 +147,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   // --- HTML Generation ---
 
   private _getHtmlForWebview(webview: vscode.Webview) {
-    // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-    // const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js'));
-
-    // Do the same for the stylesheet.
+    // Get URIs for required resources
     const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
     const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
-    // const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css')); // If you add custom styles
+    // Get URI for the toolkit script
+    const toolkitUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'node_modules', '@vscode', 'webview-ui-toolkit', 'dist', 'toolkit.js'));
 
-    // Use a nonce to only allow a specific script run.
+    // Use a nonce to only allow specific scripts to run
     const nonce = getNonce();
 
     return `<!DOCTYPE html>
@@ -154,36 +161,28 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 			<head>
 				<meta charset="UTF-8">
 				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-          Note: 'default-src' none; is important for security.
-          'img-src' allows icons.
-          'script-src' allows inline script with nonce.
-          'style-src' allows inline styles and external CSS files.
+					Use a content security policy to only allow loading specific resources
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}' ${webview.cspSource};">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
+        <script type="module" src="${toolkitUri}" nonce="${nonce}"></script>
 				<title>Code Mapper Status</title>
         <style>
           body {
-            padding: 5px 10px;
-            font-family: var(--vscode-font-family);
-            color: var(--vscode-editor-foreground);
-            background-color: var(--vscode-sideBar-background);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Consistent spacing */
           }
           .status-line {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 8px; /* Spacing between icon and text */
           }
           .status-icon {
-            margin-right: 8px;
-            font-size: 16px; /* Adjust icon size if needed */
-            width: 16px;
-            height: 16px;
-            display: inline-block; /* For Codicons */
+             /* Codicon size is usually handled by font-size */
           }
           .status-text {
             font-weight: bold;
@@ -191,82 +190,51 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           .button-group {
             display: flex;
             gap: 5px; /* Spacing between buttons */
-            margin-bottom: 15px;
           }
-          button {
-            /* Inherit VS Code button styles */
-            color: var(--vscode-button-foreground);
-            background-color: var(--vscode-button-background);
-            border: 1px solid var(--vscode-button-border, transparent);
-            padding: 4px 8px;
-            cursor: pointer;
-            text-align: center;
-            font-size: var(--vscode-font-size);
+          vscode-text-area {
+            width: 100%; /* Make text area fill width */
+            box-sizing: border-box;
           }
-          button:hover {
-            background-color: var(--vscode-button-hoverBackground);
+          vscode-button {
+             /* Toolkit buttons handle their own styling */
           }
-          button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-          details {
-            margin-top: 15px;
-            border: 1px solid var(--vscode-editorWidget-border);
-            border-radius: 3px;
-            background-color: var(--vscode-editorWidget-background);
-          }
-          summary {
-            padding: 5px;
-            cursor: pointer;
-            background-color: var(--vscode-sideBarSectionHeader-background);
-            border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
-            font-weight: bold;
+          vscode-collapsible { /* Using collapsible instead of details/summary */
+             width: 100%;
+             margin-top: 5px; /* Add some space above logs */
           }
           .log-container {
-            padding: 5px;
-          }
-          #log-output {
-            width: 100%;
-            height: 200px; /* Adjust height as needed */
-            font-family: var(--vscode-editor-font-family);
-            font-size: var(--vscode-editor-font-size);
-            background-color: var(--vscode-input-background);
-            color: var(--vscode-input-foreground);
-            border: 1px solid var(--vscode-input-border);
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
-            resize: vertical; /* Allow vertical resizing */
-            white-space: pre-wrap; /* Preserve whitespace and wrap lines */
-            word-wrap: break-word; /* Break long words */
-          }
-          #clear-logs {
-            margin-top: 5px;
+             display: flex;
+             flex-direction: column;
+             gap: 5px; /* Space between textarea and clear button */
+             padding-top: 10px; /* Space below collapsible title */
           }
         </style>
 			</head>
 			<body>
-				<h2>Bridge Server</h2>
-
-        <div class="status-line">
+        <section class="status-line">
           <span id="status-icon" class="status-icon codicon"></span>
           <span id="status-text" class="status-text">Status: Initializing...</span>
-        </div>
+        </section>
 
-        <div class="button-group">
-          <button id="start-button" disabled>Start</button>
-          <button id="stop-button" disabled>Stop</button>
-          <button id="restart-button" disabled>Restart</button>
-        </div>
+        <section class="button-group">
+          <vscode-button id="start-button" appearance="primary" disabled>Start</vscode-button>
+          <vscode-button id="stop-button" appearance="secondary" disabled>Stop</vscode-button>
+          <vscode-button id="restart-button" appearance="secondary" disabled>Restart</vscode-button>
+        </section>
 
-        <details>
-          <summary>Logs</summary>
-          <div class="log-container">
-            <textarea id="log-output" readonly></textarea>
-            <button id="clear-logs">Clear Logs</button>
-          </div>
-        </details>
+        <section> <!-- Added section for the link -->
+          <vscode-link href="#">View Documentation</vscode-link>
+        </section>
+
+        <vscode-collapsible title="Logs">
+            <section class="log-container">
+              <vscode-text-area id="log-output" readonly resize="vertical" rows="10"></vscode-text-area>
+              <vscode-button id="clear-logs" appearance="secondary">Clear Logs</vscode-button>
+            </section>
+        </vscode-collapsible>
 
 				<script nonce="${nonce}">
+          // Get toolkit components
           const vscode = acquireVsCodeApi();
 
           const statusIconEl = document.getElementById('status-icon');
@@ -293,7 +261,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           });
 
           // --- Function to update UI based on status ---
-          function updateUI(status) {
+          function updateUI(payload) { // Expect payload object
+            const status = payload.status; // Extract status
+            const port = payload.port; // Extract port (might be undefined)
+
             let iconClass = 'codicon-question';
             let statusText = 'Status: Unknown';
             let startEnabled = false;
@@ -303,7 +274,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             switch (status) {
               case 'running':
                 iconClass = 'codicon-check'; // Use Codicon class names
-                statusText = 'Status: Running';
+                // Display port if available - Use string concatenation
+                statusText = 'Status: Running' + (port ? ' on port ' + port : '');
                 stopEnabled = true;
                 restartEnabled = true;
                 break;
@@ -333,7 +305,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
                 restartEnabled = true;
                 break;
               default:
-                statusText = \`Status: \${status}\`;
+                 // Use string concatenation
+                statusText = 'Status: ' + status;
             }
 
             statusIconEl.className = \`status-icon codicon \${iconClass}\`; // Set class for Codicon
@@ -356,7 +329,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             const message = event.data; // The JSON data that the extension sent
             switch (message.type) {
               case 'updateStatus':
-                updateUI(message.status);
+                updateUI(message.payload); // Pass the whole payload
                 break;
               case 'logMessage':
                 appendLog(message.data);
