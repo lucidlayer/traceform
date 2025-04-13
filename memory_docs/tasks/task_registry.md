@@ -2,6 +2,8 @@
 timestamp: 2025-04-13T11:49:00Z # Updated timestamp
 
 ## Active Tasks
+- TASK_010: "VSCode Sidebar Visual Improvements" | Status: Planning | Components: #VSC_EXT | [Confidence: MEDIUM]
+  Subtasks: 0/4 complete | Started: 2025-04-13 | Owner: [AI - Cline]
 
 ## Completed Tasks
 - TASK_009: "Implement Bridge Server Port Conflict Handling" | Status: Completed | Archive: tasks/archive/TASK_009_Port_Conflict_Handling.md
