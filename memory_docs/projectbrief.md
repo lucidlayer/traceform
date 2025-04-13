@@ -1,8 +1,8 @@
 # Project Brief
-timestamp: 2025-04-12T16:43:37Z
+timestamp: 2025-04-13T13:31:00Z # Updated for rebranding
 
 ## Overview
-Code-to-UI Mapper is a developer tool that creates a two-way bridge between React component source code and their live rendered instances in the browser. It enables developers to select a component in VS Code and instantly highlight all its rendered DOM nodes in the browser, streamlining the workflow for UI verification, debugging, and onboarding.
+Traceform is a developer tool that creates a two-way bridge between React component source code and their live rendered instances in the browser. It enables developers to select a component in VS Code and instantly highlight all its rendered DOM nodes in the browser, streamlining the workflow for UI verification, debugging, and onboarding.
 
 ## Goals
 - Enable code-to-UI mapping for React (MVP: Chrome/Edge, TypeScript, Node 18.17+).
