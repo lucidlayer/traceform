@@ -1,9 +1,14 @@
 {
-  "name": "babel-plugin-inject-id",
-  "version": "0.1.0",
-  "description": "Babel plugin to inject data-component attributes into React components",
+  "name": "@lucidlayer/babel-plugin-traceform",
+  "version": "0.1.1",
+  "description": "Babel plugin to inject data-component attributes into React components for Traceform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext .ts",
@@ -15,10 +20,16 @@
     "plugin",
     "react",
     "component",
-    "id"
+    "id",
+    "traceform",
+    "lucidlayer"
   ],
-  "author": "Cline",
+  "author": "lucidlayer",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucidlayer/traceform.git"
+  },
   "dependencies": {
     "@babel/core": "^7.24.0",
     "@babel/types": "^7.24.0"

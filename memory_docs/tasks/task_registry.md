@@ -1,9 +1,11 @@
 # Task Registry
-timestamp: 2025-04-12T21:01:44Z # Updated timestamp
+timestamp: 2025-04-12T23:58:42Z # Updated timestamp
 
 ## Active Tasks
 
 ## Completed Tasks
+- TASK_008: "DX Improvements (Publishing & Server Integration)" | Status: Completed | Archive: tasks/archive/TASK_008_DX_Improvements.md
+  Components: #VSC_EXT, #BRIDGE_SERVER, #BABEL_PLUGIN, #EXT_BG, #EXT_CONTENT | Completed: 2025-04-12 | Key Decisions: #DX_001, #DX_002
 - TASK_001: "Babel Plugin: Inject data-component" | Status: Completed | Archive: tasks/archive/task_001_babel_plugin.md
   Components: #BABEL_PLUGIN | Completed: 2025-04-12 | Key Decisions: #ARCH_001, #IMPL_004
 - TASK_002: "Browser Extension" | Status: Completed* (*Testing deferred*) | Archive: tasks/archive/task_002_browser_extension.md
