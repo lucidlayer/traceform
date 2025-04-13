@@ -1,0 +1,47 @@
+timestamp: 2025-04-12T20:49:44Z # Updated timestamp
+
+models:
+  #HIGHLIGHT_CMD: &{
+    name: HighlightCommand,
+    fields: [
+      type: "string" // always "HIGHLIGHT_COMPONENT"
+      component: "string" // ComponentID
+    ],
+    description: "Message sent over WebSocket to trigger a highlight in the UI.",
+    usedBy: [#BRIDGE_SERVER, #EXT_BG, #VSC_CLIENT, #EXAMPLE_APP],
+    pattern: CommandMessage,
+    tests: [
+      {scenario: "Valid component", result: "Triggers highlight"},
+      {scenario: "Missing component", result: "Ignored or error"}
+    ]
+  }
+
+  #COMPONENT_ID: &{
+    name: ComponentID,
+    fields: [
+      id: "string"
+    ],
+    description: "Globally unique identifier injected into each React component for mapping and highlighting.",
+    usedBy: [#BABEL_PLUGIN, #EXAMPLE_APP, #BRIDGE_SERVER],
+    pattern: UniqueIdentifier,
+    tests: [
+      {scenario: "Valid id", result: "Correctly maps to component"},
+      {scenario: "Duplicate id", result: "Causes mapping conflict"}
+    ]
+  }
+
+  #COMP_TREE_NODE: &{
+    name: ComponentTreeNode,
+    fields: [
+      id: "string" // ComponentID
+      name: "string" // Component display name
+      children: "ComponentTreeNode[]"
+    ],
+    description: "Node in the parsed React component tree, used for UI mapping and traversal.",
+    usedBy: [#EXAMPLE_APP],
+    pattern: TreeNode,
+    tests: [
+      {scenario: "Valid tree", result: "Accurate structure"},
+      {scenario: "No children", result: "Leaf node"}
+    ]
+  }
