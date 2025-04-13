@@ -1,10 +1,7 @@
 # Task Registry
-timestamp: 2025-04-12T19:12:50Z # Updated timestamp
+timestamp: 2025-04-12T19:23:55Z # Updated timestamp
 
 ## Active Tasks
-
-- TASK_003: "VS Code Extension" | Status: Not Started | Components: #VSC_EXT, #VSC_CLIENT | [Confidence: HIGH]
-  Subtasks: 0/7 complete | Owner: Unassigned
 
 - TASK_004: "Local Bridge Server" | Status: Not Started | Components: #BRIDGE_SERVER | [Confidence: HIGH]
   Subtasks: 0/6 complete | Owner: Unassigned
@@ -23,4 +20,6 @@ timestamp: 2025-04-12T19:12:50Z # Updated timestamp
   Components: #BABEL_PLUGIN | Completed: 2025-04-12 | Key Decisions: #ARCH_001, #IMPL_004
 - TASK_002: "Browser Extension" | Status: Completed* (*Testing deferred*) | Archive: tasks/archive/task_002_browser_extension.md
   Components: #EXT_CONTENT, #EXT_OVERLAY, #EXT_BG | Completed: 2025-04-12 | Key Decisions: #ARCH_001, #SEC_003, #IMPL_004
+- TASK_003: "VS Code Extension" | Status: Completed* (*Testing deferred*) | Archive: tasks/archive/task_003_vscode_extension.md
+  Components: #VSC_EXT, #VSC_CLIENT | Completed: 2025-04-12 | Key Decisions: #ARCH_001, #TECH_002, #IMPL_004
 <!-- List completed tasks here as the project progresses -->
