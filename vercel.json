@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd code-to-ui-mapper/example-react-app && npm install && npm run build",
+  "outputDirectory": "code-to-ui-mapper/example-react-app/dist",
+  "framework": "vite",
+  "installCommand": "cd code-to-ui-mapper/example-react-app && npm install",
+  "devCommand": "cd code-to-ui-mapper/example-react-app && npm run dev",
+  "rootDirectory": "code-to-ui-mapper/example-react-app"
+}
