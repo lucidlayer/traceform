@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Code-to-UI Mapper",
+  "version": "0.1.0",
+  "description": "Highlights UI elements corresponding to selected code.",
+  "permissions": [
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "dist/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content.js"],
+      "css": ["dist/styles.css"],
+       "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Code-to-UI Mapper (Inactive)"
+  }
+}
