@@ -1,5 +1,5 @@
 # Progress
-timestamp: 2025-04-13T11:46:00Z # Updated timestamp
+timestamp: 2025-04-13T12:12:00Z # Updated timestamp
 
 ## Completed
 - Monorepo structure scaffolded with all subproject directories and README files.
@@ -31,9 +31,13 @@ timestamp: 2025-04-13T11:46:00Z # Updated timestamp
   - Published VS Code Extension to Marketplace (`LucidLayer.code-to-ui-mapper-vscode-extension@0.1.0`).
   - Updated documentation for new setup.
   - Made decision #DX_003 regarding bridge server port conflict handling (check and notify, don't kill).
+  - Implemented Bridge Server Port Conflict Handling [TASK_009]
+  - Added `package:local` / `build:local` scripts to all packages for version bumping and building.
+  - Published Babel Plugin v0.1.3 to npm.
+  - Published VSCode Extension v0.1.6 to Marketplace.
+  - Zipped Browser Extension v0.1.1 build.
 
 ## In Progress
-- TASK_009: Implement Bridge Server Port Conflict Handling
 
 ## Pending
 - Ongoing maintenance: Address bugs or refinements based on user feedback.
