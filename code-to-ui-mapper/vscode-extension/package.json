@@ -2,7 +2,7 @@
   "name": "code-to-ui-mapper-vscode-extension",
   "displayName": "Code-to-UI-Mapper",
   "description": "VS Code extension to find React components in the browser UI.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": false,
   "publisher": "LucidLayer",
   "repository": {
@@ -57,7 +57,8 @@
           "id": "codeMapperBridgeStatus",
           "name": "Bridge Server Status",
           "icon": "$(server-process)",
-          "contextualTitle": "Bridge Server"
+          "contextualTitle": "Bridge Server",
+          "type": "webview"
         }
       ]
     },
