@@ -40,16 +40,38 @@ function connectWebSocket() {
         if (tabs && tabs.length > 0 && tabs[0].id) {
           const activeTabId = tabs[0].id;
           console.log(`Relaying message to tab ID: ${activeTabId}`, message);
-          chrome.tabs.sendMessage(activeTabId, message, (response) => {
-            if (chrome.runtime.lastError) {
-              console.error(
-                'Error sending message to content script:',
-                chrome.runtime.lastError.message
-              );
-            } else {
-              console.log('Content script responded:', response);
-            }
-          });
+
+          // Function to send message with retry logic
+          const sendMessageWithRetry = (tabId: number, msg: any, attempt = 1) => {
+            const maxAttempts = 5;
+            const delay = 100 * Math.pow(2, attempt - 1); // Exponential backoff: 100ms, 200ms, 400ms...
+
+            // Send message *with* a callback, but handle the specific "channel closed" error
+            chrome.tabs.sendMessage(tabId, msg, (response) => {
+              if (chrome.runtime.lastError) {
+                const errorMessage = chrome.runtime.lastError.message ?? 'Unknown error';
+                // Ignore the specific error caused by content script returning true but not sending a response
+                if (!errorMessage.includes('the message channel closed before a response was received')) {
+                   // Log other potential errors
+                   console.error(
+                     `Error sending message to content script (tab ${tabId}, attempt ${attempt}):`,
+                     errorMessage
+                   );
+                }
+                // Note: We could potentially re-introduce retry logic here specifically for
+                // 'Receiving end does not exist' if needed, but let's keep it simple first.
+              } else {
+                 // We don't actually expect a response, but log if one comes back
+                 if (response) {
+                    console.log(`Content script (tab ${tabId}) unexpectedly responded:`, response);
+                 }
+              }
+            });
+          };
+
+          // Initial attempt to send
+          sendMessageWithRetry(activeTabId, message);
+
         } else {
           console.error('Could not find active tab to send message to.');
         }

@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(
 
     // Return true to indicate you wish to send a response asynchronously
     // (if you uncomment sendResponse calls)
-    // return true;
+    return true; // Keep the message channel open for potential async responses
   }
 );
 
