@@ -1,5 +1,5 @@
 # CodeMap Root
-timestamp: 2025-04-12T18:03:30Z # Updated timestamp
+timestamp: 2025-04-12T19:10:45Z # Updated timestamp
 
 ## PROJECT_STRUCTURE
 code-to-ui-mapper/
@@ -7,10 +7,12 @@ code-to-ui-mapper/
     src/index.ts #BABEL_PLUGIN "Injects data-component attribute" @pattern[BabelVisitor] @index[plugins] @tasks[TASK_001]
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, jest.config.js, __tests__/index.test.ts # Added test files
   browser-extension/ [BROWSER]
-    src/content.ts #EXT_CONTENT "Content script, listens for highlight commands" @pattern[DOMScanner] @index[extensions]
-    src/overlay.ts #EXT_OVERLAY "Overlay rendering logic" @pattern[OverlayBox] @index[extensions]
-    src/background.ts #EXT_BG "Background script, WebSocket relay" @pattern[WebSocketRelay] @index[extensions]
-    src/styles.css, manifest.json, package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md
+    src/content.ts #EXT_CONTENT "Content script, listens for highlight commands" @pattern[DOMScanner] @index[extensions] @tasks[TASK_002]
+    src/overlay.ts #EXT_OVERLAY "Overlay rendering logic" @pattern[OverlayBox] @index[extensions] @tasks[TASK_002]
+    src/background.ts #EXT_BG "Background script, WebSocket relay" @pattern[WebSocketRelay] @index[extensions] @tasks[TASK_002]
+    src/styles.css # Styling for overlays @tasks[TASK_002]
+    manifest.json # Extension manifest @tasks[TASK_002]
+    package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md # Config files @tasks[TASK_002]
   vscode-extension/ [EDITOR]
     src/extension.ts #VSC_EXT "VS Code extension entry, command registration" @pattern[VSCodeCommand] @index[extensions]
     src/client.ts #VSC_CLIENT "WebSocket/HTTP client" @pattern[WebSocketClient] @index[extensions]
