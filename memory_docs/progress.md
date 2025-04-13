@@ -11,16 +11,16 @@ timestamp: 2025-04-12T19:11:00Z # Updated timestamp
 - Implemented Browser Extension [TASK_002]
   - Includes project setup, manifest, content script, background script (WebSocket), overlay logic, and documentation.
   - *Note: Testing deferred pending dependent components.*
+- Implemented VS Code Extension [TASK_003]
+  - Includes project setup, manifest contributions (command, menu), WebSocket client, and documentation.
+  - *Note: Testing deferred pending dependent components.*
 
 ## In Progress
-- Starting implementation of VS Code Extension [TASK_003].
+- Starting implementation of Local Bridge Server [TASK_004].
 
 ## Pending
 - Implement remaining subprojects in order:
-  1. VS Code extension [TASK_003]
-  2. Local bridge server [TASK_004]
-  3. Example React app [TASK_005]
-- Run end-to-end integration and validation tests.
+  1. Local bridge server [TASK_004]
 - Polish documentation and ensure all validation checkpoints are met.
 
 ## Known Issues
