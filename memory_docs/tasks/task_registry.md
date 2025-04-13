@@ -1,9 +1,11 @@
 # Task Registry
-timestamp: 2025-04-13T02:10:45Z # Updated timestamp
+timestamp: 2025-04-13T11:49:00Z # Updated timestamp
 
 ## Active Tasks
 
 ## Completed Tasks
+- TASK_009: "Implement Bridge Server Port Conflict Handling" | Status: Completed | Archive: tasks/archive/TASK_009_Port_Conflict_Handling.md
+  Components: #VSC_EXT | Completed: 2025-04-13 | Key Decisions: #DX_003
 - TASK_008: "DX Improvements (Publishing & Server Integration)" | Status: Completed | Archive: tasks/archive/TASK_008_DX_Improvements.md
   Components: #VSC_EXT, #BRIDGE_SERVER, #BABEL_PLUGIN, #EXT_BG, #EXT_CONTENT | Completed: 2025-04-12 | Key Decisions: #DX_001, #DX_002
 - TASK_001: "Babel Plugin: Inject data-component" | Status: Completed | Archive: tasks/archive/task_001_babel_plugin.md

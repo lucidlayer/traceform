@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
 import { initializeClient, connectWebSocketClient, sendHighlightCommand, disconnectWebSocketClient } from './client';
 import { startBridgeServer, stopBridgeServer } from './bridgeServer';
+import { BridgeServerStatusProvider } from './sidebarProvider'; // Import the sidebar provider
 
 // Create an output channel specifically for this extension
 const outputChannel = vscode.window.createOutputChannel("Code-to-UI-Mapper");
+let bridgeServerProvider: BridgeServerStatusProvider; // Hold reference to provider
 
 // This method is called when your extension is activated
 export async function activate(context: vscode.ExtensionContext) { // Make activate async
@@ -26,8 +28,15 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		return;
 	}
 
+	// --- Register Sidebar ---
+	bridgeServerProvider = new BridgeServerStatusProvider(context);
+	vscode.window.registerTreeDataProvider('codeMapperBridgeStatus', bridgeServerProvider);
+	outputChannel.appendLine('Bridge Server Status sidebar view registered.');
+	// --- End Register Sidebar ---
 
-	// Register the command defined in package.json
+
+	// --- Register Commands ---
+	// Existing command
 	const findInUICommand = vscode.commands.registerCommand('code-to-ui-mapper.findInUI', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
@@ -63,7 +72,53 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		}
 	});
 
-	context.subscriptions.push(findInUICommand);
+	// New server control commands
+	const startServerCommand = vscode.commands.registerCommand('code-mapper.startServer', async () => {
+		outputChannel.appendLine('Command: Start Server triggered.');
+		try {
+			await startBridgeServer(outputChannel);
+			// Optionally connect client if not already connected? Depends on desired flow.
+			// connectWebSocketClient(); // Reconnect client if needed after manual start
+		} catch (error) {
+			// Error is already logged and shown by startBridgeServer
+		}
+		// Refresh sidebar explicitly after command attempt
+		bridgeServerProvider?.refresh();
+	});
+
+	const stopServerCommand = vscode.commands.registerCommand('code-mapper.stopServer', async () => {
+		outputChannel.appendLine('Command: Stop Server triggered.');
+		// Disconnect client first? Or let stop server handle client termination?
+		// disconnectWebSocketClient(); // Disconnect client before stopping server
+		await stopBridgeServer(outputChannel);
+		// Refresh sidebar explicitly after command attempt
+		bridgeServerProvider?.refresh();
+	});
+
+	const restartServerCommand = vscode.commands.registerCommand('code-mapper.restartServer', async () => {
+		outputChannel.appendLine('Command: Restart Server triggered.');
+		try {
+			await stopBridgeServer(outputChannel);
+			// Short delay before restarting?
+			await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+			await startBridgeServer(outputChannel);
+			// Reconnect client after restart
+			// connectWebSocketClient();
+		} catch (error) {
+			// Errors handled internally by start/stop
+		}
+		// Refresh sidebar explicitly after command attempt
+		bridgeServerProvider?.refresh();
+	});
+
+
+	context.subscriptions.push(
+		findInUICommand,
+		startServerCommand,
+		stopServerCommand,
+		restartServerCommand
+	);
+	// --- End Register Commands ---
 
 	outputChannel.appendLine('Code-to-UI Mapper extension activated.');
 }
