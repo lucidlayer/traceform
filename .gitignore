@@ -54,3 +54,6 @@ Thumbs.db
 *.tmp
 *.swp
 *~
+
+# Memory Bank (tracked by its own git repo)
+memory_docs/
