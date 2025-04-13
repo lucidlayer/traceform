@@ -1,5 +1,5 @@
 # CodeMap Root
-timestamp: 2025-04-12T19:30:55Z # Updated timestamp
+timestamp: 2025-04-12T22:22:33Z # Updated timestamp - MVP Implementation & Testing Setup Complete
 
 ## PROJECT_STRUCTURE
 code-to-ui-mapper/
@@ -21,17 +21,31 @@ code-to-ui-mapper/
     src/index.ts #BRIDGE_SERVER "WebSocket server, relays highlight commands" @pattern[WebSocketServer] @index[servers] @tasks[TASK_004]
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_004]
   example-react-app/ [APP]
-    src/components/Button.tsx #EX_BTN "Reusable Button" @pattern[Component] @index[components]
-    src/components/Avatar.tsx #EX_AVATAR "Reusable Avatar" @pattern[Component] @index[components]
-    src/components/Card.tsx #EX_CARD "Reusable Card" @pattern[Component] @index[components]
-    src/components/Header.tsx #EX_HEADER "Header with Avatar/Button" @pattern[Component] @index[components]
-    src/components/Footer.tsx #EX_FOOTER "Footer" @pattern[Component] @index[components]
-    src/pages/Home.tsx #EX_HOME "Home page" @pattern[Page] @index[pages]
-    src/pages/Profile.tsx #EX_PROFILE "Profile page" @pattern[Page] @index[pages]
-    src/App.tsx, src/main.tsx, vite.config.ts, index.html, package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md
+    src/components/Button.tsx #EX_BTN "Reusable Button" @pattern[Component] @index[components] @tasks[TASK_005]
+    src/components/Avatar.tsx #EX_AVATAR "Reusable Avatar" @pattern[Component] @index[components] @tasks[TASK_005]
+    src/components/Card.tsx #EX_CARD "Reusable Card" @pattern[Component] @index[components] @tasks[TASK_005]
+    src/components/Header.tsx #EX_HEADER "Header with Avatar/Button" @pattern[Component] @index[components] @tasks[TASK_005]
+    src/components/Footer.tsx #EX_FOOTER "Footer" @pattern[Component] @index[components] @tasks[TASK_005]
+    src/pages/Home.tsx #EX_HOME "Home page" @pattern[Page] @index[pages] @tasks[TASK_005]
+    src/pages/Profile.tsx #EX_PROFILE "Profile page" @pattern[Page] @index[pages] @tasks[TASK_005]
+    src/App.tsx # Main app layout/routing @tasks[TASK_005]
+    src/main.tsx # App entry point @tasks[TASK_005]
+    src/index.css # Base styles
+    vite.config.ts # Vite config with Babel plugin integration @tasks[TASK_005]
+    index.html # Main HTML
+    package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_005]
   docs/
     README.md
-  package.json, tsconfig.base.json, .eslintrc.js, .prettierrc, README.md
+    test_plan_and_deployment.md # Added by TASK_007
+  memory_docs/ # Internal documentation and indexes @tasks[TASK_006]
+    indexes/ # YAML index files updated by TASK_006
+      components_index.yaml
+      services_index.yaml
+      utils_index.yaml
+      models_index.yaml
+    tasks/ # Task management files
+    # Other core memory docs...
+  package.json, tsconfig.base.json, .eslintrc.js, .prettierrc, README.md # Root config
 
 ## FLOW_DIAGRAMS
 
