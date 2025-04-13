@@ -11,6 +11,7 @@ pnpm-lock.yaml # Often committed, but can be ignored in some workflows. Add back
 dist/
 build/
 out/
+*.vsix
 *.js.map
 *.d.ts.map
 

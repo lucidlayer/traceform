@@ -1,0 +1,12 @@
+# Ignore build artifacts and dependencies
+node_modules/
+dist/
+*.vsix
+
+# Logs
+*.log
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store
