@@ -18,7 +18,6 @@ Traceform is a developer toolchain that lets you select a React component in VS 
 - `babel-plugin/` – Babel plugin to inject `data-traceform-id` attributes
 - `browser-extension/` – Browser extension for DOM highlighting
 - `vscode-extension/` – VS Code extension for "Find in UI" (with integrated bridge server)
-- `local-bridge-server/` – (Deprecated) Standalone bridge server (now integrated)
 - `example-react-app/` – Example React app for testing
 - `docs/` – Developer documentation
 
