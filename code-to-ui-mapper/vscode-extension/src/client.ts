@@ -76,11 +76,13 @@ export function sendHighlightCommand(componentName: string): boolean {
     socket.send(message);
     return true;
   } else {
-    console.warn('WebSocket client not connected. Cannot send command.');
-    vscode.window.showWarningMessage('Code-to-UI Mapper bridge not connected.');
-    // Optionally trigger a connection attempt if disconnected
-    if (connectionStatus === 'disconnected') {
-        connectWebSocketClient();
+    console.warn(`WebSocket client cannot send command. Status: ${connectionStatus}, ReadyState: ${socket?.readyState}`);
+    if (connectionStatus === 'connecting') {
+      vscode.window.showWarningMessage('Code-to-UI Mapper is still connecting, please wait a moment and try again.');
+    } else { // disconnected or error state
+      vscode.window.showWarningMessage('Code-to-UI Mapper bridge not connected. Attempting to reconnect...');
+      // Trigger a connection attempt if disconnected
+      connectWebSocketClient();
     }
     return false;
   }
