@@ -1,5 +1,5 @@
 # CodeMap Root
-timestamp: 2025-04-13T02:11:45Z # Updated timestamp - Project v0.1 complete
+timestamp: 2025-04-13T11:46:00Z # Updated timestamp - Planning TASK_009
 
 ## ACTIVE_MEMORY
 - Components: []
@@ -22,7 +22,7 @@ code-to-ui-mapper/
   vscode-extension/ [EDITOR]
     src/extension.ts #VSC_EXT "VS Code extension entry, command registration, integrated server" @pattern[VSCodeCommand] @index[extensions] @tasks[TASK_003, TASK_008]
     src/client.ts #VSC_CLIENT "WebSocket client" @pattern[WebSocketClient] @index[extensions] @tasks[TASK_003, TASK_008]
-    src/bridgeServer.ts # Integrated bridge server logic @tasks[TASK_008]
+    src/bridgeServer.ts # Integrated bridge server logic @tasks[TASK_008, TASK_009] @decisions[#DX_003]
     package.json, tsconfig.json, .eslintrc.js, .prettierrc, README.md, package-lock.json # Config files @tasks[TASK_003]
   local-bridge-server/ [SERVER] #DEPRECATED
     src/index.ts #BRIDGE_SERVER "WebSocket server, relays highlight commands" @pattern[WebSocketServer] @index[servers] @tasks[TASK_004, TASK_008] #DEPRECATED

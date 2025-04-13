@@ -62,5 +62,12 @@ timestamp: 2025-04-12T23:20:55Z # Updated timestamp
   - **Status**: Active
   - **Source**: User Decision
 
+- [2025-04-13] #DX_003 "Handle Bridge Server Port Conflict (9901)" [Confidence: HIGH]
+  - **Context**: The integrated bridge server needs to reliably start on port 9901. Conflicts can occur if another process uses this port. Automatic termination of conflicting processes is deemed too risky.
+  - **Decision**: Implement a check within the VSCode extension (`bridgeServer.ts`) to detect if port 9901 is in use before starting the server. If occupied, show an error notification to the user instead of attempting to kill the process. Update server status accordingly.
+  - **Components**: #VSC_EXT, `code-to-ui-mapper/vscode-extension/src/bridgeServer.ts`
+  - **Status**: Active
+  - **Source**: User discussion on 2025-04-13
+
 ## Historical Decisions
 <!-- List historical decisions here as the project evolves -->
