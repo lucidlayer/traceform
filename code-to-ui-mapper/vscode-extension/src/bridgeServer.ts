@@ -1,11 +1,13 @@
-// Placeholder for bridge server logic integrated into VS Code extension
-// We will adapt the code from local-bridge-server/src/index.ts here.
-
 import { WebSocketServer, WebSocket } from 'ws';
 import * as vscode from 'vscode';
 
+// Define a type for our logger to allow console or OutputChannel
+type Logger = Pick<vscode.OutputChannel, 'appendLine'>;
+
 const PORT = 9901; // Port for the integrated bridge server
 let wss: WebSocketServer | null = null;
+// Default logger uses console.log if no OutputChannel is provided
+let logger: Logger = { appendLine: (value: string) => console.log(value) };
 const clients = new Set<WebSocket>(); // Store connected browser extension clients
 
 // Define expected message structure (can be shared or redefined)
@@ -25,38 +27,40 @@ function isValidHighlightMessage(message: any): message is HighlightMessage {
   );
 }
 
-export function startBridgeServer(): Promise<void> {
+// Accept the output channel as an argument
+export function startBridgeServer(outputChannel: Logger): Promise<void> {
+  logger = outputChannel; // Use the provided channel for logging
   return new Promise((resolve, reject) => {
     if (wss) {
-      console.log('Bridge server already running.');
+      logger.appendLine('Bridge server already running.');
       resolve();
       return;
     }
 
-    console.log(`Attempting to start integrated WebSocket server on port ${PORT}...`);
+    logger.appendLine(`Attempting to start integrated WebSocket server on port ${PORT}...`);
     try {
       wss = new WebSocketServer({ port: PORT });
 
       wss.on('listening', () => {
-        console.log(`✅ Integrated WebSocket server listening on ws://localhost:${PORT}`);
+        logger.appendLine(`✅ Integrated WebSocket server listening on ws://localhost:${PORT}`);
         resolve();
       });
 
       wss.on('connection', (ws: WebSocket) => {
-        console.log('🔌 [Integrated Server] Client connected.');
+        logger.appendLine('🔌 [Integrated Server] Client connected.');
         clients.add(ws);
 
         // Handle messages (expecting from this extension's client.ts)
         ws.on('message', (messageBuffer: Buffer) => {
           const messageString = messageBuffer.toString();
-          console.log('➡️ [Integrated Server] Received message:', messageString);
+          logger.appendLine(`➡️ [Integrated Server] Received message: ${messageString}`); // Log full string
 
           try {
             const parsedMessage = JSON.parse(messageString);
 
             if (isValidHighlightMessage(parsedMessage)) {
               // Valid command, broadcast to all *other* connected clients (browsers)
-              console.log(`📢 [Integrated Server] Broadcasting highlight command for: ${parsedMessage.componentName}`);
+              logger.appendLine(`📢 [Integrated Server] Broadcasting highlight command for: ${parsedMessage.componentName}`);
               clients.forEach((client) => {
                 // Don't send back to the sender (which is the VS Code client itself)
                 // Also check if the client connection is still open
@@ -65,26 +69,28 @@ export function startBridgeServer(): Promise<void> {
                 }
               });
             } else {
-              console.warn('⚠️ [Integrated Server] Received invalid or unknown message format:', parsedMessage);
+              logger.appendLine(`⚠️ [Integrated Server] Received invalid or unknown message format: ${JSON.stringify(parsedMessage)}`);
             }
           } catch (error) {
-            console.error('❌ [Integrated Server] Failed to parse incoming message as JSON:', error);
+             const errorMessage = error instanceof Error ? error.message : String(error);
+            logger.appendLine(`❌ [Integrated Server] Failed to parse incoming message as JSON: ${errorMessage}`);
           }
         });
 
         ws.on('close', () => {
-          console.log('🔌 [Integrated Server] Client disconnected.');
+          logger.appendLine('🔌 [Integrated Server] Client disconnected.');
           clients.delete(ws);
         });
 
         ws.on('error', (error: Error) => {
-          console.error('[Integrated Server] WebSocket error on client connection:', error);
+          logger.appendLine(`[Integrated Server] WebSocket error on client connection: ${error.message}`);
           clients.delete(ws);
         });
       });
 
       wss.on('error', (error: Error & { code?: string }) => {
-        console.error('❌ [Integrated Server] WebSocket Server Error:', error);
+        const errorMessage = `❌ [Integrated Server] WebSocket Server Error: ${error.message}`;
+        logger.appendLine(errorMessage);
         if (error.code === 'EADDRINUSE') {
           vscode.window.showErrorMessage(`Port ${PORT} is already in use. Please close the other process or change the port.`);
           // Do not automatically exit, let the user handle it.
@@ -94,22 +100,25 @@ export function startBridgeServer(): Promise<void> {
            vscode.window.showErrorMessage(`Bridge Server Error: ${error.message}`);
            reject(error);
         }
-         stopBridgeServer(); // Attempt cleanup
+         stopBridgeServer(logger); // Attempt cleanup, pass logger
       });
 
     } catch (error) {
-        console.error('❌ Failed to initialize WebSocketServer:', error);
-        vscode.window.showErrorMessage(`Failed to start Bridge Server: ${error instanceof Error ? error.message : String(error)}`);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.appendLine(`❌ Failed to initialize WebSocketServer: ${errorMessage}`);
+        vscode.window.showErrorMessage(`Failed to start Bridge Server: ${errorMessage}`);
         wss = null;
         reject(error);
     }
   });
 }
 
-export function stopBridgeServer(): Promise<void> {
+// Accept the output channel as an argument
+export function stopBridgeServer(outputChannel: Logger): Promise<void> {
+  logger = outputChannel; // Use the provided channel
   return new Promise((resolve) => {
     if (wss) {
-      console.log('\n🔌 Shutting down integrated WebSocket server...');
+      logger.appendLine('\n🔌 Shutting down integrated WebSocket server...');
       // Close client connections first
       clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -120,15 +129,15 @@ export function stopBridgeServer(): Promise<void> {
 
       wss.close((err) => {
         if (err) {
-          console.error('[Integrated Server] Error closing WebSocket server:', err);
+          logger.appendLine(`[Integrated Server] Error closing WebSocket server: ${err.message}`);
         } else {
-          console.log('[Integrated Server] WebSocket server closed.');
+          logger.appendLine('[Integrated Server] WebSocket server closed.');
         }
         wss = null;
         resolve();
       });
     } else {
-      console.log('[Integrated Server] Server not running.');
+      logger.appendLine('[Integrated Server] Server not running.');
       resolve();
     }
   });

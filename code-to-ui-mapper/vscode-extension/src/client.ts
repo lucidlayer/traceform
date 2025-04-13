@@ -1,10 +1,14 @@
 import WebSocket from 'ws';
 import * as vscode from 'vscode';
-import { stopBridgeServer } from './bridgeServer'; // Import server stop function
+// No need to import stopBridgeServer here, extension.ts handles it
+
+// Define a type for our logger to allow console or OutputChannel
+type Logger = Pick<vscode.OutputChannel, 'appendLine'>;
 
 const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Must match bridge server (Updated)
 let socket: WebSocket | null = null;
 let reconnectInterval = 5000;
+let logger: Logger = { appendLine: (value: string) => console.log(value) }; // Default logger
 const maxReconnectInterval = 60000;
 let connectionStatus: 'connected' | 'disconnected' | 'connecting' = 'disconnected';
 let statusItem: vscode.StatusBarItem | null = null;
@@ -20,17 +24,17 @@ function updateStatus(text: string, tooltip?: string) {
 
 export function connectWebSocketClient() {
   if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-    console.log('WebSocket client already open or connecting.');
+    logger.appendLine('WebSocket client already open or connecting.');
     return;
   }
 
-  console.log(`Attempting WebSocket connection to bridge: ${BRIDGE_SERVER_URL}`);
+  logger.appendLine(`Attempting WebSocket connection to bridge: ${BRIDGE_SERVER_URL}`);
   updateStatus('Connecting...');
   connectionStatus = 'connecting';
   socket = new WebSocket(BRIDGE_SERVER_URL);
 
   socket.on('open', () => {
-    console.log('WebSocket client connection established.');
+    logger.appendLine('WebSocket client connection established.');
     connectionStatus = 'connected';
     updateStatus('Connected', `Connected to ${BRIDGE_SERVER_URL}`);
     reconnectInterval = 5000; // Reset interval on success
@@ -38,11 +42,11 @@ export function connectWebSocketClient() {
 
   socket.on('message', (data) => {
     // VS Code extension primarily sends, doesn't expect messages back currently
-    console.log('WebSocket client received message (unexpected):', data.toString());
+    logger.appendLine(`WebSocket client received message (unexpected): ${data.toString()}`);
   });
 
   socket.on('error', (error) => {
-    console.error('WebSocket client error:', error.message);
+    logger.appendLine(`WebSocket client error: ${error.message}`);
     // onclose will be called next
     if (connectionStatus !== 'disconnected') {
        updateStatus('Error', `WebSocket Error: ${error.message}`);
@@ -53,6 +57,10 @@ export function connectWebSocketClient() {
   socket.on('close', (code, reason) => {
     console.log(
       `WebSocket client connection closed. Code: ${code}, Reason: ${reason?.toString()}. Reconnecting in ${reconnectInterval / 1000}s.`
+    );
+    const reasonString = reason?.toString() || 'No reason provided';
+    logger.appendLine(
+      `WebSocket client connection closed. Code: ${code}, Reason: ${reasonString}. Reconnecting in ${reconnectInterval / 1000}s.`
     );
     socket = null;
     if (connectionStatus !== 'disconnected') { // Avoid duplicate messages if error occurred first
@@ -72,11 +80,11 @@ export function sendHighlightCommand(componentName: string): boolean {
       type: 'HIGHLIGHT_COMPONENT',
       componentName: componentName,
     });
-    console.log('Sending WebSocket message:', message);
+    logger.appendLine(`Sending WebSocket message: ${message}`);
     socket.send(message);
     return true;
   } else {
-    console.warn(`WebSocket client cannot send command. Status: ${connectionStatus}, ReadyState: ${socket?.readyState}`);
+    logger.appendLine(`WebSocket client cannot send command. Status: ${connectionStatus}, ReadyState: ${socket?.readyState}`);
     if (connectionStatus === 'connecting') {
       vscode.window.showWarningMessage('Code-to-UI Mapper is still connecting, please wait a moment and try again.');
     } else { // disconnected or error state
@@ -90,7 +98,7 @@ export function sendHighlightCommand(componentName: string): boolean {
 
 export function disconnectWebSocketClient() {
   if (socket) {
-    console.log('Closing WebSocket client connection.');
+    logger.appendLine('Closing WebSocket client connection.');
     // Prevent automatic reconnection attempts by removing the close listener temporarily
     socket.removeAllListeners('close');
     socket.close();
@@ -105,8 +113,9 @@ export function disconnectWebSocketClient() {
   // However, if this client were the *only* reason the server runs, we might call stopBridgeServer() here.
 }
 
-// Initialize status bar item on load
-export function initializeClient(context: vscode.ExtensionContext) {
+// Initialize status bar item on load and accept logger
+export function initializeClient(context: vscode.ExtensionContext, outputChannel: Logger) {
+    logger = outputChannel; // Use the provided channel
     updateStatus('Disconnected');
     context.subscriptions.push({ dispose: disconnectWebSocketClient }); // Ensure cleanup on deactivate
 }

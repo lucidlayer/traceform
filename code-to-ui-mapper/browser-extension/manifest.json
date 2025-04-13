@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Code-to-UI Mapper",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Highlights UI elements corresponding to selected code.",
   "permissions": [
     "scripting"
@@ -18,7 +18,7 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "css": ["styles.css"],
-       "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ],
   "action": {
