@@ -25,6 +25,5 @@
   ],
   "action": {
     "default_title": "Traceform: UI Mapping (Inactive)"
-  },
-  "devtools_page": "devtools.html"
+  }
 }

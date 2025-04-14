@@ -91,21 +91,71 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		// 5. Determine the `traceformId` associated with that generated location (this requires understanding how Babel output maps to source map entries).
 		// -----------------------------------------
 
-		// For now, construct a placeholder ID using the available info
-		// This needs to be replaced with the actual ID from source map lookup
+		// For now, construct the ID using the available info
+		// TODO: Replace this with actual source map lookup for Browser->VSCode flow
 		const componentName = selectedText; // Use the identified name
-		const normalizedSourcePath = sourceFilePath.replace(/\\/g, '/');
-		const relativeSourcePath = normalizedSourcePath.includes('/src/')
-			? normalizedSourcePath.substring(normalizedSourcePath.indexOf('/src/') + 1)
-			: normalizedSourcePath; // Basic relative path
-		const placeholderTraceformId = `${relativeSourcePath}::${componentName}::0`; // Placeholder ID format
+
+		// --- Robust Relative Path Calculation (similar to Babel plugin) ---
+		let relativeSourcePath = sourceFilePath.replace(/\\/g, '/'); // Normalize slashes first
+		const workspaceFolders = vscode.workspace.workspaceFolders;
+		let projectRoot: string | undefined = undefined;
+
+		if (workspaceFolders && workspaceFolders.length > 0) {
+			// Find the workspace folder containing the current file
+			const containingFolder = workspaceFolders.find(folder =>
+				relativeSourcePath.startsWith(folder.uri.fsPath.replace(/\\/g, '/')) // Use relativeSourcePath
+			);
+			if (containingFolder) {
+				projectRoot = containingFolder.uri.fsPath.replace(/\\/g, '/');
+				// Ensure projectRoot doesn't have a trailing slash
+				const cleanProjectRoot = projectRoot.endsWith('/') ? projectRoot.slice(0, -1) : projectRoot;
+				// Calculate relative path using Node.js path logic (requires 'path' import)
+				// Note: VS Code extensions run in Node.js, so 'path' is available
+				const pathLib = require('path');
+				relativeSourcePath = pathLib.relative(cleanProjectRoot, relativeSourcePath).replace(/\\/g, '/'); // Use relativeSourcePath
+				// Remove leading './' if present
+				if (relativeSourcePath.startsWith('./')) {
+					relativeSourcePath = relativeSourcePath.substring(2);
+				}
+			} else {
+				outputChannel.appendLine(`[Traceform VSCode] Warning: Could not determine workspace root for path: ${relativeSourcePath}. Using potentially incorrect relative path.`); // Use relativeSourcePath
+				// Fallback: Attempt basic /src/ removal as before, or just use normalized path
+				relativeSourcePath = relativeSourcePath.includes('/src/') // Use relativeSourcePath
+					? relativeSourcePath.substring(relativeSourcePath.indexOf('/src/') + 1) // Use relativeSourcePath
+					: relativeSourcePath; // Use relativeSourcePath
+			}
+		} else {
+			outputChannel.appendLine('[Traceform VSCode] Warning: No workspace folder found. Using potentially incorrect relative path.');
+			// Fallback: Attempt basic /src/ removal as before, or just use normalized path
+			relativeSourcePath = relativeSourcePath.includes('/src/') // Use relativeSourcePath
+				? relativeSourcePath.substring(relativeSourcePath.indexOf('/src/') + 1) // Use relativeSourcePath
+				: relativeSourcePath; // Use relativeSourcePath
+		}
+		// --- End Relative Path Calculation ---
+
+		// TODO: Refactor this to use the shared utility function createTraceformId
+		//       from traceform/shared/src/traceformIdUtils.ts once build setup allows.
+		//       (See TASK_013.3)
+		// --- Start Inlined Logic from createTraceformId ---
+		const instanceIndex = 0; // Default instance index
+		let traceformId = 'invalid::invalid::invalid'; // Default invalid ID
+
+		// Basic validation (copied from shared util)
+		if (relativeSourcePath && componentName) {
+			// Ensure forward slashes (redundant here, but safe)
+			const normalizedPath = relativeSourcePath.replace(/\\/g, '/');
+			traceformId = `${normalizedPath}::${componentName}::${instanceIndex}`;
+		} else {
+			outputChannel.appendLine(`[Traceform VSCode] Warning: Missing relativePath ('${relativeSourcePath}') or componentName ('${componentName}') for ID creation`);
+		}
+		// --- End Inlined Logic ---
 
 		outputChannel.appendLine(`Source Location: ${relativeSourcePath}:${position.line + 1}:${position.character + 1}`);
-		outputChannel.appendLine(`Attempting to find UI for (placeholder ID): ${placeholderTraceformId}`);
+		outputChannel.appendLine(`Attempting to find UI for ID: ${traceformId}`);
 
 
-		// Send the command via the WebSocket client with the (placeholder) full ID
-		const success = sendHighlightCommand(placeholderTraceformId); // Pass the constructed ID
+		// Send the command via the WebSocket client with the constructed ID
+		const success = sendHighlightCommand(traceformId); // Pass the constructed ID
 
 		// Provide feedback based on whether the command was sent
 		if (success) {

@@ -2,6 +2,8 @@
 
 Injects a `data-traceform-id="ComponentName"` attribute into React components for live UI mapping with Traceform.
 
+This plugin is part of the [Traceform](../../README.md) monorepo. Use it together with the Traceform VS Code extension and browser extension for full code-to-UI mapping functionality.
+
 ## Installation
 
 ```bash
@@ -29,18 +31,36 @@ module.exports = function (api) {
 ```
 
 **Example (Vite):**
-```js
+
+Make sure to only include the plugin during development.
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-export default {
-  plugins: [
-    react({
-      babel: {
-        plugins: ['@lucidlayer/babel-plugin-traceform'],
-      },
-    }),
-  ],
-};
+
+export default defineConfig(({ command }) => { // Use function form to access command
+  const isDevelopment = command === 'serve'; // 'serve' is Vite's dev command
+
+  return {
+    plugins: [
+      react({
+        babel: {
+          plugins: [
+            // Only include the plugin in development mode
+            ...(isDevelopment ? ['@lucidlayer/babel-plugin-traceform'] : []),
+          ],
+        },
+      }),
+    ],
+    // ... other Vite config
+  };
+});
 ```
+
+## Example App
+
+To test the plugin, use the example React app in [`../../traceform-test-app/`](../../traceform-test-app/README.md), which is preconfigured for Traceform.
 
 ## Notes
 
@@ -48,4 +68,4 @@ export default {
 - Intended for development only.
 - Requires standard React component naming (uppercase).
 
-For more info, see the [Traceform root README](../README.md).
+For more info, see the [Traceform root README](../../README.md).
