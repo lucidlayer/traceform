@@ -50,31 +50,62 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 
 	// --- Register Commands ---
 	// Existing command
-	const findInUICommand = vscode.commands.registerCommand('traceform.findInUI', () => {
+	const findInUICommand = vscode.commands.registerCommand('traceform.findInUI', async () => { // Make async for potential source map loading
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			vscode.window.showWarningMessage('No active editor found.');
 			return;
 		}
 
+		const document = editor.document;
 		const selection = editor.selection;
-		let componentName: string | null = null;
+		const sourceFilePath = document.uri.fsPath; // Get the full file path
+		const position = selection.active; // Get cursor/selection position (line, character)
 
+		// TODO: Implement robust component name inference if selection is empty
+		let selectedText: string | null = null;
 		if (!selection.isEmpty) {
-			componentName = editor.document.getText(selection).trim();
+			selectedText = document.getText(selection).trim();
 		} else {
-			// TODO: Implement logic to infer component name from cursor position
-			vscode.window.showWarningMessage('Please select a component name to find.');
-			return; // Require selection for now
+			// Basic inference attempt (can be improved)
+			const range = document.getWordRangeAtPosition(position, /[A-Z][a-zA-Z0-9_]*/);
+			if (range) {
+				selectedText = document.getText(range);
+			} else {
+				vscode.window.showWarningMessage('Could not infer component name. Please select it.');
+				return;
+			}
 		}
 
-		if (!componentName || !/^[A-Z][a-zA-Z0-9_]*$/.test(componentName)) {
-			vscode.window.showWarningMessage(`"${componentName}" doesn't look like a valid component name.`);
+		// Relaxed check: Ensure some text was selected/inferred
+		if (!selectedText) {
+			vscode.window.showWarningMessage(`Could not identify component name from selection/cursor.`);
 			return;
 		}
 
-		// Send the command via the WebSocket client
-		const success = sendHighlightCommand(componentName); // Client logs internally now
+		// --- Placeholder for Source Map Logic ---
+		// 1. Find the relevant build output directory (e.g., 'example-project-test/dist/assets')
+		// 2. Find the correct .js.map file associated with `sourceFilePath`.
+		// 3. Load and parse the source map (e.g., using 'source-map-js').
+		// 4. Use the source map to find the generated location for `sourceFilePath` at `position`.
+		// 5. Determine the `traceformId` associated with that generated location (this requires understanding how Babel output maps to source map entries).
+		// -----------------------------------------
+
+		// For now, construct a placeholder ID using the available info
+		// This needs to be replaced with the actual ID from source map lookup
+		const componentName = selectedText; // Use the identified name
+		const normalizedSourcePath = sourceFilePath.replace(/\\/g, '/');
+		const relativeSourcePath = normalizedSourcePath.includes('/src/')
+			? normalizedSourcePath.substring(normalizedSourcePath.indexOf('/src/') + 1)
+			: normalizedSourcePath; // Basic relative path
+		const placeholderTraceformId = `${relativeSourcePath}::${componentName}::0`; // Placeholder ID format
+
+		outputChannel.appendLine(`Source Location: ${relativeSourcePath}:${position.line + 1}:${position.character + 1}`);
+		outputChannel.appendLine(`Attempting to find UI for (placeholder ID): ${placeholderTraceformId}`);
+
+
+		// Send the command via the WebSocket client with the (placeholder) full ID
+		const success = sendHighlightCommand(placeholderTraceformId); // Pass the constructed ID
 
 		// Provide feedback based on whether the command was sent
 		if (success) {

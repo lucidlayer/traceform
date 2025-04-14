@@ -5,7 +5,7 @@ console.log('Code-to-UI Mapper: Content script loaded.');
 // Define expected message structure
 interface HighlightMessage {
   type: 'HIGHLIGHT_COMPONENT';
-  componentName: string;
+  traceformId: string; // Use the full ID
 }
 
 interface ClearHighlightMessage {
@@ -20,12 +20,12 @@ chrome.runtime.onMessage.addListener(
     console.log('Content script received message:', message);
 
     if (message.type === 'HIGHLIGHT_COMPONENT') {
-      if (message.componentName) {
-        highlightElements(message.componentName);
+      if (message.traceformId) { // Check for traceformId
+        highlightElements(message.traceformId); // Pass the full ID
         // Indicate success (optional)
         // sendResponse({ status: 'Highlighting initiated' });
       } else {
-        console.error('Highlight command missing componentName');
+        console.error('Highlight command missing traceformId');
         // sendResponse({ status: 'Error: Missing componentName' });
       }
     } else if (message.type === 'CLEAR_HIGHLIGHT') {

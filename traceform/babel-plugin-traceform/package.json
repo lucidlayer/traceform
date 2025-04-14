@@ -1,6 +1,6 @@
 {
   "name": "@lucidlayer/babel-plugin-traceform",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Babel plugin to inject data-traceform-id attributes into React components for Traceform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
