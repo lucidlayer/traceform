@@ -74,11 +74,12 @@ export function connectWebSocketClient() {
   });
 }
 
-export function sendHighlightCommand(componentName: string): boolean {
+// Update function to accept and send the full traceformId
+export function sendHighlightCommand(traceformId: string): boolean {
   if (socket && socket.readyState === WebSocket.OPEN) {
     const message = JSON.stringify({
       type: 'HIGHLIGHT_COMPONENT',
-      componentName: componentName,
+      traceformId: traceformId, // Send the full ID
     });
     logger.appendLine(`Sending WebSocket message: ${message}`);
     socket.send(message);

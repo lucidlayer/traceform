@@ -28,9 +28,9 @@ function connectWebSocket() {
     try {
       const message = JSON.parse(event.data);
 
-      // Basic validation
-      if (!message || !message.type || !message.componentName) {
-         console.error('Invalid message format received from WebSocket:', message);
+      // Basic validation - Expect traceformId now
+      if (!message || !message.type || (message.type === 'HIGHLIGHT_COMPONENT' && !message.traceformId)) {
+         console.error('Invalid message format received from WebSocket (expected traceformId for HIGHLIGHT_COMPONENT):', message);
          return;
       }
 

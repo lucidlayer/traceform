@@ -7,21 +7,34 @@ interface PluginState extends PluginPass {
   // Add any state properties needed during traversal
 }
 
+import pathLib from 'path'; // Import path library for normalization
+
 // Helper function to add the data-traceform-id attribute if it doesn't exist
 function addDataTraceformIdAttribute(
   path: NodePath<t.JSXOpeningElement>,
-  componentName: string
+  componentName: string,
+  filePath: string | undefined // Add filePath parameter
 ) {
   const attributes = path.node.attributes;
   const hasAttribute = attributes.some(
     (attr) => t.isJSXAttribute(attr) && attr.name.name === 'data-traceform-id'
   );
 
-  if (!hasAttribute) {
+  if (!hasAttribute && filePath) {
+    // Construct the ID: filePath::componentName::instanceIndex (using 0 for now)
+    // Normalize path separators for consistency
+    const normalizedFilePath = filePath.replace(/\\/g, '/');
+    // Attempt to make path relative to a potential project root (heuristic)
+    const relativePath = normalizedFilePath.includes('/src/')
+      ? normalizedFilePath.substring(normalizedFilePath.indexOf('/src/') + 1)
+      : normalizedFilePath; // Fallback to normalized path if /src/ not found
+
+    const traceformId = `${relativePath}::${componentName}::0`;
+
     path.node.attributes.push(
       t.jsxAttribute(
         t.jsxIdentifier('data-traceform-id'),
-        t.stringLiteral(componentName)
+        t.stringLiteral(traceformId) // Use the constructed ID
       )
     );
   }
@@ -113,11 +126,14 @@ export default function injectComponentIdPlugin(): PluginObj<PluginState> {
           }
 
           // Final checks and injection
-          if (componentName && /^[A-Z]/.test(componentName)) {
-            addDataTraceformIdAttribute(path, componentName);
+          // Get the file path from state
+          const filePath = state.file.opts.filename;
+          // Ensure componentName and filePath are valid strings before injecting
+          if (componentName && /^[A-Z]/.test(componentName) && filePath) {
+            addDataTraceformIdAttribute(path, componentName, filePath);
           }
-        }
-      },
+        } // End of if (isRootReturn && componentPath)
+      }, // Comma added
     },
-  };
+  }; // Semicolon added
 }

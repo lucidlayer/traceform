@@ -72,20 +72,20 @@ export const bridgeServerStatusEmitter = statusEmitter;
 let logger: Logger = { appendLine: (value: string) => console.log(value) }; // This remains for the initial setup before startBridgeServer provides the real one
 const clients = new Set<WebSocket>(); // Store connected browser extension clients
 
-// Define expected message structure (can be shared or redefined)
+// Define expected message structure (updated to use traceformId)
 interface HighlightMessage {
   type: 'HIGHLIGHT_COMPONENT';
-  componentName: string;
+  traceformId: string; // Expect the full ID
 }
 
-// Type guard
+// Type guard (updated to check for traceformId)
 function isValidHighlightMessage(message: any): message is HighlightMessage {
   return (
     typeof message === 'object' &&
     message !== null &&
     message.type === 'HIGHLIGHT_COMPONENT' &&
-    typeof message.componentName === 'string' &&
-    message.componentName.length > 0
+    typeof message.traceformId === 'string' && // Check for traceformId
+    message.traceformId.length > 0
   );
 }
 
@@ -251,7 +251,7 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
 
             if (isValidHighlightMessage(parsedMessage)) {
               // Valid command, broadcast to all *other* connected clients (browsers)
-              log(`📢 Broadcasting highlight command for: ${parsedMessage.componentName}`); // Use log
+              log(`📢 Broadcasting highlight command for ID: ${parsedMessage.traceformId}`); // Log the ID
               clients.forEach((client) => {
                 // Don't send back to the sender (which is the VS Code client itself)
                 // Also check if the client connection is still open
