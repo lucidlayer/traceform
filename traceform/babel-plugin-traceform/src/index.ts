@@ -1,111 +1,128 @@
 import { PluginObj, PluginPass, NodePath } from '@babel/core';
 import * as t from '@babel/types'; // Import babel types
+import pathLib from 'path'; // Import path library for normalization
+import fs from 'fs'; // Import fs for checking root markers
 
 // Define state if needed for the visitor
 interface PluginState extends PluginPass {
   // Add any state properties needed during traversal
-  // Add any state properties needed during traversal
 }
 
-import pathLib from 'path'; // Import path library for normalization
+// Helper to find the workspace root (monorepo or project) by looking for common markers
+function findWorkspaceRoot(startPath: string): string {
+    let currentPath = pathLib.resolve(startPath);
+    // Limit search depth to avoid infinite loops in weird setups
+    for (let i = 0; i < 20; i++) { // Limit search depth
+        // Check for common monorepo markers
+        if (fs.existsSync(pathLib.join(currentPath, 'lerna.json')) ||
+            fs.existsSync(pathLib.join(currentPath, 'pnpm-workspace.yaml')) ||
+            fs.existsSync(pathLib.join(currentPath, 'nx.json'))) {
+            // eslint-disable-next-line no-console
+            console.log(`[Traceform Babel Plugin] Found monorepo marker at: ${currentPath}`);
+            return currentPath;
+        }
+        // Check for package.json with workspaces field
+        const pkgPath = pathLib.join(currentPath, 'package.json');
+        if (fs.existsSync(pkgPath)) {
+            try {
+                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+                if (pkg.workspaces) {
+                    // eslint-disable-next-line no-console
+                    console.log(`[Traceform Babel Plugin] Found workspaces package.json at: ${currentPath}`);
+                    return currentPath;
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.warn(`[Traceform Babel Plugin] Error parsing package.json at ${pkgPath}:`, e);
+             }
+        }
+        // Check for git root as a fallback boundary
+        if (fs.existsSync(pathLib.join(currentPath, '.git'))) {
+             // eslint-disable-next-line no-console
+             console.log(`[Traceform Babel Plugin] Found .git boundary at: ${currentPath}`);
+             return currentPath; // Use git root if found
+        }
+
+        const parentPath = pathLib.dirname(currentPath);
+        if (parentPath === currentPath) {
+            // Reached the filesystem root
+            // eslint-disable-next-line no-console
+            console.log(`[Traceform Babel Plugin] Reached filesystem root, stopping search.`);
+            break;
+        }
+        currentPath = parentPath;
+    }
+    // Fallback to the starting path if no markers found within depth limit
+    const fallbackRoot = pathLib.resolve(startPath);
+    // eslint-disable-next-line no-console
+    console.log(`[Traceform Babel Plugin] No workspace markers found, falling back to start path: ${fallbackRoot}`);
+    return fallbackRoot;
+}
+
 
 /**
- * Helper function to normalize path and make it workspace-relative,
- * always including the project directory (e.g., "traceform-test-app/src/components/Button.tsx").
+ * Helper function to normalize path and make it workspace-relative.
+ * It tries to find the monorepo/project root and calculates the path relative to that.
  */
-function normalizeAndMakeRelative(filePath: string, workspaceRoot: string | undefined): string {
-  // DEBUG: Log all relevant paths for troubleshooting
-  // eslint-disable-next-line no-console
-  console.log('[Traceform Babel Plugin] filePath:', filePath);
-  // eslint-disable-next-line no-console
-  console.log('[Traceform Babel Plugin] workspaceRoot:', workspaceRoot);
-  // eslint-disable-next-line no-console
-  console.log('[Traceform Babel Plugin] process.cwd():', process.cwd());
+function normalizeAndMakeRelative(filePath: string, babelRoot: string | undefined): string {
+    const absoluteFilePath = pathLib.resolve(filePath);
+    // Use babelRoot (state.file.opts.root or cwd) as the starting point for finding the *true* workspace root
+    const startSearchPath = babelRoot || process.cwd();
+    const workspaceRoot = findWorkspaceRoot(startSearchPath);
 
-  // Use the parent directory of the project as the workspace root
-  // (Assume process.cwd() is the project root, so use its parent)
-  let effectiveWorkspaceRoot = workspaceRoot;
-  if (workspaceRoot && workspaceRoot === process.cwd()) {
-    effectiveWorkspaceRoot = pathLib.dirname(process.cwd());
     // eslint-disable-next-line no-console
-    console.log('[Traceform Babel Plugin] Using parent of project as workspace root:', effectiveWorkspaceRoot);
-  }
+    // console.log(`[Traceform Babel Plugin] File: ${absoluteFilePath}, Babel Root: ${babelRoot}, Found Workspace Root: ${workspaceRoot}`);
 
-  if (!effectiveWorkspaceRoot) {
-    // Fallback if workspace root cannot be determined
-    console.warn('[Traceform Babel Plugin] Could not determine workspace root. Using absolute path.');
-    return filePath.replace(/\\/g, '/');
-  }
-  const normalizedFilePath = filePath.replace(/\\/g, '/');
-  const normalizedWorkspaceRoot = effectiveWorkspaceRoot.replace(/\\/g, '/');
-  // Ensure workspaceRoot doesn't have a trailing slash for relative path calculation
-  const cleanWorkspaceRoot = normalizedWorkspaceRoot.endsWith('/')
-    ? normalizedWorkspaceRoot.slice(0, -1)
-    : normalizedWorkspaceRoot;
+    let relativePath = pathLib.relative(workspaceRoot, absoluteFilePath);
 
-  // Use pathLib.relative for robust relative path calculation
-  let relativePath = pathLib.relative(cleanWorkspaceRoot, normalizedFilePath);
+    // Ensure forward slashes
+    relativePath = relativePath.replace(/\\/g, '/');
 
-  // Ensure relative path uses forward slashes (path.relative might use backslashes on Windows)
-  relativePath = relativePath.replace(/\\/g, '/');
+    // Optional: Remove leading './' if present (path.relative usually doesn't add it unless same dir)
+    if (relativePath.startsWith('./')) {
+        relativePath = relativePath.substring(2);
+    }
 
-  // Always include the project directory (do not strip any prefix)
-  // Optional: Remove leading './' if present
-  if (relativePath.startsWith('./')) {
-    relativePath = relativePath.substring(2);
-  }
+     // Ensure the path isn't empty if file is in root (e.g., workspaceRoot/file.tsx)
+     if (!relativePath && absoluteFilePath.startsWith(workspaceRoot)) {
+        relativePath = pathLib.basename(absoluteFilePath);
+     }
 
-  // DEBUG: Log the final relativePath
-  // eslint-disable-next-line no-console
-  console.log('[Traceform Babel Plugin] Final traceformId path:', relativePath);
+    // eslint-disable-next-line no-console
+    // console.log('[Traceform Babel Plugin] Final traceformId path:', relativePath);
 
-  return relativePath;
+    return relativePath;
 }
 
+
+// @ts-ignore: TypeScript cannot resolve sibling package build output; see SUBTASK_015.3 for details.
+// This import works at runtime and is safe if the shared package is built before the plugin.
+import { createTraceformId } from '../../../shared/dist/traceformIdUtils';
 
 // Helper function to add the data-traceform-id attribute if it doesn't exist
 function addDataTraceformIdAttribute(
   path: NodePath<t.JSXOpeningElement>,
   componentName: string,
-  filePath: string | undefined, // Keep filePath parameter
-  state: PluginState // Add state parameter to access file opts
+  filePath: string | undefined,
+  state: PluginState
 ) {
   const attributes = path.node.attributes;
   const hasAttribute = attributes.some(
     (attr) => t.isJSXAttribute(attr) && attr.name.name === 'data-traceform-id'
   );
 
-  // Ensure filePath is a non-empty string before proceeding
   if (!hasAttribute && typeof filePath === 'string' && filePath.length > 0) {
-    // Determine workspace root from Babel state (prefer root, fallback to cwd)
-    // Ensure workspaceRoot is either a string or undefined, not null.
     const potentialRoot = state.file.opts.root || state.file.opts.cwd;
-    const workspaceRoot: string | undefined = potentialRoot ?? undefined; // Convert null to undefined
+    const babelRoot: string | undefined = potentialRoot ?? undefined;
+    const relativePath = normalizeAndMakeRelative(filePath, babelRoot);
 
-    const relativePath = normalizeAndMakeRelative(filePath, workspaceRoot);
-
-    // TODO: Refactor this to use the shared utility function createTraceformId
-    //       from traceform/shared/src/traceformIdUtils.ts once build setup allows.
-    //       (See TASK_013.3)
-    // --- Start Inlined Logic from createTraceformId ---
-    const instanceIndex = 0; // Default instance index
-    let traceformId = 'invalid::invalid::invalid'; // Default invalid ID
-
-    // Basic validation (copied from shared util)
-    if (relativePath && componentName) {
-      // Ensure forward slashes (redundant here as normalizeAndMakeRelative does it, but safe)
-      const normalizedPath = relativePath.replace(/\\/g, '/');
-      traceformId = `${normalizedPath}::${componentName}::${instanceIndex}`;
-    } else {
-       console.warn('[Traceform Babel Plugin] Missing relativePath or componentName for ID creation');
-    }
-    // --- End Inlined Logic ---
-
+    // Use the shared utility to generate the traceformId
+    const traceformId = createTraceformId(relativePath, componentName, 0);
 
     path.node.attributes.push(
       t.jsxAttribute(
         t.jsxIdentifier('data-traceform-id'),
-        t.stringLiteral(traceformId) // Use the constructed ID
+        t.stringLiteral(traceformId)
       )
     );
   }

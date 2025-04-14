@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "../../", // Explicitly set baseUrl to root for path alias resolution
+    "paths": {
+      "@traceform/shared/traceformIdUtils": ["../../shared/src/traceformIdUtils"]
+    },
     "target": "ES2016", // Target modern Node.js versions
     "module": "CommonJS", // Standard module system for Babel plugins
     "outDir": "./dist", // Output directory for compiled JS
