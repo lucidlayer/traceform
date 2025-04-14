@@ -37,6 +37,7 @@ export function highlightElements(traceformId: string): void { // Accept full tr
 
   // Find all elements matching the full data-traceform-id attribute
   const selector = `[data-traceform-id="${traceformId}"]`; // Use full ID in selector
+  console.log(`[Traceform Overlay] Attempting querySelectorAll with selector: ${selector}`); // Added log
   const elements = document.querySelectorAll<HTMLElement>(selector);
 
   if (elements.length === 0) {

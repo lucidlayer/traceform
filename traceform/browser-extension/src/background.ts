@@ -255,24 +255,40 @@ function connectWebSocket() {
           const targetTabId = tabs[0].id;
           // console.log(`Relaying message to target tab ID: ${targetTabId}`, message); // Less verbose logging
 
-          // Send message to content script
-          chrome.tabs.sendMessage(targetTabId, message, (response) => {
-            // Optional: Handle response from content script (e.g., ack, error)
-            if (chrome.runtime.lastError) {
-              console.error(`Error sending message to tab ${targetTabId}:`, chrome.runtime.lastError.message);
-              // Potentially notify the panel if sending fails consistently
-              broadcastToDevtools({ type: "error", message: `Failed to send message to content script. Try refreshing the target page. (${chrome.runtime.lastError.message})` });
-            } else {
-              // console.log("Response from content script:", response); // For debugging
-            }
-          });
+          // Send message to content script with retry logic for connection errors
+          const sendMessageWithRetry = (attempt = 1) => {
+            chrome.tabs.sendMessage(targetTabId, message, (response) => {
+              if (chrome.runtime.lastError) {
+                const errorMessage = chrome.runtime.lastError.message || 'Unknown error';
+                // Retry specifically for the "Receiving end does not exist" error
+                if (errorMessage.includes("Receiving end does not exist") && attempt < 5) { // Retry up to 4 times (total 5 attempts)
+                  const delay = 250 * attempt; // Exponential backoff
+                  console.warn(`Attempt ${attempt}: Failed to connect to content script in tab ${targetTabId} ('${errorMessage}'). Retrying in ${delay}ms...`);
+                  appendMessageToPanelLog(`[Warning] Attempt ${attempt}: Content script connection failed. Retrying...`);
+                  setTimeout(() => sendMessageWithRetry(attempt + 1), delay);
+                } else {
+                  // Log other errors or final failure after retries
+                  console.error(`Attempt ${attempt}: Error sending message to tab ${targetTabId}:`, errorMessage);
+                  const finalErrorMessage = `Failed to send message to content script in tab ${targetTabId} after ${attempt} attempts. Error: ${errorMessage}. Ensure the target page is loaded and the extension has permissions. Try refreshing the target page.`;
+                  broadcastToDevtools({ type: "error", message: finalErrorMessage });
+                  appendMessageToPanelLog(`[Error] Failed to send message to content script: ${errorMessage}`);
+                }
+              } else {
+                 // console.log(`Attempt ${attempt}: Message sent successfully to tab ${targetTabId}. Response:`, response); // Verbose success log
+              }
+            });
+          };
+          sendMessageWithRetry(); // Start the process
+
         } else {
-          // Only log error if we expected to find a tab
-          if (targetUrl) { // Check if a target was actually set
+          // Only log error if we expected to find a tab based on a set targetUrl
+          if (targetUrl) {
              chrome.tabs.query({}, (allTabs) => {
-               const urls = allTabs.map(tab => tab.url).filter(Boolean);
-               console.error(`Could not find tab matching target URL: ${urlPattern}. Open tabs:`, urls);
-               broadcastToDevtools({ type: "error", message: `Could not find tab matching target URL: ${urlPattern}` });
+               const openUrls = allTabs.map(tab => tab.url).filter(Boolean);
+               console.error(`Could not find any open tab matching the target URL pattern: ${urlPattern}. Target URL: ${targetUrl}. Open tabs:`, openUrls);
+               const errorMsg = `No open tab found matching target URL pattern: ${urlPattern}. Please ensure the page is open.`;
+               broadcastToDevtools({ type: "error", message: errorMsg });
+               appendMessageToPanelLog(`[Error] ${errorMsg}`);
              });
           }
         }
