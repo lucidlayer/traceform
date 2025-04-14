@@ -31,20 +31,20 @@ export function removeOverlays(): void {
 }
 
 // Create and add overlays for found elements
-export function highlightElements(componentName: string): void {
+export function highlightElements(traceformId: string): void { // Accept full traceformId
   removeOverlays(); // Clear previous highlights first
   const container = getOverlayContainer();
 
-  // Find all elements matching the data-traceform-id attribute
-  const selector = `[data-traceform-id="${componentName}"]`;
+  // Find all elements matching the full data-traceform-id attribute
+  const selector = `[data-traceform-id="${traceformId}"]`; // Use full ID in selector
   const elements = document.querySelectorAll<HTMLElement>(selector);
 
   if (elements.length === 0) {
-    console.log(`No elements found for component: ${componentName}`);
+    console.log(`No elements found for traceformId: ${traceformId}`);
     return;
   }
 
-  console.log(`Highlighting ${elements.length} elements for: ${componentName}`);
+  console.log(`Highlighting ${elements.length} elements for: ${traceformId}`);
 
   elements.forEach((element) => {
     const rect = element.getBoundingClientRect();

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { sampleProducts } from '../data/sampleProducts';
-import { Product } from '../types';
 import { useCart } from '../context/CartContext'; // Import useCart
 import './ProductDetailPage.css';
 
