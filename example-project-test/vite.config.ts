@@ -7,7 +7,7 @@ export default defineConfig({
     react({
       // Add the Traceform Babel plugin
       babel: {
-        plugins: ['../traceform/babel-plugin-traceform/dist/index.js'],
+        plugins: ['@lucidlayer/babel-plugin-traceform'],
       },
     }),
   ],
