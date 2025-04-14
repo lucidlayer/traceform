@@ -133,140 +133,183 @@ function addDataTraceformIdAttribute(
   }
 }
 
-export default function injectComponentIdPlugin(): PluginObj<PluginState> {
-  return {
-    name: 'inject-component-id', // Plugin name for debugging and configuration
-    visitor: {
-      JSXOpeningElement(
-        path: NodePath<t.JSXOpeningElement>,
-        state: PluginState
-      ) {
-        // Check if this element already has the attribute (e.g., from HOC)
-        const hasAttribute = path.node.attributes.some(
-          (attr) => t.isJSXAttribute(attr) && attr.name.name === 'data-traceform-id'
+// Helper function to find the component name, handling HOCs
+function getComponentName(componentPath: NodePath): string | null {
+    let currentPath = componentPath;
+    let componentName: string | null = null;
+
+    // Check for HOC wrappers like React.memo, React.forwardRef
+    const parentPath = currentPath.parentPath;
+    if (parentPath?.isCallExpression() && parentPath.node.arguments[0] === currentPath.node) {
+        const callee = parentPath.get('callee');
+        let isWrapper = false;
+        // Check for React.memo or memo()
+        if (callee.isMemberExpression() && t.isIdentifier(callee.node.object, { name: 'React' }) && t.isIdentifier(callee.node.property, { name: 'memo' })) {
+            isWrapper = true;
+        } else if (callee.isIdentifier({ name: 'memo' })) {
+            isWrapper = true;
+        }
+        // Check for React.forwardRef or forwardRef()
+        else if (callee.isMemberExpression() && t.isIdentifier(callee.node.object, { name: 'React' }) && t.isIdentifier(callee.node.property, { name: 'forwardRef' })) {
+            isWrapper = true;
+        } else if (callee.isIdentifier({ name: 'forwardRef' })) {
+            isWrapper = true;
+        }
+
+        if (isWrapper) {
+            // If wrapped, the name is likely on the VariableDeclarator holding the CallExpression
+            const varDeclarator = parentPath.parentPath;
+            if (varDeclarator?.isVariableDeclarator() && t.isIdentifier(varDeclarator.node.id)) {
+                return varDeclarator.node.id.name;
+            }
+            // If assigned directly, e.g. export default memo(...)
+             if (parentPath.parentPath?.isExportDefaultDeclaration()) {
+                 // Cannot reliably get name here, might need filename heuristic
+                 return null; // Or a default name like 'DefaultExportedComponent'
+             }
+        }
+    }
+
+    // Get name based on the original component path type
+    if (currentPath.isFunctionDeclaration() || currentPath.isFunctionExpression()) {
+        componentName = currentPath.node.id ? currentPath.node.id.name : null;
+    } else if (currentPath.isArrowFunctionExpression()) {
+        const varDeclarator = currentPath.parentPath;
+        if (varDeclarator?.isVariableDeclarator() && t.isIdentifier(varDeclarator.node.id)) {
+            componentName = varDeclarator.node.id.name;
+        }
+    } else if (currentPath.isClassDeclaration() || currentPath.isClassExpression()) {
+        componentName = currentPath.node.id ? currentPath.node.id.name : null;
+    }
+
+    // Basic check if it looks like a component name (starts with uppercase)
+    if (componentName && /^[A-Z]/.test(componentName)) {
+        return componentName;
+    }
+
+    return null;
+}
+
+
+// Helper function to find the first JSXElement within a node or its children
+function findFirstJSXElement(nodePath: NodePath): NodePath<t.JSXOpeningElement> | null {
+    let targetElementPath: NodePath<t.JSXOpeningElement> | null = null;
+
+    if (nodePath.isJSXElement()) {
+        targetElementPath = nodePath.get('openingElement');
+    } else if (nodePath.isJSXFragment()) {
+        const children = nodePath.get('children');
+        for (const child of children) {
+            if (child.isJSXElement()) {
+                targetElementPath = child.get('openingElement');
+                break; // Found the first one
+            }
+            // Potentially look deeper? For now, only direct children.
+        }
+    } else if (nodePath.isParenthesizedExpression()) {
+        // Look inside parentheses, e.g., return (<div />)
+        return findFirstJSXElement(nodePath.get('expression'));
+    }
+    // Add checks for other potential wrapper nodes if necessary
+
+    // Check if the found element already has the attribute
+    if (targetElementPath) {
+        const hasAttribute = targetElementPath.node.attributes.some(
+            (attr) => t.isJSXAttribute(attr) && attr.name.name === 'data-traceform-id'
         );
         if (hasAttribute) {
-          return; // Don't overwrite existing attribute
+            return null; // Don't target if attribute already exists
         }
-
-        const parentElementPath = path.parentPath;
-        if (!parentElementPath.isJSXElement()) {
-          // This shouldn't happen based on AST structure, but check anyway
-          return;
-        }
-
-        // Check if this JSXElement is the direct child of a ReturnStatement
-        // or the body of an ArrowFunctionExpression (implicit return)
-        const grandParentPath = parentElementPath.parentPath;
-        const greatGrandParentPath = grandParentPath?.parentPath;
-
-        let isRootReturn = false;
-        let componentPath: NodePath | null = null;
-
-        // Check for ReturnStatement -> BlockStatement -> Function/Method
-        if (grandParentPath?.isReturnStatement()) {
-           const funcOrMethodPath = greatGrandParentPath?.parentPath;
-           if (funcOrMethodPath?.isFunction() || funcOrMethodPath?.isClassMethod()) {
-              isRootReturn = true;
-              componentPath = funcOrMethodPath;
-           }
-        }
-        // Check for Arrow Function Implicit Return -> VariableDeclarator
-        else if (grandParentPath?.isArrowFunctionExpression() && grandParentPath.get('body') === parentElementPath) {
-           const varDeclaratorPath = greatGrandParentPath;
-           if (varDeclaratorPath?.isVariableDeclarator()) {
-              isRootReturn = true;
-              componentPath = grandParentPath; // The arrow function itself
-           }
-        }
-        // Check for Parenthesized Expression -> ReturnStatement -> ...
-        else if (grandParentPath?.isParenthesizedExpression() && greatGrandParentPath?.isReturnStatement()) {
-           const funcOrMethodPath = greatGrandParentPath.parentPath?.parentPath;
-            if (funcOrMethodPath?.isFunction() || funcOrMethodPath?.isClassMethod()) {
-              isRootReturn = true;
-              componentPath = funcOrMethodPath;
-           }
-        }
-        // Check for Parenthesized Expression -> Arrow Function Implicit Return -> ...
-        else if (grandParentPath?.isParenthesizedExpression() && greatGrandParentPath?.isArrowFunctionExpression() && greatGrandParentPath.get('body') === grandParentPath) {
-           const varDeclaratorPath = greatGrandParentPath.parentPath;
-           if (varDeclaratorPath?.isVariableDeclarator()) {
-              isRootReturn = true;
-              componentPath = greatGrandParentPath; // The arrow function itself
-           }
-        }
+    }
 
 
-        if (isRootReturn && componentPath) {
-          let componentName: string | null = null;
-          let finalComponentPath = componentPath; // Start with the direct function/class path
+    return targetElementPath;
+}
 
-          // --- Check for HOC wrappers (React.memo, React.forwardRef) ---
-          const parentPath = componentPath.parentPath;
-          // Check if the component function/expression is the argument of a CallExpression
-          if (parentPath?.isCallExpression() && parentPath.node.arguments[0] === componentPath.node) {
-            const callee = parentPath.get('callee');
-            let isWrapper = false;
 
-            // Check for React.memo or memo()
-            if (callee.isMemberExpression() && t.isIdentifier(callee.node.object, { name: 'React' }) && t.isIdentifier(callee.node.property, { name: 'memo' })) {
-              isWrapper = true;
-            } else if (callee.isIdentifier({ name: 'memo' })) { // Assuming memo is imported directly
-              isWrapper = true;
-            }
-            // Check for React.forwardRef or forwardRef()
-            else if (callee.isMemberExpression() && t.isIdentifier(callee.node.object, { name: 'React' }) && t.isIdentifier(callee.node.property, { name: 'forwardRef' })) {
-              isWrapper = true;
-            } else if (callee.isIdentifier({ name: 'forwardRef' })) { // Assuming forwardRef is imported directly
-              isWrapper = true;
-            }
+// The main plugin function
+export default function injectComponentIdPlugin(): PluginObj<PluginState> {
+  return {
+    name: 'inject-traceform-id', // Updated plugin name
+    visitor: {
+      // Visit component definitions directly
+      FunctionDeclaration(path: NodePath<t.FunctionDeclaration>, state: PluginState) {
+        const componentName = getComponentName(path);
+        if (!componentName) return; // Not a valid component name
 
-            if (isWrapper) {
-              // If wrapped, the component name is likely on the VariableDeclarator holding the CallExpression
-              const varDeclarator = parentPath.parentPath;
-              if (varDeclarator?.isVariableDeclarator()) {
-                // The VariableDeclarator is now the path representing the named component
-                finalComponentPath = varDeclarator;
+        // Find the return statement within the function body
+        path.get('body').traverse({
+          ReturnStatement(returnPath: NodePath<t.ReturnStatement>) {
+            const argumentPath = returnPath.get('argument');
+            // Ensure argument exists before proceeding
+            if (!argumentPath.node) return;
+
+            // Now we know argumentPath points to a valid node, satisfy TS
+            const validArgumentPath = argumentPath as NodePath<t.Node>;
+            const targetElementPath = findFirstJSXElement(validArgumentPath);
+            if (targetElementPath) {
+              const filePath = state.file.opts.filename;
+              // Ensure filePath is a valid string before adding attribute
+              if (typeof filePath === 'string') {
+                 addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
+                 // Stop traversal within this component once we've tagged the return
+                 returnPath.stop();
               }
-              // Note: This might need extension for other HOC patterns or assignments
             }
           }
-          // --- End HOC Check ---
-
-
-          // Get name based on the final component path type
-          // (could be the original function/class or the wrapper's VariableDeclarator)
-          if (finalComponentPath.isFunctionDeclaration() || finalComponentPath.isFunctionExpression()) {
-             componentName = finalComponentPath.node.id ? finalComponentPath.node.id.name : null;
-          } else if (finalComponentPath.isArrowFunctionExpression()) {
-             // If it's *still* an arrow function (e.g., not wrapped or wrapper wasn't assigned to var), check its parent VariableDeclarator
-             const varDeclarator = finalComponentPath.parentPath;
-             if (varDeclarator?.isVariableDeclarator()) {
-                const idNode = varDeclarator.node.id;
-                componentName = t.isIdentifier(idNode) ? idNode.name : null;
-             }
-          } else if (finalComponentPath.isVariableDeclarator()) { // Handle case where wrapper was found and assigned
-             const idNode = finalComponentPath.node.id;
-             componentName = t.isIdentifier(idNode) ? idNode.name : null;
-          } else if (finalComponentPath.isClassMethod()) { // Check if it's the render method of a class
-             if (t.isIdentifier(finalComponentPath.node.key) && finalComponentPath.node.key.name === 'render') {
-                const classPath = finalComponentPath.parentPath.parentPath;
-                if (classPath?.isClassDeclaration() || classPath?.isClassExpression()) {
-                   componentName = classPath.node.id ? classPath.node.id.name : null;
-                }
-             }
-          }
-
-          // Final checks and injection
-          // Get the file path from state
-          const filePath = state.file.opts.filename;
-          // Ensure componentName and filePath are valid strings before injecting
-          if (componentName && /^[A-Z]/.test(componentName) && filePath) {
-            // Pass state to the helper function
-            addDataTraceformIdAttribute(path, componentName, filePath, state);
-          }
-        } // End of if (isRootReturn && componentPath)
+        });
       },
+
+      ArrowFunctionExpression(path: NodePath<t.ArrowFunctionExpression>, state: PluginState) {
+         // Check if it's likely a component (assigned to a variable starting with uppercase)
+         const componentName = getComponentName(path);
+         if (!componentName) return;
+
+         const body = path.get('body');
+
+         // Case 1: Implicit return (body is not a BlockStatement)
+         if (!body.isBlockStatement()) {
+             // Ensure body is a valid node before proceeding
+             if (!body.node) return;
+             // Now we know body points to a valid node, satisfy TS
+             const validBodyPath = body as NodePath<t.Node>;
+            const targetElementPath = findFirstJSXElement(validBodyPath);
+            if (targetElementPath) {
+               const filePath = state.file.opts.filename;
+               // Ensure filePath is a valid string before adding attribute
+               if (typeof filePath === 'string') {
+                  addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
+               }
+            }
+         }
+         // Case 2: Explicit return within a block statement
+         else {
+            body.traverse({
+               ReturnStatement(returnPath: NodePath<t.ReturnStatement>) {
+                  const argumentPath = returnPath.get('argument');
+                  // Ensure argument exists before proceeding
+                  if (!argumentPath.node) return;
+
+                  // Now we know argumentPath points to a valid node, satisfy TS
+                  const validArgumentPath = argumentPath as NodePath<t.Node>;
+                  const targetElementPath = findFirstJSXElement(validArgumentPath);
+                  if (targetElementPath) {
+                     const filePath = state.file.opts.filename;
+                     // Ensure filePath is a valid string before adding attribute
+                     if (typeof filePath === 'string') {
+                        addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
+                        returnPath.stop(); // Stop traversal for this component
+                     }
+                  }
+               }
+            });
+         }
+      },
+
+      // Add visitors for FunctionExpression and ClassMethod (render) similarly if needed
+      // FunctionExpression(...) { ... }
+      // ClassMethod(path, state) { if (path.node.key.name === 'render') { ... } }
+
     },
-  }; // Semicolon added
+  };
 }
