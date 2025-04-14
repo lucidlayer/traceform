@@ -7,8 +7,9 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "build:bundle": "esbuild src/background.ts src/content.ts src/overlay.ts --bundle --outdir=dist --format=esm",
-    "build:copy": "copy manifest.json dist\\manifest.json && copy src\\styles.css dist\\styles.css",
-    "build": "npm run build:bundle && npm run build:copy",
+    "build:copy": "cpx \"manifest.json\" dist && cpx \"src/*.html\" dist && cpx \"src/*.css\" dist && cpx \"src/*.js\" dist",
+    "build:clean": "rimraf dist",
+    "build": "npm run build:clean && npm run build:bundle && npm run build:copy",
     "package:local": "npm version patch --no-git-tag-version && npm run build"
   },
   "keywords": [
@@ -21,6 +22,8 @@
   "author": "LucidLayer",
   "license": "MIT",
   "devDependencies": {
+    "cpx": "^1.5.0",
+    "rimraf": "^5.0.5",
     "@types/chrome": "^0.0.263",
     "@types/node": "^20.11.24",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
