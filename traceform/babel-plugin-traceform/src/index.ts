@@ -95,9 +95,14 @@ function normalizeAndMakeRelative(filePath: string, babelRoot: string | undefine
 }
 
 
-// @ts-ignore: TypeScript cannot resolve sibling package build output; see SUBTASK_015.3 for details.
-// This import works at runtime and is safe if the shared package is built before the plugin.
-import { createTraceformId } from '../../../shared/dist/traceformIdUtils';
+/**
+ * Generates a traceformId string for a component.
+ * This is a simplified version, now self-contained in the plugin.
+ */
+function createTraceformId(relativePath: string, componentName: string, index: number): string {
+  // Example: "src/components/Button.tsx:Button:0"
+  return `${relativePath}:${componentName}:${index}`;
+}
 
 // Helper function to add the data-traceform-id attribute if it doesn't exist
 function addDataTraceformIdAttribute(
