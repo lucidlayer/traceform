@@ -130,12 +130,22 @@ port.onMessage.addListener((msg) => {
        }
     // Removed incorrect else block here
   } else if (msg.type === "error") {
-    // Handle specific errors like content script missing (Keep this as is, it's not a background connection error)
+    // Handle specific errors like content script missing
     appendMessage(`[Error] ${msg.message}`);
     if (errorMessageSpan && errorSectionDiv) {
         connectionErrorSpan.style.display = 'none'; // Hide connection error
-        errorMessageSpan.textContent = "⚠️ Content script connection lost. Refresh required.";
-        errorMessageSpan.style.display = 'inline'; // Show generic error
+        
+        // Customize error message based on the error content
+        if (msg.message.includes("Content script not found") || 
+            msg.message.includes("Receiving end does not exist")) {
+            errorMessageSpan.textContent = "⚠️ Content script not found. Try refreshing the target page.";
+        } else if (msg.message.includes("Could not find tab matching target URL")) {
+            errorMessageSpan.textContent = "⚠️ Target page not found. Please open the target URL in a browser tab.";
+        } else {
+            errorMessageSpan.textContent = `⚠️ ${msg.message}`;
+        }
+        
+        errorMessageSpan.style.display = 'inline'; // Show error
         errorSectionDiv.style.display = 'block';
     }
   } else if (msg.type === "serverStatus") {

@@ -22,20 +22,14 @@ chrome.runtime.onMessage.addListener(
     if (message.type === 'HIGHLIGHT_COMPONENT') {
       if (message.traceformId) { // Check for traceformId
         highlightElements(message.traceformId); // Pass the full ID
-        // Indicate success (optional)
-        // sendResponse({ status: 'Highlighting initiated' });
       } else {
         console.error('Highlight command missing traceformId');
-        // sendResponse({ status: 'Error: Missing componentName' });
       }
     } else if (message.type === 'CLEAR_HIGHLIGHT') {
       removeOverlays();
-      // sendResponse({ status: 'Highlights cleared' });
     }
-
-    // Return true to indicate you wish to send a response asynchronously
-    // (if you uncomment sendResponse calls)
-    return true; // Keep the message channel open for potential async responses
+    // Do not return true; we are not using sendResponse asynchronously
+    // This avoids the "message channel closed before a response was received" error
   }
 );
 

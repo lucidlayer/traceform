@@ -248,3 +248,13 @@ button:hover {
 .traceform-toolbar::-webkit-scrollbar {
   display: none;
 }
+
+/* === Traceform Highlight Overlay === */
+.traceform-highlight-overlay {
+  background: rgba(127, 217, 98, 0.25);
+  border: 2px solid #7fd962;
+  border-radius: 4px;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 1000000;
+}

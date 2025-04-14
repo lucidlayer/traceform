@@ -1,30 +1,39 @@
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 # Node.js dependencies
 node_modules/
 
 # Build output
 dist/
-
-# Prebuilt extension zips
-zip/
+dist-ssr/
 
 # TypeScript build info
 *.tsbuildinfo
 
-# Logs
-*.log
-logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
 # Test coverage
 coverage/
 
+# Local environment files
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
 # OS generated files
 Thumbs.db

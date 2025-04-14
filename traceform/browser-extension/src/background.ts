@@ -5,81 +5,24 @@ const maxReconnectInterval = 10000; // Max 10 seconds interval
 
 console.log('Code-to-UI Mapper: Background service worker started.');
 
-// --- DevTools Panel Communication ---
-const devtoolsPorts: chrome.runtime.Port[] = [];
 let targetUrl: string | null = null;
 let checkIntervalId: any = null; // Use 'any' for broader compatibility
 let lastServerStatus: 'up' | 'down' | 'checking' | null = null;
 const CHECK_INTERVAL = 5000; // Check every 5 seconds
 
-function broadcastToDevtools(msg: any) {
-  devtoolsPorts.forEach((port) => {
-    try {
-      port.postMessage(msg);
-    } catch (e) {
-      // Ignore errors if port is closed
-    }
-  });
+/**
+ * SIMPLIFIED: Remove all DevTools panel/port logic.
+ * Provide a no-op for broadcastToDevtools to avoid TS errors.
+ */
+function broadcastToDevtools(_msg: any) {
+  // No-op: panel functionality removed
 }
 
-chrome.runtime.onConnect.addListener((port) => {
-  if (port.name === "traceform-panel") {
-    devtoolsPorts.push(port);
-    port.onDisconnect.addListener(() => {
-      const idx = devtoolsPorts.indexOf(port);
-      if (idx !== -1) devtoolsPorts.splice(idx, 1);
-      console.log('DevTools panel disconnected.');
-    });
-
-    // Handle messages from the DevTools panel
-    port.onMessage.addListener(async (msg) => { // Make listener async for storage
-      console.log('Background received message from panel:', msg); // Log received messages
-      if (msg.type === 'panelReady') {
-        // Panel is ready, send initial status
-        console.log('Panel is ready, sending initial status.');
-        sendInitialStatus(port);
-      } else if (msg.type === 'getStoredTargetUrl') {
-        // Panel is requesting the stored URL
-        console.log('Background received getStoredTargetUrl request.');
-        try {
-          const result = await chrome.storage.local.get(['targetUrl']);
-          console.log('Read from storage:', result);
-          port.postMessage({ type: 'storedTargetUrl', url: result.targetUrl || null });
-        } catch (error) {
-           console.error("Error getting targetUrl from storage:", error);
-           port.postMessage({ type: 'storedTargetUrl', url: null }); // Send null on error
-        }
-      } else if (msg.type === 'setTargetUrl' && msg.url) {
-        console.log(`Background received setTargetUrl: ${msg.url}`);
-        targetUrl = msg.url; // Update in-memory variable
-        lastServerStatus = null; // Reset status on new URL
-        // Also save to storage
-        try {
-            await chrome.storage.local.set({ targetUrl: targetUrl });
-            console.log(`Saved targetUrl to storage: ${targetUrl}`);
-        } catch (error) {
-            console.error("Error saving targetUrl to storage:", error);
-        }
-        startServerCheck(); // Start/restart the check
-      } else if (msg.type === 'refreshTargetTab') {
-         console.log('Background received refreshTargetTab request.');
-         refreshTargetTab();
-      } else if (msg.type === 'ping') {
-         // Respond to keep-alive ping from panel
-         // console.log('[BACKGROUND] Received ping, sending pong.'); // Optional: uncomment for debugging
-         try {
-            port.postMessage({ type: 'pong' });
-         } catch (e) {
-            console.error("Error sending pong to panel:", e);
-         }
-      }
-      // Add other message handlers if needed
-    });
-
-    // Don't send initial status immediately, wait for panelReady
-    // port.postMessage({ type: "status", status: "Panel connected" });
-  }
-});
+// Instead, always use a default target if not set
+function getEffectiveTargetUrl(): string {
+  // Default to localhost:5173 if not set
+  return targetUrl || "http://localhost:5173/";
+}
 
 // Function to send current status to a specific port
 function sendInitialStatus(port: chrome.runtime.Port) {
@@ -256,49 +199,24 @@ function connectWebSocket() {
          return;
       }
 
-      // Relay message to active tab's content script
-      // Find active tab
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      // Instead of just looking for the active tab, always use the effective target URL (default to localhost:5173)
+      const urlToMatch = getEffectiveTargetUrl();
+      let urlPattern = urlToMatch;
+      if (!urlPattern.endsWith('/')) urlPattern += '/';
+      urlPattern += '*';
+
+      chrome.tabs.query({ url: urlPattern }, (tabs) => {
         if (tabs && tabs.length > 0 && tabs[0].id) {
-          const activeTabId = tabs[0].id;
-          console.log(`Relaying message to tab ID: ${activeTabId}`, message);
+          const targetTabId = tabs[0].id;
+          console.log(`Relaying message to target tab ID: ${targetTabId}`, message);
 
-          // Function to send message with retry logic
-          const sendMessageWithRetry = (tabId: number, msg: any, attempt = 1) => {
-            const maxAttempts = 5;
-            const delay = 100 * Math.pow(2, attempt - 1); // Exponential backoff: 100ms, 200ms, 400ms...
-
-            // Send message *with* a callback, but handle the specific "channel closed" error
-            chrome.tabs.sendMessage(tabId, msg, (response) => {
-              if (chrome.runtime.lastError) {
-                const errorMessage = chrome.runtime.lastError.message ?? 'Unknown error';
-                if (errorMessage.includes('Receiving end does not exist')) {
-                  // Specific error message for missing content script
-                  const warnMsg = `Content script not found on tab ${tabId}. If the page was recently reloaded or the dev server restarted, try refreshing the page.`;
-                  console.warn(warnMsg);
-                  broadcastToDevtools({ type: "error", message: warnMsg });
-                } else if (!errorMessage.includes('the message channel closed before a response was received')) {
-                   // Log other potential errors, ignoring the benign "channel closed" error
-                   console.error(
-                     `Error sending message to content script (tab ${tabId}, attempt ${attempt}):`,
-                     errorMessage
-                   );
-                }
-                // Note: Retry logic could be added here if desired.
-              } else {
-                 // We don't actually expect a response, but log if one comes back
-                 if (response) {
-                    console.log(`Content script (tab ${tabId}) unexpectedly responded:`, response);
-                 }
-              }
-            });
-          };
-
-          // Initial attempt to send
-          sendMessageWithRetry(activeTabId, message);
-
+          // Send message to content script (no retry logic for simplicity)
+          chrome.tabs.sendMessage(targetTabId, message);
         } else {
-          console.error('Could not find active tab to send message to.');
+          chrome.tabs.query({}, (allTabs) => {
+            const urls = allTabs.map(tab => tab.url).filter(Boolean);
+            console.error(`Could not find tab matching target URL: ${urlPattern}. Open tabs:`, urls);
+          });
         }
       });
     } catch (error) {
@@ -328,19 +246,13 @@ function connectWebSocket() {
   };
 }
 
-// Initial connection attempt
 connectWebSocket();
 
-// Optional: Listen for extension startup or installation to connect
 chrome.runtime.onStartup.addListener(() => {
-  console.log('Extension startup: attempting WebSocket connection.');
   connectWebSocket();
 });
-
 chrome.runtime.onInstalled.addListener(() => {
-   console.log('Extension installed/updated: attempting WebSocket connection.');
-   connectWebSocket();
+  connectWebSocket();
 });
-
 // Keep service worker alive logic (if needed, less common in MV3 with events)
 // chrome.runtime.onMessage.addListener(...); // Keep alive if messages are frequent
