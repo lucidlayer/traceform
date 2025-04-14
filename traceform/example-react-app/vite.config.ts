@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => { // Use function form to access mode
         // Add babel configuration
         babel: {
           plugins: [
-            // Add the local plugin only in development using a relative path
-            ...(isDevelopment ? ['../babel-plugin/dist/index.js'] : []),
+            // Use the published package name
+            '@lucidlayer/babel-plugin-traceform',
             // Note: For this to work reliably without publishing or linking,
             // you might need npm/yarn workspaces or adjust the path manually
             // e.g., '../babel-plugin-inject-id/dist/index.js' if built,
