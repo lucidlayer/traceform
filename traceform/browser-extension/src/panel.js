@@ -58,10 +58,8 @@ appendMessage('DevTools panel loaded. Waiting for background connection...');
 const port = chrome.runtime.connect({ name: "traceform-panel" });
 appendMessage('Attempting connection to background script...');
 
-// Notify background that the panel is ready (still use port for this initial handshake)
-port.postMessage({ type: 'panelReady' });
-console.log('Sent panelReady message to background.');
-appendMessage('Sent panelReady message to background.');
+// Connection established by chrome.runtime.connect, no need for panelReady message.
+// Background script will send initial status upon connection.
 
 // Request stored URL using sendMessage
 chrome.runtime.sendMessage({ type: 'getStoredTargetUrl' }, (response) => {
@@ -158,9 +156,12 @@ port.onMessage.addListener((msg) => {
          errorMessageSpan.style.display = 'none';
          connectionErrorSpan.style.display = 'none';
      }
+  } else if (msg.type === "log") {
+     // Handle log messages from background
+     appendMessage(msg.message);
   } else {
     // Log unexpected messages
-    appendMessage(`[Unknown Message] ${JSON.stringify(msg)}`);
+    appendMessage(`[Unknown Message Type] ${JSON.stringify(msg)}`);
   }
   // */ // Remove end comment
   // --- END DEBUGGING ---
@@ -177,47 +178,9 @@ port.onDisconnect.addListener(() => {
   // Optionally disable UI elements
 });
 
-// --- Keep Alive ---
-let keepAliveIntervalId = null;
-let lastPongReceived = Date.now();
-
-function startKeepAlive() {
-  console.log('[PANEL CONSOLE] Starting keep-alive ping.');
-  appendMessage('[Info] Starting keep-alive.');
-  lastPongReceived = Date.now(); // Reset timer
-
-  if (keepAliveIntervalId) clearInterval(keepAliveIntervalId); // Clear previous interval if any
-
-  keepAliveIntervalId = setInterval(() => {
-    // Check if we received a pong recently, otherwise assume connection is dead
-    if (Date.now() - lastPongReceived > 45000) { // Allow 45s without pong
-      console.error('[PANEL CONSOLE] Keep-alive pong timeout. Connection likely lost.');
-      appendMessage('[Error] Keep-alive timeout. Connection lost.');
-      setBridgeStatus("Disconnected (Timeout)", "status-disconnected");
-      if (connectionErrorSpan && errorSectionDiv) {
-          errorMessageSpan.style.display = 'none'; // Hide generic error
-          connectionErrorSpan.style.display = 'inline'; // Show specific connection error
-          errorSectionDiv.style.display = 'block';
-      }
-      clearInterval(keepAliveIntervalId);
-      keepAliveIntervalId = null;
-      // We might not be able to postMessage if the port is truly closed, but try
-      try { port.disconnect(); } catch(e) {}
-      return;
-    }
-
-    try {
-      port.postMessage({ type: 'ping' }); // Send ping instead of keepAlive
-      // console.log('[PANEL CONSOLE] Sent ping.'); // Optional: uncomment for debugging
-    } catch (error) {
-      console.error('[PANEL CONSOLE] Error sending ping (port likely closed):', error);
-      appendMessage('[Error] Failed to send ping. Connection lost?');
-      clearInterval(keepAliveIntervalId);
-      keepAliveIntervalId = null;
-    }
-  }, 20000); // Send ping every 20 seconds
-}
-
+// --- Keep Alive Removed ---
+// Keep-alive logic is removed as connection status is now directly
+// managed by the background script based on WebSocket state and port connection.
 
 
 // --- UI Event Listeners ---
@@ -292,6 +255,4 @@ refreshTargetBtn.addEventListener('click', () => {
   if (errorSectionDiv) errorSectionDiv.style.display = 'none';
 });
 
-// Remove the keep-alive interval as we are reducing reliance on the long-lived port
-if (keepAliveIntervalId) clearInterval(keepAliveIntervalId);
-keepAliveIntervalId = null;
+// Keep alive interval removal already handled by removing the section above.
