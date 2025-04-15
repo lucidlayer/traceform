@@ -1,27 +1,6 @@
 # Traceform: Code-to-UI Mapping Toolset
 
 Traceform is a developer toolchain that lets you select a React component in VS Code and instantly highlight its rendered instances in your browser. It works via a Babel plugin, a browser extension, and a VS Code extension.
-
----
-
-## How It Works
-
-```mermaid
-flowchart LR
-    A["Select Component<br>(VS Code)"] --> B["Send Signal<br>(Traceform)"]
-    B --> C["Highlight<br>(Browser)"]
-```
-
----
-
-## Monorepo Structure
-
-- `traceform/babel-plugin-traceform/` – Babel plugin to inject `data-traceform-id` attributes
-- `traceform/browser-extension/` – Browser extension for DOM highlighting
-- `traceform/vscode-extension/` – VS Code extension for "Find in UI" (with integrated bridge server)
-- `traceform-test-app/` – Example React app for testing Traceform
-- `traceform/docs/` – Developer and contributor documentation
-
 ---
 
 ## Setting Up Traceform in Your Project
@@ -29,8 +8,7 @@ flowchart LR
 To integrate Traceform into your own React development workflow, follow these steps:
 
 1.  **Install the VS Code Extension:**
-    *   Find and install the "Traceform" extension from the VS Code Marketplace (if published) or follow the build/install instructions in the [VS Code Extension README](./traceform/vscode-extension/README.md).
-    *   This extension provides the "Find Component in UI" command and manages communication.
+    *   Install the "Traceform" extension from the VS Code Marketplace https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode
 
 2.  **Add the Babel Plugin:**
     *   Install the plugin as a development dependency in your project:
