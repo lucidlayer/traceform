@@ -4,6 +4,16 @@ Traceform is a developer toolchain that lets you select a React component in VS 
 
 ---
 
+## How It Works
+
+```mermaid
+flowchart LR
+    A["Select Component<br>(VS Code)"] --> B["Send Signal<br>(Traceform)"]
+    B --> C["Highlight<br>(Browser)"]
+```
+
+---
+
 ## Monorepo Structure
 
 - `traceform/babel-plugin-traceform/` – Babel plugin to inject `data-traceform-id` attributes
@@ -14,21 +24,96 @@ Traceform is a developer toolchain that lets you select a React component in VS 
 
 ---
 
-## Quick Start
+## Setting Up Traceform in Your Project
 
-1. **Install the [Traceform VS Code Extension](./traceform/vscode-extension/README.md).**
-2. **Add the [@lucidlayer/babel-plugin-traceform](./traceform/babel-plugin-traceform/README.md) to your React app's development build.**
-3. **Build and load the [Traceform Browser Extension](./traceform/browser-extension/README.md) in Chrome/Edge.**
-4. **Run the example app in `traceform-test-app/` for local testing.**
-5. **Open your React app, select a component in VS Code, right-click, and choose "Traceform: Find Component in UI".**
+To integrate Traceform into your own React development workflow, follow these steps:
 
-For detailed setup and troubleshooting, see the README in each subproject.
+1.  **Install the VS Code Extension:**
+    *   Find and install the "Traceform" extension from the VS Code Marketplace (if published) or follow the build/install instructions in the [VS Code Extension README](./traceform/vscode-extension/README.md).
+    *   This extension provides the "Find Component in UI" command and manages communication.
+
+2.  **Add the Babel Plugin:**
+    *   Install the plugin as a development dependency in your project:
+        ```bash
+        npm install --save-dev @lucidlayer/babel-plugin-traceform
+        # or
+        yarn add --dev @lucidlayer/babel-plugin-traceform
+        ```
+    *   Configure your `babel.config.js` (or equivalent) to use the plugin, typically only for development builds:
+        ```javascript
+        // Example babel.config.js
+        module.exports = {
+          presets: [/* your presets */],
+          plugins: [
+            // Add Traceform plugin only in development
+            process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
+            // Filter out the boolean false value in production
+          ].filter(Boolean),
+        };
+        ```
+    *   See the [Babel Plugin README](./traceform/babel-plugin-traceform/README.md) for detailed configuration options.
+
+3.  **Install the Browser Extension:**
+    *   Build the extension:
+        ```bash
+        cd traceform/browser-extension
+        npm install
+        npm run build # Or the appropriate build script
+        cd ../.. 
+        ```
+    *   Load the unpacked extension into your Chromium-based browser (Chrome, Edge):
+        *   Go to `chrome://extensions` or `edge://extensions`.
+        *   Enable "Developer mode".
+        *   Click "Load unpacked".
+        *   Select the `traceform/browser-extension/dist` directory (or the correct build output directory).
+    *   Refer to the [Browser Extension README](./traceform/browser-extension/README.md) for more details.
+
+4.  **Usage:**
+    *   Run your React application's development server.
+    *   Open your project in VS Code.
+    *   Open your application in the browser where the Traceform extension is installed.
+    *   In VS Code, open a React component file.
+    *   Right-click within the component's code or on its definition.
+    *   Select "Traceform: Find Component in UI".
+    *   The corresponding rendered elements in the browser should be highlighted.
 
 ---
 
-## Example App
+## Running the Demos
 
-The `traceform-test-app/` directory contains a minimal React + TypeScript + Vite project preconfigured for Traceform testing. See its [README](./traceform-test-app/README.md) for usage instructions.
+This repository includes demo applications to test Traceform:
+
+### 1. Simple Test App (`traceform-test-app--`)
+
+This is a minimal React + TypeScript + Vite project preconfigured with the Babel plugin.
+
+```bash
+# Navigate to the test app directory
+cd traceform-test-app--
+
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev 
+```
+Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting. See its [README](./traceform-test-app--/README.md) for more details.
+
+### 2. Complex Demo App (`complex`)
+
+This demo showcases Traceform in a slightly more complex setup.
+
+```bash
+# Navigate to the complex demo directory
+cd complex
+
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev 
+```
+Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting. See its [README](./complex/README.md) for more details.
 
 ---
 
