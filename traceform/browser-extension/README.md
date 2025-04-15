@@ -1,6 +1,6 @@
 # Traceform: UI Mapping Browser Extension
 
-Chrome/Edge extension for highlighting React components in the browser, powered by Traceform.
+Chrome/Edge extension for highlighting React components in the browser, powered by [Traceform](https://traceform.framer.website/).
 
 ## Quick Start
 
@@ -17,4 +17,4 @@ Alternatively, you can use a prebuilt zip from the [`zip/`](./zip/) directory fo
 4. Use with the Traceform VS Code Extension and Babel plugin for live UI mapping.
 5. For testing, run the example app in [`../../traceform-test-app/`](../../traceform-test-app/README.md).
 
-For more info, see the [Traceform root README](../../README.md).
+For more info, visit the [Traceform Website](https://traceform.framer.website/) or see the [Traceform root README](../../README.md).

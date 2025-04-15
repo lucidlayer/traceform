@@ -1,6 +1,6 @@
 # @lucidlayer/babel-plugin-traceform
 
-Injects a `data-traceform-id="ComponentName"` attribute into React components for live UI mapping with Traceform.
+Injects a `data-traceform-id="ComponentName"` attribute into React components for live UI mapping with [Traceform](https://traceform.framer.website/).
 
 This plugin is part of the [Traceform](../../README.md) monorepo. Use it together with the Traceform VS Code extension and browser extension for full code-to-UI mapping functionality.
 
@@ -68,4 +68,4 @@ To test the plugin, use the example React app in [`../../traceform-test-app/`](.
 - Intended for development only.
 - Requires standard React component naming (uppercase).
 
-For more info, see the [Traceform root README](../../README.md).
+For more info, visit the [Traceform Website](https://traceform.framer.website/) or see the [Traceform root README](../../README.md).

@@ -1,6 +1,6 @@
 # Traceform for VS Code
 
-VS Code extension to instantly highlight React components in your browser using Traceform.
+VS Code extension to instantly highlight React components in your browser using [Traceform](https://traceform.framer.website/).
 
 ## Quick Start
 
@@ -10,4 +10,4 @@ VS Code extension to instantly highlight React components in your browser using 
 4. Requires the Traceform Babel plugin and browser extension for full functionality.
 5. For testing, use the example app in [`../../traceform-test-app/`](../../traceform-test-app/README.md).
 
-For more info, see the [Traceform root README](../../README.md).
+For more info, visit the [Traceform Website](https://traceform.framer.website/) or see the [Traceform root README](../../README.md).
