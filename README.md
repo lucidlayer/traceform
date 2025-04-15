@@ -19,9 +19,10 @@ To integrate Traceform into your own React development workflow, follow these st
         ```
     *   Configure your build tool to use the plugin, typically only for development builds. Here are examples for common setups:
 
-        **For projects using Babel directly (`babel.config.js` or `.babelrc`):**
+        **For projects using Babel directly (`babel.config.js` or `.babelrc`), including Next.js:**
+        *   Create or modify your `babel.config.js` or `.babelrc` file in the project root.
         ```javascript
-        // Example babel.config.js
+        // Example babel.config.js (Generic or other frameworks)
         module.exports = {
           presets: [/* your presets */],
           plugins: [
@@ -30,7 +31,16 @@ To integrate Traceform into your own React development workflow, follow these st
             // Filter out the boolean false value in production
           ].filter(Boolean),
         };
+
+        // Example .babelrc (Specifically for Next.js)
+        // {
+        //   "presets": ["next/babel"],
+        //   "plugins": [
+        //     process.env.NODE_ENV === 'development' && "@lucidlayer/babel-plugin-traceform"
+        //   ].filter(Boolean)
+        // }
         ```
+        *Note: For Next.js, ensure you include the `next/babel` preset.*
 
         **For projects using Vite (`vite.config.ts` or `vite.config.js`):**
         ```typescript
@@ -50,6 +60,23 @@ To integrate Traceform into your own React development workflow, follow these st
         })
         ```
         *Note: Ensure you have `@vitejs/plugin-react` installed and configured.*
+
+        **For Create React App (CRA) projects (using `craco`):**
+        *   Install `craco`: `npm install @craco/craco --save-dev` or `yarn add @craco/craco --dev`.
+        *   Update the `scripts` in your `package.json` to use `craco` instead of `react-scripts`.
+        *   Create a `craco.config.js` file in your project root:
+        ```javascript
+        // Example craco.config.js
+        module.exports = {
+          babel: {
+            plugins: [
+              // Add Traceform plugin only in development
+              process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
+            ].filter(Boolean),
+          },
+        };
+        ```
+        *Refer to the [craco documentation](https://craco.js.org/) for more details.*
 
     *   See the [Babel Plugin README](./traceform/babel-plugin-traceform/README.md) for detailed configuration options if needed.
 
