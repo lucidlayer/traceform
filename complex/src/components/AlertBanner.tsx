@@ -8,6 +8,7 @@ interface AlertBannerProps {
   onClose?: () => void;
 }
 
+// Highlight: "AlertBanner" and right click "TraceformL Find component in UI"
 const AlertBanner: React.FC<AlertBannerProps> = ({ status = 'info', title, description, onClose }) => {
   return (
     <Alert status={status} variant="left-accent" mb={4}>
