@@ -2,13 +2,14 @@
   "name": "traceform-vscode",
   "displayName": "Traceform for VS Code",
   "description": "VS Code extension for Traceform. Maps source code to browser UI elements.",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "private": false,
   "publisher": "LucidLayer",
   "repository": {
     "type": "git",
     "url": "https://github.com/lucidlayer/traceform.git"
   },
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.80.0"
   },
