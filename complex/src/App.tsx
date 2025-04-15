@@ -1,26 +1,51 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ChakraProvider, Box, Container } from '@chakra-ui/react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
-import './App.css'; // Keep existing styles if needed
+import AlertBanner from './components/AlertBanner';
+import './App.css';
+
+const Layout = ({ children }: { children: React.ReactNode }) => (
+  <Box minH="100vh" bg="gray.50">
+    <AlertBanner status="info" title="Welcome!" description="This is a demo notification. You can customize or control this banner as needed." />
+    <Navbar />
+    <Container maxW="container.xl" py={8}>
+      {children}
+    </Container>
+  </Box>
+);
 
 const App: React.FC = () => {
+  const router = createBrowserRouter(
+    [
+      {
+        path: "/",
+        element: <Layout><HomePage /></Layout>,
+      },
+      {
+        path: "/about",
+        element: <Layout><AboutPage /></Layout>,
+      },
+      {
+        path: "/contact",
+        element: <Layout><ContactPage /></Layout>,
+      },
+    ],
+    {
+      future: {
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      },
+    }
+  );
+
   return (
-    <Router>
-      <div>
-        <Navbar />
-        <div className="content" style={{ padding: '20px' }}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            {/* Add more routes here as needed */}
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <ChakraProvider>
+      <RouterProvider router={router} />
+    </ChakraProvider>
   );
 };
 
