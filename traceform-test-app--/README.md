@@ -1,18 +1,16 @@
-When running npm run dev, how many "[Traceform Babel Plugin]" logs it outputs is the ammount of seperate elements you are able to highlight code to ui.
+# Traceform Test App
 
-go to traceform-test-app--\src\components\Button.tsx
+This directory contains a React + Vite demo application configured to work with the [Traceform](https://traceform.framer.website/) toolset. This app is used for primary testing and demonstration.
 
-highlight "Button"
+See the [main project README](../../README.md) for instructions on setting up and using Traceform.
 
-go to traceform-test-app--\src\components\Card.tsx
+## Testing Notes
 
-highlight "Card"
+When running `npm run dev`, the number of "[Traceform Babel Plugin]" logs output corresponds to the number of separate elements instrumented for code-to-UI highlighting.
 
-go to traceform-test-app--\src\components\Footer.tsx
+**Components to test highlighting with:**
 
-highlight "Footer"
-
-go to traceform-test-app--\src\components\Header.tsx
-
-highlight "Header"
-
+*   Go to `traceform-test-app--/src/components/Button.tsx` -> highlight `"Button"`
+*   Go to `traceform-test-app--/src/components/Card.tsx` -> highlight `"Card"`
+*   Go to `traceform-test-app--/src/components/Footer.tsx` -> highlight `"Footer"`
+*   Go to `traceform-test-app--/src/components/Header.tsx` -> highlight `"Header"`
