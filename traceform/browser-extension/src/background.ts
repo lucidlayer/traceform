@@ -5,6 +5,41 @@ const maxReconnectInterval = 10000; // Max 10 seconds interval
 
 console.log('Code-to-UI Mapper: Background service worker started.');
 
+// --- Keep Alive ---
+const KEEP_ALIVE_ALARM_NAME = 'traceform-keep-alive';
+
+// Function to create or ensure the alarm exists
+function setupKeepAliveAlarm() {
+  chrome.alarms.get(KEEP_ALIVE_ALARM_NAME, (alarm) => {
+    if (!alarm) {
+      // Create the alarm if it doesn't exist. Period is in minutes.
+      // Setting it to 1 minute ensures the SW wakes up frequently enough.
+      chrome.alarms.create(KEEP_ALIVE_ALARM_NAME, { periodInMinutes: 1 });
+      console.log('Keep-alive alarm created.');
+    } else {
+      console.log('Keep-alive alarm already exists.');
+    }
+  });
+}
+
+// Listener for the alarm
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === KEEP_ALIVE_ALARM_NAME) {
+    // Perform a minimal check or log to keep the SW active
+    console.log('Keep-alive alarm triggered. Service worker active.');
+    // Optionally, you could check WebSocket status here too, but logging is usually enough.
+    // if (socket && socket.readyState !== WebSocket.OPEN) {
+    //   console.log('Keep-alive check: WebSocket is not open, attempting reconnect.');
+    //   connectWebSocket();
+    // }
+  }
+});
+
+// Call setup on SW start
+setupKeepAliveAlarm();
+// --- End Keep Alive ---
+
+
 let targetUrl: string | null = null;
 let checkIntervalId: any = null;
 let lastServerStatus: 'up' | 'down' | 'checking' | 'idle' | null = 'idle'; // Include idle state
