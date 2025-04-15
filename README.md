@@ -62,7 +62,6 @@ To integrate Traceform into your own React development workflow, follow these st
         *Note: Ensure you have `@vitejs/plugin-react` installed and configured.*
 
         **For Create React App (CRA) projects (using `craco`):**
-        *   Install `craco`: `npm install @craco/craco --save-dev` or `yarn add @craco/craco --dev`.
         *   Update the `scripts` in your `package.json` to use `craco` instead of `react-scripts`.
         *   Create a `craco.config.js` file in your project root:
         ```javascript
