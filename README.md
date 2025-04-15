@@ -1,5 +1,7 @@
 # Traceform: Code-to-UI Mapping Toolset
 
+**Website:** [**https://traceform.framer.website/**](https://traceform.framer.website/)
+
 Traceform is a developer toolchain that lets you select a React component in VS Code and instantly highlight its rendered instances in your browser. It works via a Babel plugin, a browser extension, and a VS Code extension.
 ---
 
@@ -181,4 +183,6 @@ Open the provided localhost URL in your browser (with the Traceform extension in
 
 ## About
 
-Traceform is designed to bridge your React code to the live UI—instantly find where your components render in the browser. For more information, see the subproject READMEs.
+Traceform is designed to bridge your React code to the live UI—instantly find where your components render in the browser. 
+
+**Learn more at [traceform.framer.website](https://traceform.framer.website/)** or see the subproject READMEs for technical details.
