@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question or discuss an idea
+    url: https://github.com/lucidlayer/traceform/discussions/new?category=q-a
+    about: Please ask and answer questions here.
+  - name: Feature Request
+    url: https://github.com/lucidlayer/traceform/issues/new?template=feature_request.md
+    about: Suggest an idea for Traceform.
+  - name: Report a Bug
+    url: https://github.com/lucidlayer/traceform/issues/new?template=bug_report.md
+    about: Report a reproducible bug or issue.
