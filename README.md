@@ -10,7 +10,7 @@ Traceform is a developer toolchain that lets you select a React component in VS 
 To integrate Traceform into your own React development workflow, follow these steps:
 
 1.  **Install the VS Code Extension:**
-    *   Install the "Traceform" extension from the VS Code Marketplace https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode
+    *   Install the "Traceform" extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode).
 
 2.  **Add the Babel Plugin:**
     *   Install the plugin as a development dependency in your project:
@@ -124,22 +124,11 @@ npm install
 # Run the development server
 npm run dev 
 ```
-
-**go to traceform-test-app--\src\components\Button.tsx**
-
-highlight "Button"
-
-**go to traceform-test-app--\src\components\Card.tsx**
-
-highlight "Card"
-
-**go to traceform-test-app--\src\components\Footer.tsx**
-
-highlight "Footer"
-
-**go to traceform-test-app--\src\components\Header.tsx**
-
-highlight "Header"
+To test highlighting:
+*   Open `traceform-test-app--/src/components/Button.tsx` and highlight `"Button"`.
+*   Open `traceform-test-app--/src/components/Card.tsx` and highlight `"Card"`.
+*   Open `traceform-test-app--/src/components/Footer.tsx` and highlight `"Footer"`.
+*   Open `traceform-test-app--/src/components/Header.tsx` and highlight `"Header"`.
 
 Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting.
 
@@ -157,17 +146,10 @@ npm install
 # Run the development server
 npm run dev 
 ```
-**go to complex\src\components\AlertBanner.tsx**
-
-highlight "AlertBanner"
-
-**go to complex\src\components\Navbar.tsx**
-
-highlight "Navbar"
-
-**go to complex\src\App.tsx**
-
-highlight "Layout" "App"
+To test highlighting:
+*   Open `complex/src/components/AlertBanner.tsx` and highlight `"AlertBanner"`.
+*   Open `complex/src/components/Navbar.tsx` and highlight `"Navbar"`.
+*   Open `complex/src/App.tsx` and highlight `"Layout"` or `"App"`.
 
 Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting. 
 
@@ -175,8 +157,8 @@ Open the provided localhost URL in your browser (with the Traceform extension in
 
 ## Documentation
 
-- [Developer and contributor docs]
-- [Test plan and deployment]
+- [Developer and contributor docs](./traceform/docs/README.md)
+- [Test plan and deployment](./traceform/docs/test_plan_and_deployment.md)
 - [Privacy policy](./traceform/docs/PRIVACY_POLICY.md)
 
 ---
