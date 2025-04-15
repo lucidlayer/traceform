@@ -81,34 +81,33 @@ To integrate Traceform into your own React development workflow, follow these st
     *   See the [Babel Plugin README](./traceform/babel-plugin-traceform/README.md) for detailed configuration options if needed.
 
 3.  **Install the Browser Extension:**
-    *   Build the extension:
-        ```bash
-        cd traceform/browser-extension
-        npm install
-        npm run build # Or the appropriate build script
-        cd ../.. 
-        ```
-    *   Load the unpacked extension into your Chromium-based browser (Chrome, Edge):
-        *   Go to `chrome://extensions` or `edge://extensions`.
-        *   Enable "Developer mode".
-        *   Click "Load unpacked".
-        *   Select the `traceform/browser-extension/dist` directory (or the correct build output directory).
-    *   Refer to the [Browser Extension README](./traceform/browser-extension/README.md) for more details.
+    *   Download the latest `traceform-browser-extension.zip` file from the [Traceform GitHub Releases page](https://github.com/lucidlayer/traceform/releases).
+    *   Unzip the downloaded file (e.g., into a folder named `traceform-browser-extension`).
+    *   Load the unpacked extension into your Chromium-based browser (Chrome, Edge, etc.):
+        *   Navigate to your browser's extensions page (e.g., `chrome://extensions` or `edge://extensions`).
+        *   Enable "Developer mode" (usually a toggle in the top-right corner).
+        *   Click the "Load unpacked" button.
+        *   Select the directory where you unzipped the extension (the `traceform-browser-extension` folder created in the previous step).
+    *   The Traceform extension is now active.
 
 4.  **Usage:**
     *   Run your React application's development server.
     *   Open your project in VS Code.
     *   Open your application in the browser where the Traceform extension is installed.
     *   In VS Code, open a React component file.
-    *   Right-click within the component's code or on its definition.
-    *   Select "Traceform: Find Component in UI".
-    *   The corresponding rendered elements in the browser should be highlighted.
+    *   Right-click within the component's code or on its definition. For example, if you have a styled component like:
+        ```javascript
+        const StyledButton = styled.button<ButtonProps>`...`; 
+        ```
+        You could highlight, then right-click on `StyledButton`.
+    *   Select "Traceform: Find Component in UI" from the context menu.
+    *   The corresponding rendered elements in the browser should now be highlighted.
 
 ---
 
 ## Running the Demos
 
-This repository includes demo applications to test Traceform:
+This repository includes demo applications to test Traceform toolset:
 
 ### 1. Simple Test App (`traceform-test-app--`)
 
@@ -124,7 +123,24 @@ npm install
 # Run the development server
 npm run dev 
 ```
-Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting. See its [README](./traceform-test-app--/README.md) for more details.
+
+**go to traceform-test-app--\src\components\Button.tsx**
+
+highlight "Button"
+
+**go to traceform-test-app--\src\components\Card.tsx**
+
+highlight "Card"
+
+**go to traceform-test-app--\src\components\Footer.tsx**
+
+highlight "Footer"
+
+**go to traceform-test-app--\src\components\Header.tsx**
+
+highlight "Header"
+
+Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting.
 
 ### 2. Complex Demo App (`complex`)
 
@@ -140,14 +156,26 @@ npm install
 # Run the development server
 npm run dev 
 ```
-Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting. See its [README](./complex/README.md) for more details.
+**go to complex\src\components\AlertBanner.tsx**
+
+highlight "AlertBanner"
+
+**go to complex\src\components\Navbar.tsx**
+
+highlight "Navbar"
+
+**go to complex\src\App.tsx**
+
+highlight "Layout" "App"
+
+Open the provided localhost URL in your browser (with the Traceform extension installed) and use the VS Code extension to test highlighting. 
 
 ---
 
 ## Documentation
 
-- [Developer and contributor docs](./traceform/docs/README.md)
-- [Test plan and deployment](./traceform/docs/test_plan_and_deployment.md)
+- [Developer and contributor docs]
+- [Test plan and deployment]
 - [Privacy policy](./traceform/docs/PRIVACY_POLICY.md)
 
 ---
