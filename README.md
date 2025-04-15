@@ -17,7 +17,9 @@ To integrate Traceform into your own React development workflow, follow these st
         # or
         yarn add --dev @lucidlayer/babel-plugin-traceform
         ```
-    *   Configure your `babel.config.js` (or equivalent) to use the plugin, typically only for development builds:
+    *   Configure your build tool to use the plugin, typically only for development builds. Here are examples for common setups:
+
+        **For projects using Babel directly (`babel.config.js` or `.babelrc`):**
         ```javascript
         // Example babel.config.js
         module.exports = {
@@ -29,7 +31,27 @@ To integrate Traceform into your own React development workflow, follow these st
           ].filter(Boolean),
         };
         ```
-    *   See the [Babel Plugin README](./traceform/babel-plugin-traceform/README.md) for detailed configuration options.
+
+        **For projects using Vite (`vite.config.ts` or `vite.config.js`):**
+        ```typescript
+        // Example vite.config.ts
+        import { defineConfig } from 'vite'
+        import react from '@vitejs/plugin-react'
+
+        export default defineConfig({
+          plugins: [
+            react({
+              // Add Traceform plugin only in development
+              babel: process.env.NODE_ENV === 'development' 
+                ? { plugins: ['@lucidlayer/babel-plugin-traceform'] } 
+                : {},
+            }),
+          ],
+        })
+        ```
+        *Note: Ensure you have `@vitejs/plugin-react` installed and configured.*
+
+    *   See the [Babel Plugin README](./traceform/babel-plugin-traceform/README.md) for detailed configuration options if needed.
 
 3.  **Install the Browser Extension:**
     *   Build the extension:
