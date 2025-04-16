@@ -165,6 +165,6 @@ Open the provided localhost URL in your browser (with the Traceform extension in
 
 ## About
 
-Traceform is designed to bridge your React code to the live UI—instantly find where your components render in the browser. 
+Traceform is designed to bridge your React code to the live UI instantly find where your components render in the browser. 
 
 **Learn more at [traceform.framer.website](https://traceform.framer.website/)** or see the subproject READMEs for technical details.
