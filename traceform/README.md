@@ -25,7 +25,7 @@ This structure allows us to maintain a single source of truth while keeping the 
 
 We're documenting our journey building Traceform, including technical decisions and lessons learned:
 
-- [**Blog Index**](./blog/README.md)
+- [**Blog Index**](../blog/README.md)
 
 I've always believed that sharing knowledge accelerates progress. Our developer blog explores the challenges we've encountered and solutions we've discovered along the way.
 
@@ -36,16 +36,34 @@ Getting started with Traceform takes just a few steps:
 1. Install the [Traceform VS Code Extension](./vscode-extension/README.md).
 2. Add the [@lucidlayer/babel-plugin-traceform](./babel-plugin-traceform/README.md) to your React app's development build.
 3. Build and load the [Traceform Browser Extension](./browser-extension/README.md) in Chrome/Edge.
-4. Run the example app in [`../traceform-test-app/`](../traceform-test-app/README.md) for local testing.
+4. Run the example app in [`../traceform-test-app/`](../traceform-test-app/README.md) or [`../complex/`](../complex/README.md) for local testing.
 5. Open your React app, select a component in VS Code, right-click, and choose "Traceform: Find Component in UI".
 
 For detailed setup and troubleshooting, see the README in each subproject.
 
 The investment in setting up Traceform pays off immediately in development speed and reduced frustration. I've found that tools like this fundamentally change how I approach debugging and component verification.
 
-## Example App
 
-The [`../traceform-test-app/`](../traceform-test-app/README.md) directory contains a minimal React + TypeScript + Vite project preconfigured for Traceform testing.
+## Try the Demo Apps
+
+We've included two demo applications that demonstrate Traceform in action:
+
+### Simple Test App
+
+A minimal setup to get you familiar with the basics:
+
+Try highlighting components like `Button`, `Card`, `Footer`, or `Header` in their respective files in the `src/components/` directory.
+
+### Complex Demo
+
+A more representative example of real-world usage:
+
+Highlight components like `AlertBanner`, `Navbar`, or `Layout` to see Traceform in action within a more complex codebase.
+
+Both demos are pre-configured with the Babel plugin, so you can focus on experiencing the core functionality without additional setup.
+
+
+---
 
 I'm a big believer in learning by doing. This example app gives you a sandbox to experience Traceform without having to configure it in your own project first. It's the fastest way to see the value proposition in action.
 
