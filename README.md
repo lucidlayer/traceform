@@ -162,6 +162,11 @@ Open the provided localhost URL in your browser (with the Traceform extension in
 - [Privacy policy](./traceform/docs/PRIVACY_POLICY.md)
 
 ---
+## Developer Blog
+
+Read technical deep dives, updates, and insights about Traceform:
+
+- [**Blog Index**](./blog/README.md)
 
 ## About
 
