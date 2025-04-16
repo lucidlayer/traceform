@@ -1,4 +1,10 @@
 /* === Traceform DevTools Panel Styles === */
+/*
+  IMPORTANT: Do NOT use global selectors like input[type="text"].
+  All input styles must be scoped to .traceform-panel or a specific overlay class.
+  This prevents the extension from overriding styles on all sites.
+  See: https://github.com/traceform/traceform/issues/2
+*/
 
 /* Root layout */
 .traceform-root {
@@ -159,7 +165,8 @@ label {
   font-size: 1em;
 }
 
-input[type="text"] {
+/* Scope input styles to the panel */
+.traceform-panel input[type="text"] {
   background: #23272e;
   color: #e0e6ef;
   border: 1px solid #31363f;
@@ -170,7 +177,7 @@ input[type="text"] {
   outline: none;
   transition: border 0.1s;
 }
-input[type="text"]:focus {
+.traceform-panel input[type="text"]:focus {
   border: 1.5px solid #7fd962;
 }
 
