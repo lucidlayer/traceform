@@ -48,7 +48,7 @@ Setting up Traceform in your project is straightforward:
 2. Add our Babel plugin to your build (dev mode only)
 3. Install the browser extension
 
-For detailed setup instructions and configuration examples, check our [Detailed Setup Instructiosn](./traceform/README.md).
+For detailed setup instructions and configuration examples, check our [Detailed Setup Instructions](./traceform/README.md).
 
 ## What's Next
 
