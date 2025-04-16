@@ -13,6 +13,13 @@ Traceform is a developer toolchain that lets you select a React component in VS 
 - `vscode-extension/` – VS Code extension for "Find in UI" (with integrated bridge server)
 - `../traceform-test-app/` – Example React app for testing Traceform
 - `docs/` – Developer and contributor documentation
+- `blog/` - Developer blog articles
+
+## Developer Blog
+
+Read technical deep dives, updates, and insights about Traceform:
+
+- [**Blog Index**](./blog/README.md)
 
 ## Quick Start
 
