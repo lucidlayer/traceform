@@ -1,9 +1,4 @@
----
-title: "Traceform: A Technical Deep Dive"
-date: "2025-04-15"
-tags: ["react", "debugging", "devtools", "vscode", "babel", "architecture", "dx"]
----
-						 
+					 
 # Traceform: A Technical Deep Dive
 
 *April 15, 2025*
