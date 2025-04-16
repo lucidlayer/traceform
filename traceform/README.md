@@ -51,4 +51,4 @@ I'm a big believer in learning by doing. This example app gives you a sandbox to
 
 ---
 
-Great developer tools don't just solve problems,they make entire categories of problems disappear. My hope is that Traceform simplifies your React development workflow and sparks ideas for other tools that might bridge similar gaps in our development experience.
+Great developer tools don't just solve problems, they make entire categories of problems disappear. My hope is that Traceform simplifies your React development workflow and sparks ideas for other tools that might bridge similar gaps in our development experience.
