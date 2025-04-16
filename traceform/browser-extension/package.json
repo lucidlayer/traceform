@@ -37,5 +37,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "overrides": {
+    "braces": ">=3.0.3"
   }
 }
