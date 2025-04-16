@@ -1,71 +1,149 @@
-# @lucidlayer/babel-plugin-traceform
+# Traceform Babel Plugin
 
-Injects a `data-traceform-id="ComponentName"` attribute into React components for live UI mapping with [Traceform](https://traceform.framer.website/).
+## What It Is
 
-This plugin is part of the [Traceform](../../README.md) monorepo. Use it together with the Traceform VS Code extension and browser extension for full code-to-UI mapping functionality.
+The Traceform Babel plugin is a direct bridge from your source code to what actually renders in the browser. It takes your React components and automatically injects a unique identifier when they compile. Simple concept, powerful results.
 
-## Installation
+No more guessing which part of your code creates which UI elements. No more hunting through component hierarchies.
 
-```bash
+## How It Works
+
+At its core, the plugin does one thing really well, it adds ID markers to your components during build:
+
+1. **AST Traversal** - We hook into Babel's compilation process
+2. **Component Detection** - We find React components using naming conventions
+3. **ID Generation** - We create a unique ID (`path:ComponentName:0`)
+4. **DOM Injection** - We add this as a `data-traceform-id` attribute to your root JSX element
+
+When paired with our VSCode extension and browser extension, these IDs become the magic that lets you jump from code to UI with a single click.
+
+## Setup & Installation
+
+1. Add the plugin to your project:
+```
 npm install --save-dev @lucidlayer/babel-plugin-traceform
-# or
-yarn add --dev @lucidlayer/babel-plugin-traceform
 ```
 
-## Usage
-
-1. Add `@lucidlayer/babel-plugin-traceform` to your Babel config (e.g., `.babelrc`, `babel.config.js`), only in development mode.
-2. For Vite, add it to the `babel.plugins` array in your `vite.config.ts` (see below).
-
-**Example (babel.config.js):**
+2. Enable it in your Babel config (dev only!):
 ```js
-module.exports = function (api) {
-  const isDevelopment = api.env('development');
-  return {
-    plugins: [
-      ...(isDevelopment ? ['@lucidlayer/babel-plugin-traceform'] : [])
-    ],
-    presets: [/* your presets */],
-  };
-};
+// babel.config.js
+module.exports = {
+  plugins: [
+    process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform'
+  ].filter(Boolean)
+}
 ```
 
-**Example (Vite):**
-
-Make sure to only include the plugin during development.
-
-```ts
-// vite.config.ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
-export default defineConfig(({ command }) => { // Use function form to access command
-  const isDevelopment = command === 'serve'; // 'serve' is Vite's dev command
-
-  return {
-    plugins: [
-      react({
-        babel: {
-          plugins: [
-            // Only include the plugin in development mode
-            ...(isDevelopment ? ['@lucidlayer/babel-plugin-traceform'] : []),
-          ],
-        },
-      }),
-    ],
-    // ... other Vite config
-  };
-});
+3. For Vite projects, it's just as simple:
+```js
+// vite.config.js
+export default {
+  plugins: [
+    react({
+      babel: {
+        plugins: [
+          process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform'
+        ].filter(Boolean)
+      }
+    })
+  ]
+}
 ```
 
-## Example App
+## Key Features
 
-To test the plugin, use the example React app in [`../../traceform-test-app/`](../../traceform-test-app/README.md), which is preconfigured for Traceform.
+### Smart Component Detection
 
-## Notes
+The plugin recognizes React components across multiple syntax patterns:
 
-- Only injects on the root JSX element of each component.
-- Intended for development only.
-- Requires standard React component naming (uppercase).
+```jsx
+// We detect all these variations
+function Button() { return <button>Click</button> }
+const Card = () => <div>Content</div>
+const Menu = React.memo(() => <nav>Links</nav>)
+```
 
-For more info, visit the [Traceform Website](https://traceform.framer.website/) or see the [Traceform root README](../../README.md).
+It identifies components by:
+- Looking for uppercase names (React convention)
+- Handling HOCs like `React.memo` and `React.forwardRef`
+- Finding the root JSX element returned from each component
+
+### Consistent Path Resolution
+
+To ensure IDs work across your team and environments:
+- Automatically detects your project root (including monorepos)
+- Normalizes paths for cross platform compatibility
+- Creates relative paths that match how VSCode identifies files
+
+### Perfect ID Matching
+
+We generate IDs with extreme care to ensure VSCode and your browser see the same thing:
+```
+src/components/Button.tsx:Button:0
+```
+
+This format (`relativePath:ComponentName:InstanceIndex`) creates a perfect match between your source code location and rendered DOM elements.
+
+## Technical Implementation
+
+### Core Logic Flow
+
+```
+┌──────────────┐        ┌───────────────┐       ┌────────────────┐       ┌────────────────┐
+│ Parse React  │ ─────► │ Find Component│ ────► │ Locate Root    │ ────► │ Generate       │
+│ Component    │        │ Definition    │       │ JSX Element    │       │ Tracefotm ID   │
+└──────────────┘        └───────────────┘       └────────────────┘       └────────────────┘
+                                                                                  │
+                                                                                  ▼
+┌──────────────┐        ┌───────────────┐       ┌────────────────┐       ┌────────────────┐
+│ Output       │ ◄───── │ Generate New  │ ◄──── │ Create JSX     │ ◄──── │ Calculate      │
+│ Modified AST │        │ Code          │       │ Attribute Node │       │ Relative Path  │
+└──────────────┘        └───────────────┘       └────────────────┘       └────────────────┘
+```
+
+The plugin scans for function declarations and arrow functions, verifies they're likely React components, finds their return value, and injects our attribute.
+
+### Workspace Root Detection
+
+For consistent IDs, we find your project root by looking for:
+- `lerna.json`, `pnpm-workspace.yaml`, `nx.json` (monorepo markers)
+- `package.json` with workspaces field
+- `.git` directory (fallback)
+
+Then we calculate all paths relative to this root.
+
+### Example Transformation
+
+From this:
+```jsx
+function Button(props) {
+  return <button className="btn">{props.children}</button>
+}
+```
+
+To this:
+```jsx
+function Button(props) {
+  return <button className="btn" data-traceform-id="src/components/Button.jsx:Button:0">{props.children}</button>
+}
+```
+
+The change is minimal but enables the entire Traceform workflow.
+
+## Integration with Traceform
+
+This Babel plugin is one piece of our three-part system:
+
+1. **Babel Plugin** → Injects IDs during build
+2. **VSCode Extension** → Finds components and generates matching IDs
+3. **Browser Extension** → Highlights elements using these IDs
+
+Together, they create a seamless developer experience where your code and UI are always connected.
+
+## About Traceform
+
+Traceform eliminates the constant context switching between code and UI. We're building tools that make front-end development more intuitive by connecting what you write to what you see.
+
+---
+
+*This plugin is part of the Traceform developer toolset. For more information, visit [traceform github](https://github.com/lucidlayer/traceform)*
