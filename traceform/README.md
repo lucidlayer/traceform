@@ -4,7 +4,7 @@ Bridge your React code to the live UI, instantly find where your components rend
 
 ## What is Traceform?
 
-I've always been frustrated by how disconnected our code is from what users actually see. That's why we built Traceform—a developer toolchain that lets you select any React component in VS Code and instantly see where it renders in your browser. 
+I've always been frustrated by how disconnected our code is from what users actually see. That's why we built Traceform, a developer toolchain that lets you select any React component in VS Code and instantly see where it renders in your browser. 
 
 The magic happens through three integrated tools: a Babel plugin that instruments your components, a VS Code extension that handles the UI interaction, and a browser extension that highlights the rendered elements. It's a simple idea that solves a daily pain point for React developers.
 
@@ -51,4 +51,4 @@ I'm a big believer in learning by doing. This example app gives you a sandbox to
 
 ---
 
-Great developer tools don't just solve problems—they make entire categories of problems disappear. My hope is that Traceform simplifies your React development workflow and sparks ideas for other tools that might bridge similar gaps in our development experience.
+Great developer tools don't just solve problems,they make entire categories of problems disappear. My hope is that Traceform simplifies your React development workflow and sparks ideas for other tools that might bridge similar gaps in our development experience.
