@@ -1,48 +1,94 @@
-# Traceform
+# Traceform: Bridging the Gap Between Code and UI
 
-Bridge your React code to the live UI, instantly find where your components render in the browser.
 
-## What is Traceform?
+I'm excited to share Traceform with you, a developer toolchain we've built to solve a persistent challenge in React development. With Traceform, you can select any React component in VS Code and instantly see all its rendered instances highlighted in your browser. It's the kind of tool I wish I'd had years ago.
 
-I've always been frustrated by how disconnected our code is from what users actually see. That's why we built Traceform, a developer toolchain that lets you select any React component in VS Code and instantly see where it renders in your browser. 
+---
 
-The magic happens through three integrated tools: a Babel plugin that instruments your components, a VS Code extension that handles the UI interaction, and a browser extension that highlights the rendered elements. It's a simple idea that solves a daily pain point for React developers.
+## Getting Started with Traceform
 
-## Monorepo Structure
+Setting up Traceform in your project is straightforward. We've put significant effort into making the integration process as frictionless as possible:
 
-We've structured Traceform as a monorepo to keep everything organized and interconnected:
+1.  **Install the VS Code Extension**
+    * Get the "Traceform" extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode).
 
-- `babel-plugin-traceform/` – Babel plugin that injects `data-traceform-id` attributes
-- `browser-extension/` – Browser extension for DOM highlighting
-- `vscode-extension/` – VS Code extension for "Find in UI" (with integrated bridge server)
-- `../traceform-test-app/` – Example React app for testing Traceform
-- `docs/` – Developer and contributor documentation
-- `blog/` - Developer blog articles
+2.  **Add the Babel Plugin**
+    * Install it as a dev dependency:
+      ```bash
+      npm install --save-dev @lucidlayer/babel-plugin-traceform
+      # or
+      yarn add --dev @lucidlayer/babel-plugin-traceform
+      ```
+    * Configure your build tool to use the plugin (development mode only):
 
-This structure allows us to maintain a single source of truth while keeping the components modular. Each piece serves a specific purpose but works in concert with the others.
+      **For Babel config files (including Next.js):**
+      ```javascript
+      // Example babel.config.js
+      module.exports = {
+        presets: [/* your presets */],
+        plugins: [
+          // Add Traceform plugin only in development
+          process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
+        ].filter(Boolean),
+      };
 
-## Developer Blog
+      // For Next.js (.babelrc)
+      // {
+      //   "presets": ["next/babel"],
+      //   "plugins": [
+      //     process.env.NODE_ENV === 'development' && "@lucidlayer/babel-plugin-traceform"
+      //   ].filter(Boolean)
+      // }
+      ```
 
-We're documenting our journey building Traceform, including technical decisions and lessons learned:
+      **For Vite projects:**
+      ```typescript
+      // Example vite.config.ts
+      import { defineConfig } from 'vite'
+      import react from '@vitejs/plugin-react'
 
-- [**Blog Index**](../blog/README.md)
+      export default defineConfig({
+        plugins: [
+          react({
+            babel: process.env.NODE_ENV === 'development' 
+              ? { plugins: ['@lucidlayer/babel-plugin-traceform'] } 
+              : {},
+          }),
+        ],
+      })
+      ```
 
-I've always believed that sharing knowledge accelerates progress. Our developer blog explores the challenges we've encountered and solutions we've discovered along the way.
+      **For Create React App (using craco):**
+      ```javascript
+      // craco.config.js
+      module.exports = {
+        babel: {
+          plugins: [
+            process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
+          ].filter(Boolean),
+        },
+      };
+      ```
 
-## Quick Start
+3.  **Install the Browser Extension**
+    * Download `traceform-browser-extension.zip` from the [GitHub Releases page](https://github.com/lucidlayer/traceform/releases)
+    * Unzip the file
+    * Load as an unpacked extension in Chrome/Edge:
+      * Go to `chrome://extensions` or `edge://extensions`
+      * Enable "Developer mode"
+      * Click "Load unpacked" and select the unzipped folder
 
-Getting started with Traceform takes just a few steps:
+4.  **Using Traceform**
+    * Run your React app's dev server
+    * Open your project in VS Code
+    * Open your app in the browser with the Traceform extension installed
+    * In VS Code, right-click on a React component name or definition
+    * Select "Traceform: Find Component in UI"
+    * Watch as the component instances light up in your browser
 
-1. Install the [Traceform VS Code Extension](./vscode-extension/README.md).
-2. Add the [@lucidlayer/babel-plugin-traceform](./babel-plugin-traceform/README.md) to your React app's development build.
-3. Build and load the [Traceform Browser Extension](./browser-extension/README.md) in Chrome/Edge.
-4. Run the example app in [`../traceform-test-app/`](../traceform-test-app/README.md) or [`../complex/`](../complex/README.md) for local testing.
-5. Open your React app, select a component in VS Code, right-click, and choose "Traceform: Find Component in UI".
+I've found that this setup process pays dividends almost immediately. Once configured, the time you save during development compounds with every debugging session.
 
-For detailed setup and troubleshooting, see the README in each subproject.
-
-The investment in setting up Traceform pays off immediately in development speed and reduced frustration. I've found that tools like this fundamentally change how I approach debugging and component verification.
-
+---
 
 ## Try the Demo Apps
 
@@ -52,21 +98,48 @@ We've included two demo applications that demonstrate Traceform in action:
 
 A minimal setup to get you familiar with the basics:
 
+```bash
+cd traceform-test-app--
+npm install
+npm run dev
+```
+
 Try highlighting components like `Button`, `Card`, `Footer`, or `Header` in their respective files in the `src/components/` directory.
 
 ### Complex Demo
 
 A more representative example of real-world usage:
 
+```bash
+cd complex
+npm install
+npm run dev
+```
+
 Highlight components like `AlertBanner`, `Navbar`, or `Layout` to see Traceform in action within a more complex codebase.
 
 Both demos are pre-configured with the Babel plugin, so you can focus on experiencing the core functionality without additional setup.
 
-
 ---
 
-I'm a big believer in learning by doing. This example app gives you a sandbox to experience Traceform without having to configure it in your own project first. It's the fastest way to see the value proposition in action.
+## Documentation & Resources
 
----
+For those who want to dig deeper:
 
-Great developer tools don't just solve problems, they make entire categories of problems disappear. My hope is that Traceform simplifies your React development workflow and sparks ideas for other tools that might bridge similar gaps in our development experience.
+- [Developer and contributor docs](docs/README.md)
+- [Test plan and deployment](docs/test_plan_and_deployment.md)
+- [Privacy policy](docs/PRIVACY_POLICY.md)
+
+## Developer Blog
+
+We're documenting our journey building Traceform, including technical decisions and lessons learned:
+
+- [**Blog Index**](../blog/README.md)
+
+## Final Thoughts
+
+Creating tools like Traceform reminds me why I'm passionate about developer experience. The right tools don't just save time, they fundamentally change how we approach problems. When the gap between writing code and seeing its impact narrows, creativity flourishes.
+
+I hope Traceform helps you build better React applications with less friction. We're continuing to evolve this toolset based on real-world feedback, so please share your experiences with us.
+
+**Learn more at [traceform.framer.website](https://traceform.framer.website/)** or explore the subproject READMEs for technical details.
