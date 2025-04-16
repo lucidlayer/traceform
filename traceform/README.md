@@ -1,6 +1,6 @@
 # Traceform
 
-Bridge your React code to the live UI—instantly find where your components render in the browser.
+Bridge your React code to the live UI, instantly find where your components render in the browser.
 
 ## What is Traceform?
 
