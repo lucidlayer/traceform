@@ -6,7 +6,7 @@ Developer and contributor documentation for the [Traceform](https://traceform.fr
 
 - [test_plan_and_deployment.md](./test_plan_and_deployment.md) – How to test and deploy the Traceform toolchain
 - [PRIVACY_POLICY.md](./PRIVACY_POLICY.md) – Privacy policy for Traceform
-- (Add more docs here as needed)
+- (More docs coming soon...)
 
 See the [Traceform root README](../README.md) for an overview and quick start, or visit the [Traceform Website](https://traceform.framer.website/).
 
