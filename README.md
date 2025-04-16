@@ -4,6 +4,11 @@ We've been thinking deeply about developer experience, and today we're excited t
 
 ## What Traceform Solves
 
+<video controls width="100%">
+  <source src="alertbanner.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
 Frontend development complexity continues to grow. When you're navigating a large React codebase, connecting what you're seeing in the browser with the component you're editing becomes a friction point. This is the kind of problem that doesn't sound important until you've wasted hours of your development time on it.
 
 The best developer tools don't just solve problems, they make entire categories of problems disappear.
