@@ -1,5 +1,25 @@
 const OVERLAY_CONTAINER_ID = 'traceform-overlay-container';
 const OVERLAY_CLASS = 'traceform-highlight-overlay';
+const OVERLAY_STYLE_ID = 'traceform-highlight-overlay-style';
+
+// Inject minimal CSS for the highlight overlay if not already present
+function ensureOverlayStyle() {
+  if (!document.getElementById(OVERLAY_STYLE_ID)) {
+    const style = document.createElement('style');
+    style.id = OVERLAY_STYLE_ID;
+    style.textContent = `
+.traceform-highlight-overlay {
+  background: rgba(127, 217, 98, 0.25);
+  border: 2px solid #7fd962;
+  border-radius: 4px;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 1000000;
+}
+    `.trim();
+    document.head.appendChild(style);
+  }
+}
 
 // Ensure the overlay container exists
 function getOverlayContainer(): HTMLElement {
@@ -33,6 +53,7 @@ export function removeOverlays(): void {
 // Create and add overlays for found elements
 export function highlightElements(traceformId: string): void { // Accept full traceformId
   removeOverlays(); // Clear previous highlights first
+  ensureOverlayStyle(); // Inject minimal overlay CSS
   const container = getOverlayContainer();
 
   // Find all elements matching the full data-traceform-id attribute
