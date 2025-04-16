@@ -2,7 +2,7 @@
 
 ## What It Is
 
-The Traceform VSCode extension is a bridge between your code and your running web application. It's simple but powerful: select a component in your source code, trigger "Find in UI", and watch as that component gets highlighted in your browser. 
+The Traceform VSCode extension is a bridge between your code and your running web application. It's simple but powerful, select a component in your source code, trigger "Find in UI", and watch as that component gets highlighted in your browser. 
 
 No more context switching between code and UI. No more guessing which component renders what.
 
@@ -19,8 +19,8 @@ When you trigger the "Find in UI" command, we generate a unique ID for your comp
 
 ## Setup & Installation
 
-1. Install the Traceform VSCode Extension from the marketplace
-2. Install the Traceform Browser Extension (Chrome/Firefox/Edge)
+1. Install the Traceform VSCode Extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode)
+2. Install the Traceform Browser [Extension](https://github.com/lucidlayer/traceform/releases) (Chrome/Firefox/Edge)
 3. That's it - when you open a React/Vue/Angular project, the bridge server starts automatically
 
 ## Key Features
@@ -100,7 +100,7 @@ All extension commands are accessible via VS Code's Command Palette:
 
 1. **Port Conflicts**: If port 9901 is already in use, the extension will attempt to:
    - Check if the existing process is another Traceform server
-   - Use it if compatible; otherwise report the conflict
+   - Use it if compatible, otherwise report the conflict
 
 2. **Connection Issues**: Check the sidebar for logs. The client implements automatic reconnection with exponential backoff (5-60 seconds).
 
@@ -120,4 +120,4 @@ Traceform aims to seamlessly connect your code to its rendered UI, eliminating t
 
 ---
 
-*This extension is part of the Traceform developer toolset. For more information, visit [traceform.dev](https://traceform.dev)*
+*This extension is part of the Traceform developer toolset. For more information, visit [traceform github](https://github.com/lucidlayer/traceform)*
