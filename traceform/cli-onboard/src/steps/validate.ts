@@ -1,9 +1,10 @@
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 
 // This step guides the user through a manual validation process.
 
 export async function runValidation(): Promise<void> {
-  console.log('Guiding you through the validation process...');
+  console.log(chalk.bold('Guiding you through the final validation process...'));
 
   console.log(chalk.yellow('\nAction Required: Please follow these steps to validate your Traceform setup:'));
   console.log('  1. Ensure your React development server is running.');
@@ -16,15 +17,27 @@ export async function runValidation(): Promise<void> {
   console.log('  5. Right-click on the component name (e.g., `Button`).');
   console.log('  6. Select "Traceform: Find Component in UI" from the context menu.');
   console.log(chalk.yellow('  7. Check your browser. Did the instances of that component get highlighted?'));
+  console.log(''); // Add spacing
 
-  console.log(chalk.cyan('\nIf the component instances were highlighted in the browser:'));
-  console.log(chalk.green.bold('  🎉 Congratulations! Your Traceform setup is working correctly!'));
-  console.log(chalk.cyan('\nIf highlighting did not work:'));
-  console.log(chalk.red('  - Double-check all previous setup steps (VS Code ext, Babel plugin config, Browser ext).'));
-  console.log(chalk.red('  - Ensure the Babel plugin is active in your DEV build.'));
-  console.log(chalk.red('  - Check the VS Code Traceform sidebar for connection status/errors.'));
-  console.log(chalk.red('  - Check the browser extension\'s service worker status (see `chrome://extensions`).'));
-  console.log(chalk.red('  - Consult the troubleshooting sections in the README files.'));
+  const { worked } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'worked',
+      message: 'Did the component highlighting work correctly in the browser?',
+      default: false,
+    },
+  ]);
 
-  // In a more interactive CLI, we could ask for confirmation.
+  if (worked) {
+    console.log(chalk.green.bold('\n🎉 Congratulations! Your Traceform setup is working correctly!'));
+  } else {
+    console.log(chalk.red.bold('\n❌ Validation failed.'));
+    console.log(chalk.cyan('  Troubleshooting Tips:'));
+    console.log(chalk.cyan('  - Double-check all previous setup steps (VS Code ext enabled, Babel plugin config correct, Browser ext enabled).'));
+    console.log(chalk.cyan('  - Ensure the Babel plugin is active in your DEV build (check terminal output).'));
+    console.log(chalk.cyan('  - Check the VS Code Traceform sidebar for connection status/errors.'));
+    console.log(chalk.cyan('  - Check the browser extension\'s service worker status (see `chrome://extensions`).'));
+    console.log(chalk.cyan('  - Consult the troubleshooting sections in the README files.'));
+    console.log(chalk.cyan('  - Try restarting VS Code and your browser.'));
+  }
 }

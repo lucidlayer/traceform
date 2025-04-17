@@ -1,11 +1,10 @@
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 
 // Note: Programmatically checking browser extension installation is not feasible.
 // We will guide the user through the manual installation process.
 
 export async function checkBrowserExtension(): Promise<boolean> {
-  console.log('Checking Browser Extension setup...');
-
   console.log(chalk.yellow('Action Required: Please install the Traceform browser extension manually.'));
   console.log('  1. Download the latest `traceform-browser-extension.zip` from GitHub Releases:');
   console.log(chalk.cyan('     https://github.com/lucidlayer/traceform/releases'));
@@ -18,9 +17,22 @@ export async function checkBrowserExtension(): Promise<boolean> {
   console.log('  6. Click the "Load unpacked" button.');
   console.log('  7. Select the directory where you unzipped the extension files.');
   console.log('  8. Ensure the "Traceform" extension appears in your list and is enabled.');
+  console.log(''); // Add spacing
 
-  // Assume the user follows instructions.
-  console.log(chalk.green('\nPlease verify the extension is installed and enabled manually. Assuming OK for now.'));
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message: 'Have you installed and enabled the Traceform Browser extension?',
+      default: false, // Default to no, requiring explicit confirmation
+    },
+  ]);
 
-  return true; // Return true to allow the check process to continue
+  if (confirmed) {
+    console.log(chalk.green('  Browser Extension step confirmed.'));
+  } else {
+    console.log(chalk.yellow('  Please install/enable the Browser extension and run the check again.'));
+  }
+
+  return confirmed;
 }
