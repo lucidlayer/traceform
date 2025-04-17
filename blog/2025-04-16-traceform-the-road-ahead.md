@@ -2,7 +2,7 @@
 
 *April 16, 2025*
 
-Yesterday we introduced Traceform, our solution for connecting your code to your interface in real-time. The response has been tremendous – we've seen over 1,500 downloads in just 24 hours, and the feedback is already shaping our roadmap in meaningful ways.
+Yesterday we introduced Traceform, our solution for connecting your code to your interface in real time. 
 
 ## First Day Insights
 
