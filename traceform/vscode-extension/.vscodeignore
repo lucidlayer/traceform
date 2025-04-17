@@ -1,0 +1,24 @@
+# Ignore build output (we only need the final package)
+*.vsix
+
+# Ignore source code and tests
+src/
+__tests__/
+
+# Ignore most dependency source folders, BUT keep necessary runtime JS from toolkit
+node_modules/
+!node_modules/@vscode/webview-ui-toolkit/**/dist/**/*.js
+
+# Ignore config files
+.vscode/**
+tsconfig.json
+.eslintrc.js
+.prettierrc
+.gitignore
+package-lock.json # Not needed at runtime
+
+# Ignore test config if any
+jest.config.js
+
+# Ignore potentially sensitive files
+.env*
