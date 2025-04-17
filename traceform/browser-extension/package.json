@@ -1,6 +1,6 @@
 {
   "name": "traceform-browser-extension",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Browser extension component for Traceform",
   "private": true,
   "scripts": {
