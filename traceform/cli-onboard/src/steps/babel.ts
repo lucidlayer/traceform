@@ -46,6 +46,11 @@ export default defineConfig({
     }),
   ],
 })
+
+// Note: If you get a TypeScript error like "Cannot find name 'process'",
+// you may need to install Node.js types in your project:
+// npm install --save-dev @types/node
+// or yarn add --dev @types/node
 `;
     case 'cra': // Assumes craco
       return `
