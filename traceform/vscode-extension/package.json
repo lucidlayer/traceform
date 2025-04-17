@@ -1,8 +1,8 @@
 {
   "name": "traceform-vscode",
   "displayName": "Traceform for VS Code",
-  "description": "VS Code extension for Traceform. Maps source code to browser UI elements.",
-  "version": "0.1.25",
+  "description": "VS Code extension for Traceform. Instantly map React source code components to their rendered elements in the browser for faster debugging and development.",
+  "version": "0.1.26",
   "private": false,
   "publisher": "LucidLayer",
   "repository": {
@@ -15,21 +15,34 @@
   },
   "license": "MIT",
   "keywords": [
+    "vscode",
+    "vscode-extension",
+    "visual studio code",
     "react",
-    "debug",
-    "ui",
+    "reactjs",
+    "jsx",
+    "typescript",
+    "javascript",
     "frontend",
+    "component",
+    "traceform",
+    "debugging",
     "developer tools",
-    "mapping",
-    "trace",
-    "component"
+    "devtools",
+    "code-mapping",
+    "ui-mapping",
+    "source-location",
+    "element inspection",
+    "code navigation",
+    "browser integration",
+    "source map"
   ],
   "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
-    "Other",
+    "Debuggers",
     "Programming Languages"
   ],
   "activationEvents": [
@@ -107,8 +120,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "watch": "npm run compile -- --watch",
     "lint": "eslint src --ext ts",
     "format": "prettier --write src/**/*.ts",
     "test": "vscode-test",
@@ -128,6 +141,7 @@
     "@vscode/test-cli": "^0.0.6",
     "@vscode/test-electron": "^2.3.9",
     "@vscode/vsce": "^3.3.2",
+    "esbuild": "^0.25.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
