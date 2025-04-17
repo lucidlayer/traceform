@@ -1,40 +1,58 @@
 # Traceform Onboarding CLI (`@lucidlayer/traceform-onboard`)
 
-This package provides a command-line wizard to help developers set up and validate the Traceform toolset in their projects.
+## What It Is
 
-## Purpose
+The Traceform Onboarding CLI is a command-line wizard designed to streamline the setup and validation of the Traceform toolset within your React projects. It acts as your guide, ensuring all components (VS Code extension, Babel plugin, Browser extension) are correctly installed and configured.
 
-Traceform involves multiple components (VS Code extension, Babel plugin, Browser extension). This CLI tool aims to simplify the setup process by:
+Think of it as your setup assistant, removing the guesswork and ensuring a smooth start with Traceform.
 
-- Checking prerequisites (Node.js, package manager).
-- Guiding the installation and configuration of each Traceform component.
-- Providing contextual help based on the project setup.
-- Offering a final validation step to ensure everything works together.
+## How It Works
 
-## Usage
+The CLI tool simplifies the Traceform setup process by automating checks and providing clear instructions:
 
-It's recommended to run this tool using `npx` within your project's root directory:
+1.  **Environment Check:** Verifies you have compatible versions of Node.js and a supported package manager (npm, yarn, or pnpm).
+2.  **Component Guidance:** Walks you through the installation and verification of each Traceform piece:
+    *   **VS Code Extension:** Checks if it's installed and provides marketplace links.
+    *   **Babel Plugin:** Scans your `package.json` and common config files (`babel.config.js`, `vite.config.ts`, etc.) to ensure the plugin is installed and configured correctly, offering setup snippets if needed.
+    *   **Browser Extension:** Guides the manual installation process using the `.zip` file from GitHub Releases.
+3.  **Validation:** Offers a final check to confirm the entire toolchain is working end-to-end, typically by using the "Find Component in UI" feature.
+
+## Setup & Usage
+
+Running the onboarding wizard is straightforward. Use `npx` to execute it directly within your project's root directory:
 
 ```bash
 npx @lucidlayer/traceform-onboard check
 ```
 
-The `check` command will walk you through the necessary steps.
+The `check` command initiates the interactive wizard, guiding you through each setup step.
 
-## Functionality
+## Key Features
 
-The wizard performs the following checks and provides guidance:
+*   **Interactive Wizard:** Step-by-step guidance simplifies the setup process.
+*   **Prerequisite Checks:** Ensures your development environment meets Traceform's requirements.
+*   **Automated Detection:** Scans project files to verify installation and configuration of the Babel plugin.
+*   **Contextual Instructions:** Provides tailored guidance based on your project setup (e.g., Vite vs. Babel config).
+*   **Clear Validation Steps:** Helps you confirm that Traceform is functioning correctly after setup.
 
-1.  **Prerequisites:** Verifies compatible Node.js and package manager (npm/yarn/pnpm) versions.
-2.  **VS Code Extension:** Instructs on finding and installing the "Traceform" extension from the Marketplace.
-3.  **Babel Plugin:** Checks `package.json` for the `@lucidlayer/babel-plugin-traceform` dependency and scans common config files (`babel.config.js`, `vite.config.ts`, etc.) for its usage, offering setup snippets.
-4.  **Browser Extension:** Guides the manual installation process using the `.zip` file from GitHub Releases.
-5.  **Validation:** Provides steps to manually test the complete setup by using the "Find Component in UI" feature and checking for highlights in the browser.
+## Technical Implementation
 
-## Contributing
+This CLI tool is built with Node.js and utilizes libraries such as:
 
-This package is part of the [Traceform monorepo](https://github.com/lucidlayer/traceform). See the main project README for contribution guidelines.
+*   `commander`: For parsing command-line arguments.
+*   `inquirer`: For creating the interactive prompt experience.
+*   `chalk`: For styling terminal output.
+*   `fs-extra`: For file system interactions (reading `package.json`, config files).
+*   `execa`: For running checks like Node.js/npm versions.
+
+## Integration with Traceform
+
+The Onboarding CLI is the recommended starting point for integrating Traceform into your project. It ensures that the other core components – the VS Code Extension, Babel Plugin, and Browser Extension – are correctly installed and configured to work together seamlessly.
+
+## About Traceform
+
+Traceform aims to seamlessly connect your code to its rendered UI, eliminating the mental overhead of context switching and making front-end development more intuitive.
 
 ---
 
-*This CLI tool is part of the Traceform developer toolset.*
+*This CLI tool is part of the Traceform developer toolset. For more information, visit [github.com/lucidlayer/traceform](https://github.com/lucidlayer/traceform)*
