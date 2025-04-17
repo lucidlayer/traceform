@@ -195,35 +195,54 @@ async function checkConfigFiles(projectRoot: string): Promise<boolean> {
 
   if (!foundInConfig) {
     console.log(chalk.red(`\n  Error: Could not find ${BABEL_PLUGIN_NAME} configured in common build tool config files.`));
+    // Add clarification that the dependency itself IS present at this point
+    console.log(chalk.cyan(`  (Note: The dependency ${BABEL_PLUGIN_NAME} was found in your package.json, but it still needs to be configured below).`));
     const projectType = await detectProjectType(projectRoot);
-    console.log(chalk.yellow('\n  Action Required: Please add the plugin to your build configuration for DEVELOPMENT builds.'));
-    console.log(chalk.cyan('  Based on your project structure, we detected type:', projectType));
-    console.log(chalk.cyan('  Here is an example configuration snippet:'));
-    console.log(chalk.gray('--------------------------------------------------'));
-    console.log(getBabelConfigSnippet(projectType));
-    console.log(chalk.gray('--------------------------------------------------'));
+    let targetFileName = 'your Babel/Vite/Craco config file';
+    // Suggest a specific file based on detection
+    if (projectType === 'vite') targetFileName = 'vite.config.js / vite.config.ts';
+    else if (projectType === 'cra') targetFileName = 'craco.config.js';
+    else if (projectType === 'next') targetFileName = '.babelrc';
+    else if (projectType === 'babel') targetFileName = 'babel.config.js / .babelrc / .babelrc.js';
+
+    console.log(chalk.yellow(`\n  Action Required: Please add the plugin to ${chalk.bold(targetFileName)} for DEVELOPMENT builds.`));
+    console.log(chalk.cyan('  Copy and paste the following snippet into the appropriate section:'));
+    console.log(chalk.gray('\n------------------- SNIPPET START ------------------'));
+    // Indent the snippet slightly for clarity
+    const snippet = getBabelConfigSnippet(projectType).split('\n').map(line => `  ${line}`).join('\n');
+    console.log(chalk.white(snippet));
+    console.log(chalk.gray('-------------------- SNIPPET END -------------------'));
     return false;
   }
 
   return true;
 }
 
+type BabelCheckStatus = 'passed' | 'failed_dependency' | 'failed_config';
+
 // --- Exported Function ---
 
-export async function checkBabelPlugin(): Promise<boolean> {
+export async function checkBabelPlugin(): Promise<BabelCheckStatus> {
   console.log(chalk.bold('Checking Babel Plugin setup...'));
   const projectRoot = process.cwd(); // Get directory where command was run
   console.log(`  (Using project root: ${projectRoot})`);
 
-  const depCheckPassed = await checkPackageJson(projectRoot);
-  // Only check config if dependency is installed (or was just installed)
-  const configCheckPassed = depCheckPassed ? await checkConfigFiles(projectRoot) : false;
+  const depCheckResult = await checkPackageJson(projectRoot);
+  if (!depCheckResult) {
+    // If dependency check failed (and user likely declined install)
+    console.log(chalk.red.bold('\n❌ Babel plugin dependency is missing.'));
+    return 'failed_dependency';
+  }
 
-  if (depCheckPassed && configCheckPassed) {
+  // Dependency is present, now check config
+  const configCheckPassed = await checkConfigFiles(projectRoot);
+
+  if (configCheckPassed) {
      console.log(chalk.green.bold('\n✅ Babel plugin setup appears correct.'));
-     return true;
+     return 'passed';
   } else {
-     console.log(chalk.red.bold('\n❌ Babel plugin setup check failed or is incomplete. Please address the issues above.'));
-     return false;
+     // Dependency present, but config is missing/incorrect
+     console.log(chalk.red.bold('\n❌ Babel plugin configuration is missing or incorrect. Please address the issues above.'));
+     return 'failed_config';
   }
 }
