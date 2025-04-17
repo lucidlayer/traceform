@@ -2,9 +2,10 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import inquirer from 'inquirer'; // Import inquirer
 import { checkPrerequisites } from './steps/prerequisites';
 import { checkVSCodeExtension } from './steps/vscode';
-import { checkBabelPlugin } from './steps/babel';
+import { checkBabelPlugin } from './steps/babel'; // checkBabelPlugin now returns 'passed' | 'failed_dependency' | 'failed_config'
 import { checkBrowserExtension } from './steps/browser';
 import { runValidation } from './steps/validate';
 
@@ -32,10 +33,34 @@ program
       }
       allChecksPassed = true; // Reset flag as we passed prereqs
 
-      // --- Step 2: Babel Plugin --- (Moved Up)
-      console.log(chalk.blue('\n--- Step 2: Babel Plugin ---'));
-      const babelPassed = await checkBabelPlugin();
-      if (!babelPassed) allChecksPassed = false;
+      // --- Step 2: Babel Plugin --- (With Re-check Loop)
+      let babelStatus: Awaited<ReturnType<typeof checkBabelPlugin>>;
+      let babelPassed = false;
+      do {
+        console.log(chalk.blue('\n--- Step 2: Babel Plugin ---'));
+        babelStatus = await checkBabelPlugin();
+        babelPassed = babelStatus === 'passed';
+
+        if (babelStatus === 'failed_config') {
+          const { recheck } = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'recheck',
+              message: 'Babel configuration seems missing. After adding the snippet above, do you want to re-check the configuration?',
+              default: true,
+            },
+          ]);
+          if (!recheck) {
+             console.log(chalk.yellow('Skipping Babel configuration re-check. You can run the wizard again later.'));
+             break; // Exit loop if user doesn't want to recheck
+          }
+        } else if (babelStatus === 'failed_dependency') {
+           // User likely declined install or install failed, break loop
+           break;
+        }
+      } while (babelStatus === 'failed_config'); // Loop only if config failed and user wants to recheck
+
+      if (!babelPassed) allChecksPassed = false; // Set overall flag if Babel didn't pass
 
       // --- Step 3: VS Code Extension --- (Moved Down)
       console.log(chalk.blue('\n--- Step 3: VS Code Extension ---'));
