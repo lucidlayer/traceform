@@ -4,13 +4,14 @@ const archiver = require('archiver');
 const { execSync } = require('child_process');
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
+const manifestJsonPath = path.join(__dirname, '..', 'manifest.json'); // Added manifest path
 const distPath = path.join(__dirname, '..', 'dist');
 const zipDir = path.join(__dirname, '..', 'zip');
 const zipNameTemplate = 'traceform-browser-extension-v{version}.zip';
 
 async function main() {
   try {
-    // 1. Read current version and bump patch version
+    // 1. Read current version from package.json and bump patch version
     console.log('Reading package.json...');
     const packageJson = await fs.readJson(packageJsonPath);
     const currentVersion = packageJson.version;
@@ -19,15 +20,27 @@ async function main() {
     const newVersion = versionParts.join('.');
     console.log(`Current version: ${currentVersion}, New version: ${newVersion}`);
 
-    // 2. Run the build script
+    // 2. Update package.json and manifest.json with the new version BEFORE build
+    console.log('Updating package.json version...');
+    packageJson.version = newVersion;
+    await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+    console.log('package.json updated.');
+
+    console.log('Reading and updating manifest.json version...');
+    const manifestJson = await fs.readJson(manifestJsonPath);
+    manifestJson.version = newVersion; // Update manifest version
+    await fs.writeJson(manifestJsonPath, manifestJson, { spaces: 2 });
+    console.log('manifest.json updated.');
+
+    // 3. Run the build script (now uses updated manifest.json)
     console.log('Running build script (npm run build)...');
     execSync('npm run build', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
     console.log('Build completed.');
 
-    // 3. Ensure zip directory exists
+    // 4. Ensure zip directory exists
     await fs.ensureDir(zipDir);
 
-    // 4. Create the zip file
+    // 5. Create the zip file
     const zipName = zipNameTemplate.replace('{version}', newVersion);
     const zipPath = path.join(zipDir, zipName);
     console.log(`Creating zip file: ${zipPath}`);
@@ -74,11 +87,7 @@ async function main() {
     // 'close', 'end' or 'finish' may be fired right after calling this method so register to them beforehand
     await archive.finalize();
 
-    // 5. Update package.json with the new version
-    console.log('Updating package.json version...');
-    packageJson.version = newVersion;
-    await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
-    console.log('package.json updated.');
+    // package.json and manifest.json are already updated
 
     console.log(`\nPackaging complete for version ${newVersion}!`);
     console.log(`Zip file located at: ${zipPath}`);
