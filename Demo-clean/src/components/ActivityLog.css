@@ -1,0 +1,31 @@
+.activity-log {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 1rem 1.5rem;
+  min-width: 220px;
+  max-width: 260px;
+  margin-left: 2rem;
+  height: fit-content;
+}
+.activity-log h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #1a2236;
+  margin-bottom: 0.75rem;
+}
+.activity-log ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.activity-log li {
+  font-size: 0.98rem;
+  color: #232946;
+  margin-bottom: 0.5rem;
+}
+.empty-log {
+  color: #aaa;
+  font-style: italic;
+  font-size: 0.95rem;
+} 
