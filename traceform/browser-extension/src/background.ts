@@ -36,11 +36,32 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 // Call setup on SW start
-setupKeepAliveAlarm();
+// setupKeepAliveAlarm(); // Moved to after URL load
 // --- End Keep Alive ---
 
 
-let targetUrl: string | null = null;
+let targetUrl: string | null = null; // This will be loaded from storage
+
+// Function to load the stored URL
+async function loadTargetUrl() {
+  try {
+    const result = await chrome.storage.local.get(['targetUrl']);
+    if (result.targetUrl) {
+      targetUrl = result.targetUrl;
+      console.log(`[Background] Loaded target URL from storage: ${targetUrl}`);
+    } else {
+      console.log('[Background] No target URL found in storage. Using default or waiting for setting.');
+      // Keep targetUrl as null, getEffectiveTargetUrl will handle default
+    }
+  } catch (error) {
+    console.error('[Background] Error loading target URL from storage:', error);
+  }
+  // Now that URL might be loaded, start checks and setup alarm
+  startServerCheck();
+  setupKeepAliveAlarm();
+}
+
+
 let checkIntervalId: any = null;
 let lastServerStatus: 'up' | 'down' | 'checking' | 'idle' | null = 'idle'; // Include idle state
 const CHECK_INTERVAL = 5000; // Check every 5 seconds
@@ -280,47 +301,58 @@ function connectWebSocket() {
       }
 
       // Instead of just looking for the active tab, always use the effective target URL (default to localhost:5173)
-      const urlToMatch = getEffectiveTargetUrl();
-      let urlPattern = urlToMatch;
-      if (!urlPattern.endsWith('/')) urlPattern += '/';
-      urlPattern += '*';
+      const urlToMatch = getEffectiveTargetUrl(); // This should be http://localhost:5174/ now
+      // Let's try a more flexible pattern matching, ignoring trailing slash and protocol variations if possible
+      // Basic approach: remove trailing slash if present
+      const baseUrl = urlToMatch.endsWith('/') ? urlToMatch.slice(0, -1) : urlToMatch;
+      // Correct the pattern to include /* for path matching
+      const urlPattern = `${baseUrl}/*`; // Match the base URL and any path after it
 
-      chrome.tabs.query({ url: urlPattern }, (tabs) => {
-        if (tabs && tabs.length > 0 && tabs[0].id) {
-          const targetTabId = tabs[0].id;
-          // console.log(`Relaying message to target tab ID: ${targetTabId}`, message); // Less verbose logging
+      console.log(`[Background] Querying for tabs matching pattern: ${urlPattern} based on target URL: ${urlToMatch}`); // Add log
 
-          // Send message to content script with retry logic for connection errors
-          const sendMessageWithRetry = (attempt = 1) => {
-            chrome.tabs.sendMessage(targetTabId, message, (response) => {
-              if (chrome.runtime.lastError) {
-                const errorMessage = chrome.runtime.lastError.message || 'Unknown error';
-                // Retry specifically for the "Receiving end does not exist" error
-                if (errorMessage.includes("Receiving end does not exist") && attempt < 5) { // Retry up to 4 times (total 5 attempts)
-                  const delay = 250 * attempt; // Exponential backoff
-                  console.warn(`Attempt ${attempt}: Failed to connect to content script in tab ${targetTabId} ('${errorMessage}'). Retrying in ${delay}ms...`);
-                  appendMessageToPanelLog(`[Warning] Attempt ${attempt}: Content script connection failed. Retrying...`);
-                  setTimeout(() => sendMessageWithRetry(attempt + 1), delay);
-                } else {
-                  // Log other errors or final failure after retries
-                  console.error(`Attempt ${attempt}: Error sending message to tab ${targetTabId}:`, errorMessage);
-                  const finalErrorMessage = `Failed to send message to content script in tab ${targetTabId} after ${attempt} attempts. Error: ${errorMessage}. Ensure the target page is loaded and the extension has permissions. Try refreshing the target page.`;
-                  broadcastToDevtools({ type: "error", message: finalErrorMessage });
-                  appendMessageToPanelLog(`[Error] Failed to send message to content script: ${errorMessage}`);
-                }
-              } else {
-                 // console.log(`Attempt ${attempt}: Message sent successfully to tab ${targetTabId}. Response:`, response); // Verbose success log
-              }
-            });
-          };
-          sendMessageWithRetry(); // Start the process
+      chrome.tabs.query({ url: urlPattern, status: "complete" }, (tabs) => { // Added status: "complete"
+        console.log(`[Background] Found ${tabs.length} tabs matching pattern ${urlPattern}. Tabs:`, tabs.map(t => ({id: t.id, url: t.url, status: t.status}))); // Add log
 
+        if (tabs && tabs.length > 0) {
+          // Iterate through all found tabs and send the message to each
+          tabs.forEach(tab => {
+            if (tab.id) {
+              const targetTabId = tab.id;
+              console.log(`[Background] Attempting to send message to target tab ID: ${targetTabId} with URL: ${tab.url}`); // Add log
+
+              // Send message to content script with retry logic for connection errors
+              const sendMessageWithRetry = (attempt = 1) => {
+                console.log(`[Background] Attempt ${attempt}: Sending message to tab ${targetTabId}`, message); // Add log before sending
+                chrome.tabs.sendMessage(targetTabId, message, (response) => {
+                  if (chrome.runtime.lastError) {
+                    const errorMessage = chrome.runtime.lastError.message || 'Unknown error';
+                    // Retry specifically for the "Receiving end does not exist" error
+                    if (errorMessage.includes("Receiving end does not exist") && attempt < 5) { // Retry up to 4 times (total 5 attempts)
+                      const delay = 250 * attempt; // Exponential backoff
+                      console.warn(`Attempt ${attempt}: Failed to connect to content script in tab ${targetTabId} ('${errorMessage}'). Retrying in ${delay}ms...`);
+                      appendMessageToPanelLog(`[Warning] Attempt ${attempt}: Content script connection failed. Retrying...`);
+                      setTimeout(() => sendMessageWithRetry(attempt + 1), delay);
+                    } else {
+                      // Log other errors or final failure after retries
+                      console.error(`Attempt ${attempt}: Error sending message to tab ${targetTabId}:`, errorMessage);
+                      const finalErrorMessage = `Failed to send message to content script in tab ${targetTabId} after ${attempt} attempts. Error: ${errorMessage}. Ensure the target page is loaded and the extension has permissions. Try refreshing the target page.`;
+                      broadcastToDevtools({ type: "error", message: finalErrorMessage });
+                      appendMessageToPanelLog(`[Error] Failed to send message to content script: ${errorMessage}`);
+                    }
+                  } else {
+                     console.log(`[Background] Attempt ${attempt}: Message sent successfully to tab ${targetTabId}. Response:`, response); // Log success
+                  }
+                });
+              };
+              sendMessageWithRetry(); // Start the process
+            }
+          });
         } else {
           // Only log error if we expected to find a tab based on a set targetUrl
           if (targetUrl) {
              chrome.tabs.query({}, (allTabs) => {
                const openUrls = allTabs.map(tab => tab.url).filter(Boolean);
-               console.error(`Could not find any open tab matching the target URL pattern: ${urlPattern}. Target URL: ${targetUrl}. Open tabs:`, openUrls);
+               console.error(`[Background] Could not find any *completed* tab matching the target URL pattern: ${urlPattern}. Target URL: ${urlToMatch}. Open tabs:`, openUrls); // Updated log
                const errorMsg = `No open tab found matching target URL pattern: ${urlPattern}. Please ensure the page is open.`;
                broadcastToDevtools({ type: "error", message: errorMsg });
                appendMessageToPanelLog(`[Error] ${errorMsg}`);
@@ -357,13 +389,28 @@ function connectWebSocket() {
   };
 }
 
-connectWebSocket();
+// connectWebSocket(); // Moved to after URL load
 
 chrome.runtime.onStartup.addListener(() => {
-  connectWebSocket();
+  console.log('[Background] onStartup event.');
+  loadTargetUrl().then(() => { // Ensure URL is loaded before connecting
+      connectWebSocket();
+      // setupKeepAliveAlarm(); // Already called within loadTargetUrl
+  });
 });
 chrome.runtime.onInstalled.addListener(() => {
-  connectWebSocket();
+  console.log('[Background] onInstalled event.');
+   loadTargetUrl().then(() => { // Ensure URL is loaded before connecting
+      connectWebSocket();
+      // setupKeepAliveAlarm(); // Already called within loadTargetUrl
+  });
 });
+
+// Initial load when the script first runs (e.g., after update or browser start)
+loadTargetUrl().then(() => {
+    connectWebSocket(); // Connect WebSocket after ensuring URL is loaded
+});
+
+
 // Keep service worker alive logic (if needed, less common in MV3 with events)
 // chrome.runtime.onMessage.addListener(...); // Keep alive if messages are frequent

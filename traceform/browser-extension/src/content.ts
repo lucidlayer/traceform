@@ -1,40 +1,47 @@
 import { removeOverlays, highlightElements } from './overlay';
 
 // --- Register Listener Immediately ---
+console.log('[Content Script] Initializing listener...'); // Log initialization
+
 // Listen for messages from the background script or popup
 chrome.runtime.onMessage.addListener(
   (message: ExtensionMessage, sender, sendResponse) => {
+    console.log('[Content Script] Received message:', message, 'from sender:', sender); // Log received message and sender
+
     // Wrap the entire handler in a try...catch
     try {
-      console.log('Content script received message:', message);
+      console.log('[Content Script] Processing message type:', message.type); // Log processing start
 
       // Always clear previous overlays before potentially adding new ones
+      console.log('[Content Script] Calling removeOverlays()');
       removeOverlays();
 
       if (message.type === 'HIGHLIGHT_COMPONENT') {
         if (message.traceformId) { // Check for traceformId
+          console.log(`[Content Script] Attempting highlight for traceformId: ${message.traceformId}`);
           try {
-            // console.log(`Attempting to highlight elements with ID: ${message.traceformId}`);
             highlightElements(message.traceformId); // Pass the full ID
+            console.log(`[Content Script] highlightElements completed for: ${message.traceformId}`);
           } catch (highlightError) {
-            console.error('Error during highlightElements:', highlightError);
+            console.error('[Content Script] Error during highlightElements:', highlightError);
             // Optionally send feedback to the DevTools panel about the error
           }
         } else {
-          console.error('Highlight command missing traceformId');
+          console.error('[Content Script] Highlight command missing traceformId');
         }
       } else if (message.type === 'CLEAR_HIGHLIGHT') {
         // removeOverlays() is already called above, so this case might become redundant
         // unless CLEAR_HIGHLIGHT needs to do something *else* specifically.
         // For now, keep it simple: clearing happens at the start of message handling.
-        console.log('Clear highlight message received (overlays already removed).');
+        console.log('[Content Script] Clear highlight message received (overlays already removed).');
       }
 
       // Send a simple response to acknowledge receipt
+      console.log('[Content Script] Sending success response.'); // Log before sending response
       sendResponse({ success: true, processed: true }); // Add processed flag
 
     } catch (error) {
-      console.error("Error processing message in content script:", error);
+      console.error("[Content Script] Error processing message:", error); // Updated log prefix
       // Attempt to send an error response if possible
       try {
         sendResponse({ success: false, error: error instanceof Error ? error.message : String(error) });
@@ -46,13 +53,13 @@ chrome.runtime.onMessage.addListener(
     // Return true to indicate you intend to send a response asynchronously
     // (even though we send it synchronously here, this pattern is safer
     // for message channel management).
-    return true;
+    // return true; // Removed as response is sent synchronously
   }
 );
 // --- End Listener Registration ---
 
 
-console.log('Code-to-UI Mapper: Content script loaded and listener added.'); // Updated log
+console.log('[Content Script] Code-to-UI Mapper: Content script loaded and listener added.'); // Updated log prefix
 
 // Define expected message structure
 interface HighlightMessage {
