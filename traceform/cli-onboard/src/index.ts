@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import chalk from 'chalk';
+// Removed static chalk import
 import inquirer from 'inquirer'; // Import inquirer
 import { checkPrerequisites } from './steps/prerequisites';
 import { checkVSCodeExtension } from './steps/vscode';
@@ -20,6 +20,8 @@ program
   .description('Run the Traceform setup check and onboarding guide')
   .option('-v, --verbose', 'Display more detailed logging output')
   .action(async (options) => { // Add options parameter
+    // Dynamically import chalk
+    const chalk = (await import('chalk')).default;
     const verboseLog = options.verbose ? console.log : () => {}; // Simple verbose logger
     console.log(chalk.bold.cyan('🚀 Starting Traceform Setup Check...'));
     verboseLog(chalk.gray(`Verbose logging enabled.`));
