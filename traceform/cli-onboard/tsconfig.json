@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.json", // Inherit from root config
+  "compilerOptions": {
+    "outDir": "./dist", // Output directory for this package
+    "rootDir": "./src", // Source directory for this package
+    "module": "CommonJS", // Use CommonJS for CLI compatibility
+    "types": ["node", "fs-extra"] // Include necessary types
+  },
+  "include": ["src/**/*"], // Only include files in the src directory
+  "exclude": ["node_modules", "dist"] // Exclude node_modules and dist
+}

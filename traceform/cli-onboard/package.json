@@ -1,0 +1,60 @@
+{
+  "name": "@lucidlayer/traceform-onboard",
+  "version": "0.1.0",
+  "description": "CLI wizard to guide users through Traceform setup and validation.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "traceform-onboard": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc -w",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucidlayer/traceform.git",
+    "directory": "traceform/cli-onboard"
+  },
+  "keywords": [
+    "traceform",
+    "onboarding",
+    "cli",
+    "wizard",
+    "react",
+    "devtools"
+  ],
+  "author": "lucidlayer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lucidlayer/traceform/issues"
+  },
+  "homepage": "https://github.com/lucidlayer/traceform/tree/main/traceform/cli-onboard#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^18.17.0",
+    "@typescript-eslint/eslint-plugin": "^7.11.0",
+    "@typescript-eslint/parser": "^7.11.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

@@ -7,7 +7,15 @@ I'm excited to share Traceform with you, a developer toolchain we've built to so
 
 ## Getting Started with Traceform
 
-Setting up Traceform in your project is straightforward. We've put significant effort into making the integration process as frictionless as possible:
+Setting up Traceform involves a few components. We recommend using our onboarding wizard for a guided setup and validation:
+
+```bash
+npx @lucidlayer/traceform-onboard-check
+```
+
+This wizard will check prerequisites and guide you through the steps below.
+
+If you prefer manual setup:
 
 1.  **Install the VS Code Extension**
     * Get the "Traceform" extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode).

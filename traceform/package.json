@@ -1,5 +1,22 @@
 {
+  "name": "traceform-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root workspace for the Traceform project",
+  "workspaces": [
+    "babel-plugin-traceform",
+    "browser-extension",
+    "cli-onboard",
+    "shared",
+    "vscode-extension"
+  ],
+  "scripts": {
+    "build": "npm run build -ws --if-present",
+    "lint": "npm run lint -ws --if-present",
+    "format": "npm run format -ws --if-present",
+    "clean": "npm run clean -ws --if-present"
+  },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.4.5" 
   }
 }
