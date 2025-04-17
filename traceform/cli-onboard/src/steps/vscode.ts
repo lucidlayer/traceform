@@ -6,7 +6,7 @@ import inquirer from 'inquirer';
 // We will guide the user instead.
 
 export async function checkVSCodeExtension(): Promise<boolean> {
-  console.log(chalk.yellow('Action Required: Please ensure the "Traceform" VS Code extension is installed and enabled.'));
+  console.log(chalk.yellow('\nNext step: Let\'s ensure the "Traceform" VS Code extension is installed and enabled.')); // Softened wording
   console.log('  1. Open VS Code.');
   console.log('  2. Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X).');
   console.log('  3. Search for "Traceform" by "lucidlayer".');

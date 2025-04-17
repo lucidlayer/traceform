@@ -5,10 +5,11 @@ import inquirer from 'inquirer';
 // We will guide the user through the manual installation process.
 
 export async function checkBrowserExtension(): Promise<boolean> {
-  console.log(chalk.yellow('Action Required: Please install the Traceform browser extension manually.'));
+  console.log(chalk.yellow('\nNext step: Please install the Traceform browser extension manually.')); // Softened wording
   console.log('  1. Download the latest `traceform-browser-extension.zip` from GitHub Releases:');
   console.log(chalk.cyan('     https://github.com/lucidlayer/traceform/releases'));
   console.log('  2. Unzip the downloaded file into a permanent location on your computer.');
+  console.log(chalk.gray('     (The browser needs to access these files every time it starts, so don\'t use a temporary folder.)')); // Added explanation
   console.log('  3. Open your Chromium-based browser (Chrome, Edge, Brave, etc.).');
   console.log('  4. Navigate to the extensions page:');
   console.log(chalk.cyan('     - Chrome: chrome://extensions'));
