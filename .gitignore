@@ -55,14 +55,11 @@ Thumbs.db
 *.swp
 *~
 
-# Cline rules
-.clinerules
+
 
 # Memory Bank (tracked by its own git repo)
 memory_docs/
-traceform/browser-extension/zip/traceform-browser-extension-0.1.1.zip
-traceform/browser-extension/zip/traceform-browser-extension-0.1.2.zip
-future aditions/2025-04-16-traceform-the-road-ahead.md
+future aditions/
 
 
 traceform-test-app--
