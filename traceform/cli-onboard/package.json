@@ -1,6 +1,6 @@
 {
   "name": "@lucidlayer/traceform-onboard",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "CLI wizard to guide users through Traceform setup and validation.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

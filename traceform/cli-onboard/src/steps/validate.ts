@@ -1,12 +1,16 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
+// Define the type for the verbose logger function
+type VerboseLogger = (...args: any[]) => void;
+
 // This step guides the user through a manual validation process.
 
-export async function runValidation(): Promise<void> {
+export async function runValidation(verboseLog: VerboseLogger): Promise<void> { // Add verboseLog parameter
+  verboseLog('Starting validation step...'); // Example verbose log
   console.log(chalk.bold('Guiding you through the final validation process...'));
 
-  console.log(chalk.yellow('\nAction Required: Please follow these steps to validate your Traceform setup:'));
+  console.log(chalk.yellow('\nNext step: Please follow these steps to validate your Traceform setup:')); // Softened wording
   console.log('  1. Ensure your React development server is running.');
   console.log('     (e.g., `npm run dev`, `yarn dev`, `pnpm dev`)');
   console.log('  2. Open your project folder in VS Code.');

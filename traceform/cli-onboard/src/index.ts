@@ -18,14 +18,17 @@ program
 program
   .command('check')
   .description('Run the Traceform setup check and onboarding guide')
-  .action(async () => {
+  .option('-v, --verbose', 'Display more detailed logging output')
+  .action(async (options) => { // Add options parameter
+    const verboseLog = options.verbose ? console.log : () => {}; // Simple verbose logger
     console.log(chalk.bold.cyan('🚀 Starting Traceform Setup Check...'));
+    verboseLog(chalk.gray(`Verbose logging enabled.`));
 
     let allChecksPassed = true;
 
     try {
       console.log(chalk.blue('\n--- Step 1: Prerequisites ---'));
-      const prereqsPassed = await checkPrerequisites();
+      const prereqsPassed = await checkPrerequisites(verboseLog); // Pass logger
       if (!prereqsPassed) {
         // Exit early if prerequisites are not met
         console.log(chalk.red.bold('\n❌ Prerequisite checks failed. Please resolve the issues above before proceeding.'));
@@ -38,7 +41,7 @@ program
       let babelPassed = false;
       do {
         console.log(chalk.blue('\n--- Step 2: Babel Plugin ---'));
-        babelStatus = await checkBabelPlugin();
+        babelStatus = await checkBabelPlugin(verboseLog); // Pass logger
         babelPassed = babelStatus === 'passed';
 
         if (babelStatus === 'failed_config') {
@@ -64,12 +67,14 @@ program
 
       // --- Step 3: VS Code Extension --- (Moved Down)
       console.log(chalk.blue('\n--- Step 3: VS Code Extension ---'));
+      // VS Code check is mostly instructional, verbose logger might not be needed unless we add more checks later
       const vscodePassed = await checkVSCodeExtension();
       // We might not set allChecksPassed to false here if it's just a manual guide + prompt
       // Let the prompt handle confirmation.
 
       // --- Step 4: Browser Extension --- (Moved Down)
       console.log(chalk.blue('\n--- Step 4: Browser Extension ---'));
+      // Browser check is mostly instructional, verbose logger might not be needed unless we add more checks later
       const browserPassed = await checkBrowserExtension();
       // We might not set allChecksPassed to false here if it's just a manual guide + prompt
       // Let the prompt handle confirmation.
@@ -79,12 +84,13 @@ program
       if (babelPassed) { // Only proceed to validation if core Babel setup is likely correct
         console.log(chalk.green.bold('\n⚙️ Core setup checks complete. Proceeding to guided steps & validation...'));
         // Re-check vscode/browser confirmation within their functions using inquirer
-        const vscodeConfirmed = await checkVSCodeExtension(); // Will now use inquirer
-        const browserConfirmed = await checkBrowserExtension(); // Will now use inquirer
+        // Pass logger in case validation adds verbose logs later
+        const vscodeConfirmed = await checkVSCodeExtension();
+        const browserConfirmed = await checkBrowserExtension();
 
         if (vscodeConfirmed && browserConfirmed) {
            console.log(chalk.blue('\n--- Step 5: Final Validation ---'));
-           await runValidation(); // Will now use inquirer
+           await runValidation(verboseLog); // Pass logger
         } else {
            console.log(chalk.yellow.bold('\n⚠️ Please complete the VS Code and Browser extension steps before final validation.'));
         }
