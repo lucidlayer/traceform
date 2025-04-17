@@ -1,16 +1,17 @@
 {
   "name": "traceform-browser-extension",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Browser extension component for Traceform",
   "private": true,
   "scripts": {
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "build:bundle": "esbuild src/background.ts src/content.ts src/overlay.ts --bundle --outdir=dist --format=esm",
-    "build:copy": "cpx \"manifest.json\" dist && cpx \"src/*.css\" dist",
+    "build:bundle": "esbuild src/background.ts src/content.ts src/overlay.ts popup.js --bundle --outdir=dist --format=esm --entry-names=[name]",
+    "build:copy": "cpx \"manifest.json\" dist && cpx \"popup.html\" dist && cpx \"src/*.css\" dist",
     "build:clean": "rimraf dist",
     "build": "npm run build:clean && npm run build:bundle && npm run build:copy",
-    "package:local": "npm version patch --no-git-tag-version && npm run build"
+    "package:local": "npm version patch --no-git-tag-version && npm run build",
+    "package": "node scripts/package.js"
   },
   "keywords": [
     "chrome",
@@ -22,17 +23,19 @@
   "author": "LucidLayer",
   "license": "MIT",
   "devDependencies": {
-    "cpx": "^1.5.0",
-    "rimraf": "^5.0.5",
     "@types/chrome": "^0.0.263",
     "@types/node": "^20.11.24",
     "@typescript-eslint/eslint-plugin": "^7.1.0",
     "@typescript-eslint/parser": "^7.1.0",
+    "archiver": "^7.0.1",
+    "cpx": "^1.5.0",
     "esbuild": "^0.25.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "fs-extra": "^11.3.0",
     "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   },
   "engines": {

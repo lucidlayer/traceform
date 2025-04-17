@@ -20,10 +20,11 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ],
   "action": {
-    "default_title": "Traceform: UI Mapping (Inactive)"
+    "default_title": "Traceform: UI Mapping (Configure Target URL)",
+    "default_popup": "popup.html"
   }
 }
