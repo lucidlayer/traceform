@@ -1,12 +1,11 @@
 import chalk from 'chalk';
+import inquirer from 'inquirer';
 
 // Note: Programmatically checking VS Code extension installation is complex
 // and not reliable across different environments/setups.
 // We will guide the user instead.
 
 export async function checkVSCodeExtension(): Promise<boolean> {
-  console.log('Checking VS Code Extension setup...');
-
   console.log(chalk.yellow('Action Required: Please ensure the "Traceform" VS Code extension is installed and enabled.'));
   console.log('  1. Open VS Code.');
   console.log('  2. Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X).');
@@ -14,10 +13,22 @@ export async function checkVSCodeExtension(): Promise<boolean> {
   console.log('  4. If not installed, click "Install".');
   console.log('  5. If installed but disabled, click "Enable".');
   console.log(chalk.cyan('  Marketplace Link: https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode'));
+  console.log(''); // Add spacing
 
-  // Since we can't reliably check automatically, we assume the user will follow instructions.
-  // In a more interactive CLI, we could ask the user to confirm.
-  console.log(chalk.green('\nPlease verify the extension is installed manually. Assuming OK for now.'));
+  const { confirmed } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmed',
+      message: 'Have you installed and enabled the Traceform VS Code extension?',
+      default: false, // Default to no, requiring explicit confirmation
+    },
+  ]);
 
-  return true; // Return true to allow the check process to continue
+  if (confirmed) {
+    console.log(chalk.green('  VS Code Extension step confirmed.'));
+  } else {
+    console.log(chalk.yellow('  Please install/enable the VS Code extension and run the check again.'));
+  }
+
+  return confirmed;
 }

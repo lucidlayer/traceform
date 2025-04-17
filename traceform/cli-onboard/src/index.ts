@@ -32,26 +32,51 @@ program
       }
       allChecksPassed = true; // Reset flag as we passed prereqs
 
-      console.log(chalk.blue('\n--- Step 2: VS Code Extension ---'));
-      const vscodePassed = await checkVSCodeExtension();
-      if (!vscodePassed) allChecksPassed = false;
-
-      console.log(chalk.blue('\n--- Step 3: Babel Plugin ---'));
+      // --- Step 2: Babel Plugin --- (Moved Up)
+      console.log(chalk.blue('\n--- Step 2: Babel Plugin ---'));
       const babelPassed = await checkBabelPlugin();
       if (!babelPassed) allChecksPassed = false;
 
+      // --- Step 3: VS Code Extension --- (Moved Down)
+      console.log(chalk.blue('\n--- Step 3: VS Code Extension ---'));
+      const vscodePassed = await checkVSCodeExtension();
+      // We might not set allChecksPassed to false here if it's just a manual guide + prompt
+      // Let the prompt handle confirmation.
+
+      // --- Step 4: Browser Extension --- (Moved Down)
       console.log(chalk.blue('\n--- Step 4: Browser Extension ---'));
       const browserPassed = await checkBrowserExtension();
-      if (!browserPassed) allChecksPassed = false;
+      // We might not set allChecksPassed to false here if it's just a manual guide + prompt
+      // Let the prompt handle confirmation.
 
-      if (allChecksPassed) {
-        console.log(chalk.green.bold('\n✅ All setup checks passed!'));
-        console.log(chalk.blue('\n--- Step 5: Validation ---'));
-        await runValidation();
+
+      // --- Step 5: Validation --- (Only if Babel passed, others are guided)
+      if (babelPassed) { // Only proceed to validation if core Babel setup is likely correct
+        console.log(chalk.green.bold('\n⚙️ Core setup checks complete. Proceeding to guided steps & validation...'));
+        // Re-check vscode/browser confirmation within their functions using inquirer
+        const vscodeConfirmed = await checkVSCodeExtension(); // Will now use inquirer
+        const browserConfirmed = await checkBrowserExtension(); // Will now use inquirer
+
+        if (vscodeConfirmed && browserConfirmed) {
+           console.log(chalk.blue('\n--- Step 5: Final Validation ---'));
+           await runValidation(); // Will now use inquirer
+        } else {
+           console.log(chalk.yellow.bold('\n⚠️ Please complete the VS Code and Browser extension steps before final validation.'));
+        }
       } else {
-        console.log(chalk.yellow.bold('\n⚠️ Some setup steps are incomplete. Please follow the instructions above.'));
-        console.log(chalk.yellow('Once fixed, run `npx @lucidlayer/traceform-onboard check` again.'));
+        console.log(chalk.yellow.bold('\n⚠️ Babel plugin setup needs attention. Cannot proceed to validation.'));
+        console.log(chalk.yellow('Once fixed, run the check again.'));
       }
+
+      // Original logic removed/modified above
+      // if (allChecksPassed) {
+      //   console.log(chalk.green.bold('\n✅ All setup checks passed!'));
+      //   console.log(chalk.blue('\n--- Step 5: Validation ---'));
+      //   await runValidation();
+      // } else {
+      //   console.log(chalk.yellow.bold('\n⚠️ Some setup steps are incomplete. Please follow the instructions above.'));
+      //   console.log(chalk.yellow('Once fixed, run `npx @lucidlayer/traceform-onboard check` again.'));
+      // }
 
     } catch (error) {
       console.error(chalk.red('\n❌ An unexpected error occurred:'), error);
