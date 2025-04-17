@@ -1,0 +1,29 @@
+.sidebar {
+  width: 180px;
+  background: #232946;
+  color: #fff;
+  padding: 2rem 1rem;
+  min-height: 80vh;
+  border-radius: 8px;
+  margin-right: 2rem;
+}
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar nav li {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.sidebar nav li.active, .sidebar nav li:hover {
+  background: #eebbc3;
+  color: #232946;
+} 
