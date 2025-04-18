@@ -50,11 +50,11 @@ const App: React.FC = () => {
   const handleVSCodeComplete = (success: boolean) => {
     if (success) {
       setVscodeCompleted(true); // Signal completion
+      setCurrentStep('browser'); // Immediately advance to browser step
     } else {
       setFinalMessage('VS Code Extension step not confirmed. Please install/enable and restart.');
       setFinalMessageColor('yellow');
       setCurrentStep('failed');
-      // exit();
     }
   };
 
@@ -96,12 +96,6 @@ const App: React.FC = () => {
   }, [babelCompleted]);
 
   useEffect(() => {
-    if (vscodeCompleted) {
-      setCurrentStep('browser');
-    }
-  }, [vscodeCompleted]);
-
-  useEffect(() => {
     if (browserCompleted) {
       // Only proceed if previous steps were implicitly successful to reach here
       setCurrentStep('validate');
@@ -110,6 +104,7 @@ const App: React.FC = () => {
 
 
   // --- Render Logic ---
+  console.log('Current step:', currentStep, 'prereqCompleted:', prereqCompleted, 'babelCompleted:', babelCompleted, 'vscodeCompleted:', vscodeCompleted, 'browserCompleted:', browserCompleted);
   const renderStep = () => {
     switch (currentStep) {
       case 'prerequisites':
