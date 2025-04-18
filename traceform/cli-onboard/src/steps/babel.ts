@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import inquirer from 'inquirer';
-import { execa } from 'execa'; // Needed for install command
+// Removed static execa import - will use dynamic import below
 
 // Define the type for the verbose logger function
 type VerboseLogger = (...args: any[]) => void;
@@ -143,6 +143,8 @@ async function installPlugin(projectRoot: string, verboseLog: VerboseLogger): Pr
 
   console.log(chalk.yellow(`  Attempting to install ${BABEL_PLUGIN_NAME} using ${packageManager}...`));
   try {
+    // Dynamically import execa here as it's an ESM module
+    const { execa } = await import('execa');
     // Use execa to run the install command, capture output
     const { stdout, stderr } = await execa(installCommand, { shell: true, cwd: projectRoot });
     // Log stdout/stderr only if needed for debugging, or on error

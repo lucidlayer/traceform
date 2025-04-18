@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 // Removed static chalk import
-import inquirer from 'inquirer'; // Import inquirer
+// Removed static inquirer import - will use dynamic import below
 import { checkPrerequisites } from './steps/prerequisites';
 import { checkVSCodeExtension } from './steps/vscode';
 import { checkBabelPlugin } from './steps/babel'; // checkBabelPlugin now returns 'passed' | 'failed_dependency' | 'failed_config'
@@ -47,6 +47,8 @@ program
         babelPassed = babelStatus === 'passed';
 
         if (babelStatus === 'failed_config') {
+          // Dynamically import inquirer here as it's an ESM module
+          const inquirer = (await import('inquirer')).default;
           const { recheck } = await inquirer.prompt([
             {
               type: 'confirm',
