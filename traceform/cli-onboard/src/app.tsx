@@ -40,10 +40,13 @@ const App: React.FC = () => {
   const [browserCompleted, setBrowserCompleted] = useState(false);
 
   const { columns, rows } = useTerminalDimensions();
+  const tooSmall = columns < MIN_WIDTH || rows < MIN_HEIGHT;
 
   useEffect(() => {
-    console.clear();
-  }, [currentStep, columns, rows]);
+    if (!tooSmall) {
+      console.clear();
+    }
+  }, [currentStep, columns, rows, tooSmall]);
 
   // --- Step Completion Handlers ---
   const handlePrereqComplete = (success: boolean) => {
@@ -109,8 +112,6 @@ const App: React.FC = () => {
         return <Text color="red">Internal error: Unknown step.</Text>;
     }
   };
-
-  const tooSmall = columns < MIN_WIDTH || rows < MIN_HEIGHT;
 
   // Keep the app alive by listening for input when terminal is too small
   useInput(() => {}, { isActive: tooSmall });
