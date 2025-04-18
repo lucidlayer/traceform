@@ -15,10 +15,14 @@ const MIN_HEIGHT = 15;
 
 // Custom hook to track terminal dimensions
 const useTerminalDimensions = () => {
-  const [dimensions, setDimensions] = useState({ columns: process.stdout.columns, rows: process.stdout.rows });
+  const getDimensions = () => ({
+    columns: process.stdout.columns || 80,
+    rows: process.stdout.rows || 24,
+  });
+  const [dimensions, setDimensions] = useState(getDimensions());
   // Stable handler reference
   const handleResize = React.useCallback(() => {
-    setDimensions({ columns: process.stdout.columns, rows: process.stdout.rows });
+    setDimensions(getDimensions());
   }, []);
   useEffect(() => {
     process.stdout.on('resize', handleResize);
@@ -42,11 +46,7 @@ const App: React.FC = () => {
   const { columns, rows } = useTerminalDimensions();
   const tooSmall = columns < MIN_WIDTH || rows < MIN_HEIGHT;
 
-  useEffect(() => {
-    if (!tooSmall) {
-      console.clear();
-    }
-  }, [currentStep]);
+  // Removed the raw mode effect to let Ink handle input management
 
   // --- Step Completion Handlers ---
   const handlePrereqComplete = (success: boolean) => {
@@ -116,13 +116,6 @@ const App: React.FC = () => {
   // Keep the app alive by listening for input when terminal is too small
   useInput(() => {}, { isActive: tooSmall });
 
-  // Ensure process stays alive when terminal is too small without pausing stdin when not too small
-  useEffect(() => {
-    if (tooSmall) {
-      process.stdin.resume();
-    }
-  }, [tooSmall]);
-
   // Dummy state to force periodic re-render when terminal is too small
   const [dummyTick, setDummyTick] = useState(0);
   useEffect(() => {
@@ -131,6 +124,18 @@ const App: React.FC = () => {
         setDummyTick(prev => prev + 1);
       }, 1000);
       return () => clearInterval(timer);
+    }
+  }, [tooSmall]);
+
+  const [shouldRenderWizard, setShouldRenderWizard] = useState(!tooSmall);
+  useEffect(() => {
+    if (!tooSmall) {
+      const timer = setTimeout(() => {
+        setShouldRenderWizard(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setShouldRenderWizard(false);
     }
   }, [tooSmall]);
 
@@ -144,7 +149,7 @@ const App: React.FC = () => {
       alignItems="center"
       justifyContent="center"
     >
-      {tooSmall ? (
+      {!shouldRenderWizard ? (
         <Box flexDirection="column" alignItems="center" justifyContent="center">
           <Text color="red">
             Terminal too small for wizard. Please resize to at least {MIN_WIDTH}x{MIN_HEIGHT} to continue.
