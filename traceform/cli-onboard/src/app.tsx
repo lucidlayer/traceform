@@ -102,9 +102,11 @@ const App: React.FC = () => {
     }
   }, [browserCompleted]);
 
+  useEffect(() => {
+    console.clear();
+  }, [currentStep]);
 
   // --- Render Logic ---
-  console.log('Current step:', currentStep, 'prereqCompleted:', prereqCompleted, 'babelCompleted:', babelCompleted, 'vscodeCompleted:', vscodeCompleted, 'browserCompleted:', browserCompleted);
   const renderStep = () => {
     switch (currentStep) {
       case 'prerequisites':

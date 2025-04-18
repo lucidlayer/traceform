@@ -21,7 +21,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
           type: 'confirm',
           name: 'confirmed',
           message: 'Have you installed the Traceform VS Code extension?',
-          default: false,
+          default: true,
         },
       ]);
       setConfirmed(userConfirmed);
