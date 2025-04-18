@@ -3,6 +3,8 @@ import { Box, Text, Newline } from 'ink';
 import Spinner from 'ink-spinner';
 import fs from 'fs-extra'; // Use fs-extra methods directly
 import path from 'path';
+import { useInput } from 'ink';
+import clipboard from 'clipboardy';
 
 // Type definitions
 export type BabelCheckStatus = 'passed' | 'failed_dependency' | 'failed_config'; // Export the type
@@ -52,11 +54,6 @@ export default defineConfig({
     }),
   ],
 })
-
-// Note: If you get a TypeScript error like "Cannot find name 'process'",
-// you may need to install Node.js types in your project:
-// npm install --save-dev @types/node
-// or yarn add --dev @types/node
 `;
     case 'cra':
       return `
@@ -116,14 +113,13 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
   const [configFilePath, setConfigFilePath] = useState<string>('');
   const [showRecheckPrompt, setShowRecheckPrompt] = useState(false);
   const [finalResult, setFinalResult] = useState<BabelCheckStatus | null>(null);
-  // Removed isCheckComplete state - redundant with finalResult
   const [showContinuePrompt, setShowContinuePrompt] = useState(false); // New state for prompt
   const [promptMessage, setPromptMessage] = useState<string | null>(null); // State for prompt message
+  const [copied, setCopied] = useState(false);
 
   const projectRoot = process.cwd(); // Assuming CWD is the target project
 
-  // --- Check Logic (Adapted for State) ---
-
+  // --- Check Logic (Helper Functions) ---
   const installPlugin = async (): Promise<boolean> => {
     setStatus('Detecting package manager...');
     let packageManager = 'npm';
@@ -132,11 +128,9 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     } else if (await fs.pathExists(path.join(projectRoot, 'pnpm-lock.yaml'))) {
       packageManager = 'pnpm';
     }
-
     const installCommand = packageManager === 'yarn'
       ? `yarn add --dev ${BABEL_PLUGIN_NAME}`
       : `${packageManager} install --save-dev ${BABEL_PLUGIN_NAME}`;
-
     setStatus(`Attempting to install ${BABEL_PLUGIN_NAME} using ${packageManager}...`);
     try {
       const { execa } = await import('execa');
@@ -161,7 +155,6 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       const packageJson = await fs.readJson(packageJsonPath);
       const dependencies = packageJson.dependencies || {};
       const devDependencies = packageJson.devDependencies || {};
-
       if (dependencies[BABEL_PLUGIN_NAME] || devDependencies[BABEL_PLUGIN_NAME]) {
         setStatus(`Found ${BABEL_PLUGIN_NAME} in package.json.`);
         return true;
@@ -184,7 +177,6 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       'craco.config.js', 'next.config.js',
     ];
     let foundInConfig = false;
-
     for (const configFile of configFiles) {
       const configPath = path.join(projectRoot, configFile);
       try {
@@ -193,17 +185,14 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
           const pluginRegex = new RegExp(BABEL_PLUGIN_NAME.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'));
           if (pluginRegex.test(content)) {
             setStatus(`Found reference to ${BABEL_PLUGIN_NAME} in ${configFile}.`);
-            // Add conditional usage check message if needed
             foundInConfig = true;
             break;
           }
         }
       } catch (error) {
-        // Log minor read errors but continue checking other files
         console.warn(`Warning: Could not read or parse ${configFile}: ${error instanceof Error ? error.message : error}`);
       }
     }
-
     if (!foundInConfig) {
       setStatus(`Error: Could not find ${BABEL_PLUGIN_NAME} configured.`);
       const projectType = await detectProjectType(projectRoot);
@@ -213,7 +202,6 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       else if (projectType === 'cra') { targetFileNameSuggestion = 'craco.config.js'; likelyFileName = 'craco.config.js'; }
       else if (projectType === 'next') { targetFileNameSuggestion = '.babelrc'; likelyFileName = '.babelrc'; }
       else if (projectType === 'babel') { targetFileNameSuggestion = 'babel.config.js / .babelrc / .babelrc.js'; likelyFileName = 'babel.config.js'; }
-
       const fullConfigPath = likelyFileName ? path.join(projectRoot, likelyFileName) : targetFileNameSuggestion;
       setConfigFilePath(fullConfigPath); // Store path for display
       setConfigSnippet(getBabelConfigSnippet(projectType));
@@ -221,12 +209,11 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       setShowRecheckPrompt(true); // Trigger recheck prompt UI
       return false; // Wait for user interaction
     }
-
     return true;
   };
 
-  // --- Check Logic ---
-  // Wrap check logic in a function that can be called explicitly
+  // --- Check Logic (Adapted for New Flow) ---
+  // 1. Check config first, then dependency
   const performChecks = async () => {
     setIsLoading(true);
     // Reset states before checks
@@ -237,43 +224,29 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     setFinalResult(null); // Reset final result before checks
     setStatus('Starting checks...'); // Initial status
 
+    // 1. Check config file first
+    const configOk = await checkConfigFiles();
+    if (!configOk) {
+      // Show config help and wait for user interaction
+      setIsLoading(false);
+      return;
+    }
+    // 2. After config is confirmed, check dependency
     const depOk = await checkPackageJson();
     if (!depOk) {
       // If dep check returned false and didn't trigger prompt (e.g., file error), fail immediately
       if (!showInstallPrompt) {
         setFinalResult('failed_dependency');
-        // Directly call onComplete for immediate failure
         onComplete('failed_dependency');
       }
-      // Otherwise, it triggered the install prompt, so just wait for user interaction
-      setIsLoading(false); // Stop loading indicator while waiting for prompt
+      setIsLoading(false);
       return;
     }
-
-    // Dependency is OK, check config
-    const configOk = await checkConfigFiles();
-    if (configOk) {
-      setStatus('✅ Babel plugin setup appears correct.');
-      setFinalResult('passed');
-      setIsLoading(false);
-    } else {
-      // Always show config help first
-      const projectType = await detectProjectType(projectRoot);
-      let targetFileNameSuggestion = 'your Babel/Vite/Craco config file';
-      let likelyFileName = '';
-      if (projectType === 'vite') { targetFileNameSuggestion = 'vite.config.js / vite.config.ts'; likelyFileName = 'vite.config.ts'; }
-      else if (projectType === 'cra') { targetFileNameSuggestion = 'craco.config.js'; likelyFileName = 'craco.config.js'; }
-      else if (projectType === 'next') { targetFileNameSuggestion = '.babelrc'; likelyFileName = '.babelrc'; }
-      else if (projectType === 'babel') { targetFileNameSuggestion = 'babel.config.js / .babelrc / .babelrc.js'; likelyFileName = 'babel.config.js'; }
-
-      const fullConfigPath = likelyFileName ? path.join(projectRoot, likelyFileName) : targetFileNameSuggestion;
-      setConfigFilePath(fullConfigPath);
-      setConfigSnippet(getBabelConfigSnippet(projectType));
-      setShowConfigHelp(true);
-      setShowRecheckPrompt(true);
-      setIsLoading(false);
-      // Don't set failure state yet - wait for user interaction
-    }
+    // 3. If both are OK, show continue prompt
+    setStatus('✅ Babel plugin setup appears correct.');
+    setFinalResult('passed');
+    setIsLoading(false);
+    // Wait for user confirmation in continue prompt before calling onComplete('passed')
   };
 
   // Run checks only once on mount
@@ -376,9 +349,50 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     }
   }, [showRecheckPrompt]);
 
+  // Handle 'c' key to copy code snippet
+  useInput((input, key) => {
+    if (showConfigHelp && (input === 'c' || input === 'C')) {
+      clipboard.writeSync(configSnippet);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, { isActive: showConfigHelp });
 
   return (
-    <><Box flexDirection="column"><Text bold>--- Step 2: Babel Plugin ---</Text><Box><Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : 'yellow'}>{isLoading && !showInstallPrompt && !showRecheckPrompt ? <Spinner type="dots" /> : (finalResult === 'passed' ? "✔" : finalResult ? "✖" : "○")}{` ${status}`}</Text></Box>{showInstallPrompt && <Text color="yellow">Waiting for install confirmation...</Text>}{showConfigHelp && (<Box flexDirection="column"><Text color="yellow">Action Required: Add the plugin to <Text bold>{configFilePath}</Text> for DEVELOPMENT builds.</Text><Text color="cyan">Copy and paste the following snippet:</Text><Box marginY={1}>{configSnippet.split('\n').map((line, i) => {if (!line.trim()) {return null;}return (<Box key={`snippet-${i}`}><Text>{line}</Text></Box>);})}</Box></Box>)}{showRecheckPrompt && <Text color="yellow">Waiting for re-check confirmation...</Text>}{promptMessage && <Text color="yellow">{promptMessage}</Text>}{!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && <Text color="red">Babel plugin dependency is missing or install failed.</Text>}{!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && <Text color="red">Babel plugin configuration is missing or incorrect.</Text>}{!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}</Box></>
+    <Box flexDirection="column">
+      <Text bold>--- Step 2: Babel Plugin ---</Text>
+      <Box>
+        <Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : 'yellow'}>
+          {isLoading && !showInstallPrompt && !showRecheckPrompt ? <Spinner type="dots" /> : (finalResult === 'passed' ? "✔" : finalResult ? "✖" : "○")}{` ${status}`}
+        </Text>
+      </Box>
+      {showInstallPrompt && <Text color="yellow">Waiting for install confirmation...</Text>}
+      {showConfigHelp && (
+        <Box flexDirection="column">
+          <Text color="yellow">Action Required: Add the plugin to <Text bold>{configFilePath}</Text> for DEVELOPMENT builds.</Text>
+          <Text color="cyan">Copy and paste the following snippet:</Text>
+          <Text color="magenta">Press <Text bold>C</Text> to copy the code snippet to your clipboard.</Text>
+          <Box marginY={1} flexDirection="column">
+            {configSnippet.split('\n').map((line, i) => (
+              <Text key={i}>{line}</Text>
+            ))}
+          </Box>
+          {copied && <Text color="green">Code snippet copied to clipboard!</Text>}
+        </Box>
+      )}
+      {showRecheckPrompt && <>
+        <Text color="yellow">Waiting for re-check confirmation...</Text>
+        <Newline />
+        <Text color="magenta" bold>
+          ⬆️⬆️ PLEASE SCROLL UP TO SEE THE INSTRUCTIONS ⬆️⬆️
+        </Text>
+        <Newline />
+      </>}
+      {promptMessage && <Text color="yellow">{promptMessage}</Text>}
+      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && <Text color="red">Babel plugin dependency is missing or install failed.</Text>}
+      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && <Text color="red">Babel plugin configuration is missing or incorrect.</Text>}
+      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}
+    </Box>
   );
 };
 
