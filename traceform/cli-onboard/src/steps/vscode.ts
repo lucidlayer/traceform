@@ -6,12 +6,7 @@ import inquirer from 'inquirer';
 // We will guide the user instead.
 
 export async function checkVSCodeExtension(): Promise<boolean> {
-  console.log(chalk.yellow('\nNext step: Let\'s ensure the "Traceform" VS Code extension is installed and enabled.')); // Softened wording
-  console.log('  1. Open VS Code.');
-  console.log('  2. Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X).');
-  console.log('  3. Search for "Traceform" by "lucidlayer".');
-  console.log('  4. If not installed, click "Install".');
-  console.log('  5. If installed but disabled, click "Enable".');
+  console.log(chalk.yellow('\nNext step: Ensure the "Traceform" VS Code extension is installed and enabled.'));
   console.log(chalk.cyan('  Marketplace Link: https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode'));
   console.log(''); // Add spacing
 

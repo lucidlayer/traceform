@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist", // Output directory for this package
     "rootDir": "./src", // Source directory for this package
-    "module": "CommonJS", // Use CommonJS for CLI compatibility
+    "module": "Node16", // Required when moduleResolution is Node16
+    "jsx": "react-jsx", // Add JSX support for Ink/React
+    "esModuleInterop": true, // Allow default imports from commonjs modules
+    "moduleResolution": "node16", // Specify module resolution strategy (trying node16)
     "types": ["node", "fs-extra"] // Include necessary types
   },
   "include": ["src/**/*"], // Only include files in the src directory
