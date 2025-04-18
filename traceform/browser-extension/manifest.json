@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Traceform: UI Mapping",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "Highlights UI elements corresponding to selected code using Traceform.",
   "permissions": [
-    "scripting",
     "tabs",
     "storage",
     "alarms"

@@ -10,16 +10,12 @@ Frontend development complexity continues to grow. When you're navigating a larg
 
 The best developer tools don't just solve problems, they make entire categories of problems disappear.
 
-## Beta Launch
+We've structured Traceform as a monorepo with three core components, **each essential for the end-to-end functionality**:
 
-Today (April 15, 2025) marks our beta release of Traceform. We believe in shipping early to gather valuable feedback from developers in real world scenarios. By getting the tool into your hands now, we can:
+- **Babel Plugin (`@lucidlayer/babel-plugin-traceform`):** This is **required** to instrument your React components during the build process. It injects unique, traceable IDs into your components' output. Without these IDs, Traceform cannot link the code definition to the rendered elements in the browser.
+- **VS Code Extension ([Traceform for VS Code]):** This extension is **required** as it provides the user interface within VS Code, allowing you to select a component. Crucially, it also hosts the WebSocket bridge server that communicates with the browser extension. Without it, you cannot initiate the tracing or relay the necessary information.
+- **Browser Extension (Chrome/Edge):** This extension is **required** to receive information from the VS Code extension via the WebSocket connection. It then uses the received component ID to find and visually highlight the corresponding rendered elements in your application running on localhost. Without it, the highlighting in the browser cannot occur.
 
-- Identify pain points in the setup process
-- Understand which features provide the most value
-- Discover edge cases in different React project configurations
-- Build a community of early adopters
-
-Your feedback during this beta period will directly shape what Traceform becomes.
 
 ## Technical Implementation
 
@@ -30,11 +26,11 @@ Traceform creates a direct link between your code editor and browser through an 
 3. A WebSocket connection relays this information to a browser extension
 4. The browser extension highlights the corresponding elements in your running localhost
 
-We've structured Traceform as a monorepo with three core components:
+We've structured Traceform as a monorepo with three core components, **each essential for the end-to-end functionality**:
 
-- A Babel npm plugin (`@lucidlayer/babel-plugin-traceform`) that injects traceable IDs
-- A VS Code extension **[Traceform for VS Code]** that provides the UI interaction and hosts the bridge server
-- A browser extension in the github releases, for Chrome/Edge that handles the visual highlighting
+- **Babel Plugin (`@lucidlayer/babel-plugin-traceform`):** This is **required** to instrument your React components during the build process. It injects unique, traceable IDs into your components' output. Without these IDs, Traceform cannot link the code definition to the rendered elements in the browser.
+- **VS Code Extension ([Traceform for VS Code]):** This extension is **required** as it provides the user interface within VS Code, allowing you to select a component. Crucially, it also hosts the WebSocket bridge server that communicates with the browser extension. Without it, you cannot initiate the tracing or relay the necessary information.
+- **Browser Extension (Chrome/Edge):** This extension is **required** to receive information from the VS Code extension via the WebSocket connection. It then uses the received component ID to find and visually highlight the corresponding rendered elements in your application running on localhost. Without it, the highlighting in the browser cannot occur.
 
 
 ## Getting Started
