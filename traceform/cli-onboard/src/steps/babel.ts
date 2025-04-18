@@ -239,20 +239,44 @@ async function checkConfigFiles(projectRoot: string, verboseLog: VerboseLogger):
     // Add clarification that the dependency itself IS present at this point
     console.log(chalk.cyan(`  (Note: The dependency ${BABEL_PLUGIN_NAME} was found in your package.json, but it still needs to be configured below).`)); // Keep as console.log (info)
     const projectType = await detectProjectType(projectRoot, verboseLog); // Pass logger
-    let targetFileName = 'your Babel/Vite/Craco config file';
+    let targetFileNameSuggestion = 'your Babel/Vite/Craco config file';
+    let likelyFileName = ''; // Store a single likely file name for the path
     // Suggest a specific file based on detection
-    if (projectType === 'vite') targetFileName = 'vite.config.js / vite.config.ts';
-    else if (projectType === 'cra') targetFileName = 'craco.config.js';
-    else if (projectType === 'next') targetFileName = '.babelrc';
-    else if (projectType === 'babel') targetFileName = 'babel.config.js / .babelrc / .babelrc.js';
+    if (projectType === 'vite') {
+      targetFileNameSuggestion = 'vite.config.js / vite.config.ts';
+      likelyFileName = 'vite.config.ts'; // Prioritize TS? Or check existence? Let's pick one for now.
+    } else if (projectType === 'cra') {
+      targetFileNameSuggestion = 'craco.config.js';
+      likelyFileName = 'craco.config.js';
+    } else if (projectType === 'next') {
+      targetFileNameSuggestion = '.babelrc';
+      likelyFileName = '.babelrc';
+    } else if (projectType === 'babel') {
+      targetFileNameSuggestion = 'babel.config.js / .babelrc / .babelrc.js';
+      likelyFileName = 'babel.config.js'; // Prioritize babel.config.js?
+    }
 
-    console.log(chalk.yellow(`\n  Action Required: Please add the plugin to ${chalk.bold(targetFileName)} for DEVELOPMENT builds.`));
-    console.log(chalk.cyan('  Copy and paste the following snippet into the appropriate section:'));
+    const fullConfigPath = likelyFileName ? path.join(projectRoot, likelyFileName) : targetFileNameSuggestion;
+
+    // ENHANCED: More explicit actionable message
+    console.log(chalk.yellow(`\n  Action Required: Please add the Traceform Babel plugin to ${chalk.bold(fullConfigPath)} for DEVELOPMENT builds.`));
+    console.log(chalk.cyan(`  (Suggested file(s): ${targetFileNameSuggestion})`));
+    console.log(chalk.cyan('  Locate the "plugins" array (or equivalent) in your config file.'));
+    console.log(chalk.cyan('  Insert the following line at the appropriate place (see comment):'));
     console.log(chalk.gray('\n------------------- SNIPPET START ------------------'));
-    // Indent the snippet slightly for clarity
-    const snippet = getBabelConfigSnippet(projectType).split('\n').map(line => `  ${line}`).join('\n');
+    // Indent the snippet and add an insertion-point comment
+    let snippet = getBabelConfigSnippet(projectType)
+      .split('\n')
+      .map(line => {
+        if (line.includes(BABEL_PLUGIN_NAME)) {
+          return line + ' // <-- Add this line';
+        }
+        return '  ' + line;
+      })
+      .join('\n');
     console.log(chalk.white(snippet));
     console.log(chalk.gray('-------------------- SNIPPET END -------------------'));
+    console.log(chalk.yellow('  After saving your changes, re-run this check to continue.'));
     return false;
   }
 
