@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { execa } from 'execa';
+// Removed static execa import - will use dynamic import below
 
 // Define the type for the verbose logger function
 type VerboseLogger = (...args: any[]) => void;
@@ -11,6 +11,8 @@ async function checkCommandVersion(
   verboseLog: VerboseLogger // Add logger parameter
 ): Promise<boolean> {
   try {
+    // Dynamically import execa here as it's an ESM module
+    const { execa } = await import('execa');
     const { stdout } = await execa(command, [versionArg]);
     const version = stdout.trim().replace(/^v/, ''); // Remove leading 'v' if present
     verboseLog(`  Found ${command} version: ${version}`); // Use verboseLog
