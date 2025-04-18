@@ -29,17 +29,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <Box flexDirection="column">
-      <Text bold>--- Step 3: VS Code Extension ---</Text>
-      <Text color="yellow">Ensure the "Traceform" VS Code extension is installed and enabled.</Text>
-      <Link url="https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode">
-        <Text color="cyan">  Marketplace Link</Text>
-      </Link>
-      <Newline />
-      {isWaitingForConfirm && <Text color="yellow">Waiting for confirmation...</Text>}
-      {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
-      {confirmed === false && <Text color="red">✖ Please install/enable the VS Code extension and restart the wizard.</Text>}
-    </Box>
+    <Box flexDirection="column"><Text bold>--- Step 3: VS Code Extension ---</Text><Text color="yellow">Ensure the "Traceform" VS Code extension is installed and enabled.</Text><Link url="https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode"><Text color="cyan">  Marketplace Link</Text></Link><Newline />{isWaitingForConfirm && <Text color="yellow">Waiting for confirmation...</Text>}{confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}{confirmed === false && <Text color="red">✖ Please install/enable the VS Code extension and restart the wizard.</Text>}</Box>
   );
 };
 

@@ -157,33 +157,7 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
   };
 
   return (
-    <Box flexDirection="column">
-      <Text bold>--- Step 1: Prerequisites ---</Text>
-      <Box>
-        <Text color={getStatusColor(nodePassed)}>
-          {nodeStatus === null && isLoading ? <Spinner type="dots" /> : nodePassed === null ? '○' : nodePassed ? '✔' : '✖'}{' '}
-          {nodeStatus ?? 'Waiting...'}
-        </Text>
-      </Box>
-      <Box>
-        <Text color={getStatusColor(pmPassed)}>
-          {pmStatus === null && isLoading ? <Spinner type="dots" /> : pmPassed === null ? '○' : pmPassed ? '✔' : '✖'}{' '}
-          {pmStatus ?? 'Waiting...'}
-        </Text>
-      </Box>
-      {!isLoading && !(nodePassed && pmPassed) && (
-         <Box marginTop={1}>
-            <Text color="red">Prerequisite checks failed. Please address the issues above and restart the wizard.</Text>
-         </Box>
-      )}
-       {!isLoading && nodePassed && pmPassed && !showContinuePrompt && (
-         <Box marginTop={1}>
-            <Text color="green">Prerequisites passed.</Text>
-         </Box>
-      )}
-      {/* Display prompt waiting message */}
-      {promptMessage && <Text color="yellow">{promptMessage}</Text>}
-    </Box>
+    <Box flexDirection="column"><Text bold>--- Step 1: Prerequisites ---</Text><Box><Text color={getStatusColor(nodePassed)}>{nodeStatus === null && isLoading ? <Spinner type="dots" /> : (nodePassed === null ? "○" : nodePassed ? "✔" : "✖")}{` ${nodeStatus ?? "Waiting..."}`}</Text></Box><Box><Text color={getStatusColor(pmPassed)}>{pmStatus === null && isLoading ? <Spinner type="dots" /> : (pmPassed === null ? "○" : pmPassed ? "✔" : "✖")}{` ${pmStatus ?? "Waiting..."}`}</Text></Box>{!isLoading && !(nodePassed && pmPassed) && (<Box marginTop={1}><Text color="red">Prerequisite checks failed. Please address the issues above and restart the wizard.</Text></Box>)}{!isLoading && nodePassed && pmPassed && !showContinuePrompt && (<Box marginTop={1}><Text color="green">Prerequisites passed.</Text></Box>)}{promptMessage && <Text color="yellow">{promptMessage}</Text>}</Box>
   );
 };
 

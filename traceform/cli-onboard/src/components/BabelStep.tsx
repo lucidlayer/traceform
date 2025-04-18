@@ -378,40 +378,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
 
 
   return (
-    <> {/* Use a Fragment */}
-      {/* Main status/info box */}
-      <Box flexDirection="column">
-        <Text bold>--- Step 2: Babel Plugin ---</Text>
-        <Box>
-        <Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : 'yellow'}>
-          {isLoading && !showInstallPrompt && !showRecheckPrompt ? <Spinner type="dots" /> : finalResult === 'passed' ? '✔' : finalResult ? '✖' : '○'}{' '}
-          {status}
-        </Text>
-      </Box>
-      {showInstallPrompt && <Text color="yellow">Waiting for install confirmation...</Text>}
-      {showConfigHelp && (
-        <Box flexDirection="column">
-          <Text color="yellow">Action Required: Add the plugin to <Text bold>{configFilePath}</Text> for DEVELOPMENT builds.</Text>
-          <Text color="cyan">Copy and paste the following snippet:</Text>
-          <Box marginY={1}>
-            {configSnippet.split('\n').map((line, i) => (
-              <Box key={`snippet-${i}`}>
-                <Text>{line || ' '}</Text>
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      )}
-      {/* Keep prompts inside the main box */}
-      {showRecheckPrompt && <Text color="yellow">Waiting for re-check confirmation...</Text>}
-      {/* Display prompt waiting message */}
-      {promptMessage && <Text color="yellow">{promptMessage}</Text>}
-      {/* Display final status messages only when not loading and prompts are not active */}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && <Text color="red">Babel plugin dependency is missing or install failed.</Text>}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && <Text color="red">Babel plugin configuration is missing or incorrect.</Text>}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}
-      </Box>
-    </>
+    <><Box flexDirection="column"><Text bold>--- Step 2: Babel Plugin ---</Text><Box><Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : 'yellow'}>{isLoading && !showInstallPrompt && !showRecheckPrompt ? <Spinner type="dots" /> : (finalResult === 'passed' ? "✔" : finalResult ? "✖" : "○")}{` ${status}`}</Text></Box>{showInstallPrompt && <Text color="yellow">Waiting for install confirmation...</Text>}{showConfigHelp && (<Box flexDirection="column"><Text color="yellow">Action Required: Add the plugin to <Text bold>{configFilePath}</Text> for DEVELOPMENT builds.</Text><Text color="cyan">Copy and paste the following snippet:</Text><Box marginY={1}>{configSnippet.split('\n').map((line, i) => {if (!line.trim()) {return null;}return (<Box key={`snippet-${i}`}><Text>{line}</Text></Box>);})}</Box></Box>)}{showRecheckPrompt && <Text color="yellow">Waiting for re-check confirmation...</Text>}{promptMessage && <Text color="yellow">{promptMessage}</Text>}{!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && <Text color="red">Babel plugin dependency is missing or install failed.</Text>}{!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && <Text color="red">Babel plugin configuration is missing or incorrect.</Text>}{!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}</Box></>
   );
 };
 

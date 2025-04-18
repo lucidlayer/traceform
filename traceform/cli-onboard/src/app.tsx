@@ -131,14 +131,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box borderStyle="round" padding={1} flexDirection="column" minWidth={80}>
-      <Box marginBottom={1} justifyContent="center">
-        <Text bold color="cyan">
-          🚀 Traceform Onboarding Wizard 🚀
-        </Text>
-      </Box>
-      {renderStep()}
-    </Box>
+    <Box borderStyle="round" padding={1} flexDirection="column" minWidth={80}><Box marginBottom={1} justifyContent="center"><Text bold color="cyan">🚀 Traceform Onboarding Wizard 🚀</Text></Box>{renderStep()}</Box>
   );
 };
 

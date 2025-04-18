@@ -32,20 +32,7 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <Box flexDirection="column">
-      <Text bold>--- Step 4: Browser Extension ---</Text>
-      <Text color="yellow">Install the Traceform browser extension manually.</Text>
-      <Link url="https://github.com/lucidlayer/traceform/releases">
-        <Text color="cyan">  Download Link (Latest Release .zip)</Text>
-      </Link>
-      <Link url={guideLink}>
-        <Text color="cyan">  Detailed Installation Guide</Text>
-      </Link>
-      <Newline />
-      {isWaitingForConfirm && <Text color="yellow">Waiting for confirmation...</Text>}
-      {confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}
-      {confirmed === false && <Text color="red">✖ Please install/enable the Browser extension and restart the wizard.</Text>}
-    </Box>
+    <Box flexDirection="column"><Text bold>--- Step 4: Browser Extension ---</Text><Text color="yellow">Install the Traceform browser extension manually.</Text><Link url="https://github.com/lucidlayer/traceform/releases"><Text color="cyan">  Download Link (Latest Release .zip)</Text></Link><Link url={guideLink}><Text color="cyan">  Detailed Installation Guide</Text></Link><Newline />{isWaitingForConfirm && <Text color="yellow">Waiting for confirmation...</Text>}{confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}{confirmed === false && <Text color="red">✖ Please install/enable the Browser extension and restart the wizard.</Text>}</Box>
   );
 };
 
