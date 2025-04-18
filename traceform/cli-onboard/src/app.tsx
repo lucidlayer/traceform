@@ -46,7 +46,7 @@ const App: React.FC = () => {
     if (!tooSmall) {
       console.clear();
     }
-  }, [currentStep, columns, rows, tooSmall]);
+  }, [currentStep]);
 
   // --- Step Completion Handlers ---
   const handlePrereqComplete = (success: boolean) => {
@@ -116,7 +116,7 @@ const App: React.FC = () => {
   // Keep the app alive by listening for input when terminal is too small
   useInput(() => {}, { isActive: tooSmall });
 
-  // Ensure process stays alive when terminal is too small
+  // Ensure process stays alive when terminal is too small without pausing stdin when not too small
   useEffect(() => {
     if (tooSmall) {
       process.stdin.resume();
@@ -158,7 +158,7 @@ const App: React.FC = () => {
           <Box marginBottom={1} justifyContent="center">
             <Text bold color="cyan">🚀 Traceform Onboarding Wizard 🚀</Text>
           </Box>
-          <Box key={`${columns}x${rows}`}>{renderStep()}</Box>
+          <Box>{renderStep()}</Box>
         </>
       )}
     </Box>
