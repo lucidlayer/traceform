@@ -13,7 +13,7 @@ Select any component in VS Code → See it highlighted in your browser instantly
 Traceform consists of three parts working together:
 - A Babel plugin that adds traceable IDs to your components
 - A VS Code extension for selecting components
-- A browser extension that highlights components in your running app
+- A browser extension that highlights components in your running app (Currently chrome or edge)
 
 ## Getting Started
 
@@ -28,7 +28,7 @@ We've created a simple CLI onboarding tool that handles the entire setup process
 2. The CLI will guide you through installing all three required components:
    - VS Code extension
    - Babel plugin configuration
-   - Browser extension
+   - rowser extension
 
 ## Try with Demo Apps
 
@@ -37,13 +37,15 @@ Want to see Traceform in action immediately? We've created ready-to-use demo app
 1. Clone the demo repository:
    ```
    git clone https://github.com/lucidlayer/demo.git
-   cd demo
+   cd demo-01
+   npm install
    ```
 
 2. Run the onboarding tool in any of the four demo apps:
    ```
    npm install --save-dev @types/node
    npx @lucidlayer/traceform-onboard check
+   npm run dev
    ```
 
 ## What's Next
