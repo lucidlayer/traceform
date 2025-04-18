@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; // Add useEffect here
-import { Box, Text, useApp } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 // Import step components
 import PrerequisitesStep from './components/PrerequisitesStep.js';
 import BabelStep from './components/BabelStep.js'; // Import default component
@@ -10,103 +10,86 @@ import ValidateStep from './components/ValidateStep.js';
 
 type Step = 'prerequisites' | 'babel' | 'vscode' | 'browser' | 'validate' | 'done' | 'failed';
 
+const MIN_WIDTH = 60;
+const MIN_HEIGHT = 15;
+
+// Custom hook to track terminal dimensions
+const useTerminalDimensions = () => {
+  const [dimensions, setDimensions] = useState({ columns: process.stdout.columns, rows: process.stdout.rows });
+  // Stable handler reference
+  const handleResize = React.useCallback(() => {
+    setDimensions({ columns: process.stdout.columns, rows: process.stdout.rows });
+  }, []);
+  useEffect(() => {
+    process.stdout.on('resize', handleResize);
+    return () => {
+      process.stdout.off('resize', handleResize);
+    };
+  }, [handleResize]);
+  return dimensions;
+};
+
 const App: React.FC = () => {
-  const { exit } = useApp(); // Hook to exit the Ink app
+  const { exit } = useApp();
   const [currentStep, setCurrentStep] = useState<Step>('prerequisites');
   const [finalMessage, setFinalMessage] = useState<string | null>(null);
   const [finalMessageColor, setFinalMessageColor] = useState<string>('green');
-
-  // State flags to manage transitions more explicitly
   const [prereqCompleted, setPrereqCompleted] = useState(false);
   const [babelCompleted, setBabelCompleted] = useState(false);
   const [vscodeCompleted, setVscodeCompleted] = useState(false);
   const [browserCompleted, setBrowserCompleted] = useState(false);
-  // No flag needed for validate, as it's the last step before 'done'/'failed'
 
-  // --- Step Completion Handlers ---
-
-  const handlePrereqComplete = (success: boolean) => {
-    if (success) {
-      setPrereqCompleted(true); // Signal completion instead of changing step directly
-    } else {
-      setFinalMessage('Prerequisite checks failed. Please address the issues and restart.');
-      setFinalMessageColor('red');
-      setCurrentStep('failed');
-      // exit(); // Let Ink handle exit or user Ctrl+C
-    }
-  };
-
-  const handleBabelComplete = (status: BabelCheckStatus) => {
-    if (status === 'passed') {
-      setBabelCompleted(true); // Signal completion
-    } else {
-      setFinalMessage(`Babel setup ${status}. Cannot proceed. Please fix and restart.`);
-      setFinalMessageColor('red');
-      setCurrentStep('failed');
-      // exit();
-    }
-  };
-
-  const handleVSCodeComplete = (success: boolean) => {
-    if (success) {
-      setVscodeCompleted(true); // Signal completion
-      setCurrentStep('browser'); // Immediately advance to browser step
-    } else {
-      setFinalMessage('VS Code Extension step not confirmed. Please install/enable and restart.');
-      setFinalMessageColor('yellow');
-      setCurrentStep('failed');
-    }
-  };
-
-  const handleBrowserComplete = (success: boolean) => {
-    if (success) {
-      setBrowserCompleted(true); // Signal completion
-    } else {
-      setFinalMessage('Browser Extension step not confirmed. Please install/enable and restart.');
-      setFinalMessageColor('yellow');
-      setCurrentStep('failed');
-      // exit();
-    }
-  };
-
-  const handleValidationComplete = (success: boolean) => {
-    // Validation is the last step, directly set final state
-    if (success) {
-      setFinalMessage('🎉 Congratulations! Your Traceform setup is working correctly!');
-      setFinalMessageColor('green');
-    } else {
-      setFinalMessage('Validation failed. Please review troubleshooting tips and restart if needed.');
-      setFinalMessageColor('red');
-    }
-    setCurrentStep('done');
-    // exit(); // Let Ink handle exit or user Ctrl+C
-  };
-
-  // --- Effects for Step Transitions ---
-  useEffect(() => {
-    if (prereqCompleted) {
-      setCurrentStep('babel');
-    }
-  }, [prereqCompleted]);
-
-  useEffect(() => {
-    if (babelCompleted) {
-      setCurrentStep('vscode');
-    }
-  }, [babelCompleted]);
-
-  useEffect(() => {
-    if (browserCompleted) {
-      // Only proceed if previous steps were implicitly successful to reach here
-      setCurrentStep('validate');
-    }
-  }, [browserCompleted]);
+  const { columns, rows } = useTerminalDimensions();
 
   useEffect(() => {
     console.clear();
-  }, [currentStep]);
+  }, [currentStep, columns, rows]);
 
-  // --- Render Logic ---
+  // --- Step Completion Handlers ---
+  const handlePrereqComplete = (success: boolean) => {
+    setPrereqCompleted(true);
+    setCurrentStep(success ? 'babel' : 'failed');
+    if (!success) {
+      setFinalMessage('❌ Prerequisites not met. Exiting.');
+      setFinalMessageColor('red');
+    }
+  };
+  const handleBabelComplete = (status: BabelCheckStatus) => {
+    setBabelCompleted(true);
+    if (status === 'passed') {
+      setCurrentStep('vscode');
+    } else if (status === 'failed_dependency') {
+      setFinalMessage('❌ Babel plugin dependency is missing or install failed. Exiting.');
+      setFinalMessageColor('red');
+      setCurrentStep('failed');
+    } else if (status === 'failed_config') {
+      setFinalMessage('❌ Babel plugin configuration is missing or incorrect. Exiting.');
+      setFinalMessageColor('red');
+      setCurrentStep('failed');
+    }
+  };
+  const handleVSCodeComplete = (success: boolean) => {
+    setVscodeCompleted(true);
+    setCurrentStep(success ? 'browser' : 'failed');
+    if (!success) {
+      setFinalMessage('❌ VSCode extension setup failed. Exiting.');
+      setFinalMessageColor('red');
+    }
+  };
+  const handleBrowserComplete = (success: boolean) => {
+    setBrowserCompleted(true);
+    setCurrentStep(success ? 'validate' : 'failed');
+    if (!success) {
+      setFinalMessage('❌ Browser setup failed. Exiting.');
+      setFinalMessageColor('red');
+    }
+  };
+  const handleValidationComplete = (success: boolean) => {
+    setCurrentStep(success ? 'done' : 'failed');
+    setFinalMessage(success ? '🎉 All steps completed successfully!' : '❌ Validation failed. Exiting.');
+    setFinalMessageColor(success ? 'green' : 'red');
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 'prerequisites':
@@ -120,15 +103,64 @@ const App: React.FC = () => {
       case 'validate':
         return <ValidateStep onComplete={handleValidationComplete} />;
       case 'done':
-      case 'failed': // Show final message in both 'done' and 'failed' states before exit
+      case 'failed':
         return <Text color={finalMessageColor}>{finalMessage}</Text>;
       default:
         return <Text color="red">Internal error: Unknown step.</Text>;
     }
   };
 
+  const tooSmall = columns < MIN_WIDTH || rows < MIN_HEIGHT;
+
+  // Keep the app alive by listening for input when terminal is too small
+  useInput(() => {}, { isActive: tooSmall });
+
+  // Ensure process stays alive when terminal is too small
+  useEffect(() => {
+    if (tooSmall) {
+      process.stdin.resume();
+    }
+  }, [tooSmall]);
+
+  // Dummy state to force periodic re-render when terminal is too small
+  const [dummyTick, setDummyTick] = useState(0);
+  useEffect(() => {
+    if (tooSmall) {
+      const timer = setInterval(() => {
+        setDummyTick(prev => prev + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [tooSmall]);
+
   return (
-    <Box borderStyle="round" padding={1} flexDirection="column" minWidth={80}><Box marginBottom={1} justifyContent="center"><Text bold color="cyan">🚀 Traceform Onboarding Wizard 🚀</Text></Box>{renderStep()}</Box>
+    <Box
+      borderStyle="round"
+      padding={1}
+      flexDirection="column"
+      width={columns < 80 ? columns : 80}
+      height={rows >= 2 ? rows - 1 : rows}
+      alignItems="center"
+      justifyContent="center"
+    >
+      {tooSmall ? (
+        <Box flexDirection="column" alignItems="center" justifyContent="center">
+          <Text color="red">
+            Terminal too small for wizard. Please resize to at least {MIN_WIDTH}x{MIN_HEIGHT} to continue.
+          </Text>
+          <Text color="yellow">
+            (The wizard will resume automatically when the terminal is large enough.)
+          </Text>
+        </Box>
+      ) : (
+        <>
+          <Box marginBottom={1} justifyContent="center">
+            <Text bold color="cyan">🚀 Traceform Onboarding Wizard 🚀</Text>
+          </Box>
+          <Box key={`${columns}x${rows}`}>{renderStep()}</Box>
+        </>
+      )}
+    </Box>
   );
 };
 
