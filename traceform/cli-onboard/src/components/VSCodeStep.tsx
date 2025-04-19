@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text, Newline } from 'ink';
+import React, { useState } from 'react';
+import { Box, Text, Newline, useInput } from 'ink';
 import Link from 'ink-link'; // For clickable links in supported terminals
 
 interface VSCodeStepProps {
@@ -8,33 +8,23 @@ interface VSCodeStepProps {
 
 const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
   const [confirmed, setConfirmed] = useState<boolean | null>(null);
-  const [prompted, setPrompted] = useState(false);
+  const [answered, setAnswered] = useState(false); // to avoid repeated answers
 
-  useEffect(() => {
-    if (prompted) return;
-    setPrompted(true);
-    const promptUser = async () => {
-      // Delay the prompt by 750ms to allow lingering input (e.g., Enter key) to clear
-      await new Promise(resolve => setTimeout(resolve, 750));
-      const inquirerModule = await import('inquirer');
-      const inquirer = (inquirerModule.default || inquirerModule) as any;
-      const { confirmed: userConfirmed } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'confirmed',
-          message: 'Have you installed the Traceform VS Code extension?',
-          default: true,
-        },
-      ]);
-      setConfirmed(userConfirmed);
-      if (userConfirmed) {
-        onComplete(true);
-      } else {
+  // Use Ink's useInput hook to handle user response
+  useInput((input, key) => {
+    if (!answered && confirmed === null) {
+      // Treat 'n' input as no; 'y' or Enter as yes
+      if (input.toLowerCase() === 'n') {
+        setConfirmed(false);
+        setAnswered(true);
         onComplete(false);
+      } else if (input.toLowerCase() === 'y' || key.return) {
+        setConfirmed(true);
+        setAnswered(true);
+        onComplete(true);
       }
-    };
-    void promptUser();
-  }, [onComplete, prompted]);
+    }
+  }, { isActive: confirmed === null });
 
   return (
     <Box flexDirection="column">
@@ -49,8 +39,9 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
         <Text color="cyan">  Traceform for VS Code Extension (Marketplace)</Text>
       </Link>
       <Newline />
-      {confirmed === null && <Text color="yellow">Press Enter to continue...</Text>}
+      {confirmed === null && <Text color="yellow">Have you installed the VS Code extension? (Y/n)</Text>}
       {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
+      {confirmed === false && <Text color="red">✖ VS Code Extension step not confirmed.</Text>}
     </Box>
   );
 };
