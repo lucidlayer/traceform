@@ -52,9 +52,8 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete }) => {
         </Box>
       </Box>
       <Newline />
-      <Link url="https://github.com/lucidlayer/traceform/releases">
-        <Text color="cyan">Download Link (Latest Release .zip)</Text>
-      </Link>
+      <Text color="cyan">Download Link (Latest Release .zip):</Text>
+      <Text color="cyan">https://github.com/lucidlayer/traceform/releases</Text>
       <Newline />
       {confirmed === null && <Text color="yellow">Have you installed and enabled the browser extension? (Y/n)</Text>}
       {confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}
