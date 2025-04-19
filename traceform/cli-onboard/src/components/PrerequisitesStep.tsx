@@ -141,8 +141,8 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
         setShowContinuePrompt(false); // Disable prompt
         setPromptMessage(null); // Clear message
         onComplete(true); // Signal success
+        return; // Prevent event from propagating
       }
-      // Allow Ctrl+C to exit (Ink handles this by default if not overridden)
     },
     { isActive: showContinuePrompt } // Only activate the hook when the prompt should be shown
   );

@@ -113,8 +113,8 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
   const [configFilePath, setConfigFilePath] = useState<string>('');
   const [showRecheckPrompt, setShowRecheckPrompt] = useState(false);
   const [finalResult, setFinalResult] = useState<BabelCheckStatus | null>(null);
-  const [showContinuePrompt, setShowContinuePrompt] = useState(false); // New state for prompt
-  const [promptMessage, setPromptMessage] = useState<string | null>(null); // State for prompt message
+  const [showContinuePrompt, setShowContinuePrompt] = useState(false);
+  const [promptMessage, setPromptMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const projectRoot = process.cwd(); // Assuming CWD is the target project
@@ -278,8 +278,15 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
         ]);
         setPromptMessage(null); // Clear waiting message
         setShowContinuePrompt(false); // Hide prompt trigger
-        // If user proceeds, signal 'passed', otherwise signal 'failed_config' (user chose not to continue)
-        onComplete(proceed ? 'passed' : 'failed_config');
+        if (proceed) {
+          // Wait for user confirmation before proceeding
+          setTimeout(() => {
+            setShowContinuePrompt(true);
+            setPromptMessage('Press Enter to continue...');
+          }, 750);
+        } else {
+          onComplete('failed_config');
+        }
       };
       void prompt();
     }
@@ -358,6 +365,16 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     }
   }, { isActive: showConfigHelp });
 
+  // Add a useInput hook to listen for the continue prompt key
+  useInput((input, key) => {
+    if (showContinuePrompt && key.return) {
+      setShowContinuePrompt(false);
+      setPromptMessage(null);
+      onComplete('passed');
+      return; // Prevent further propagation
+    }
+  }, { isActive: showContinuePrompt });
+
   return (
     <Box flexDirection="column">
       <Text bold>--- Step 2: Babel Plugin ---</Text>
@@ -388,7 +405,11 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
         </Text>
         <Newline />
       </>}
-      {promptMessage && <Text color="yellow">{promptMessage}</Text>}
+      {promptMessage && (
+        <Box marginTop={1}>
+          <Text color="cyan">{promptMessage}</Text>
+        </Box>
+      )}
       {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && <Text color="red">Babel plugin dependency is missing or install failed.</Text>}
       {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && <Text color="red">Babel plugin configuration is missing or incorrect.</Text>}
       {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}
