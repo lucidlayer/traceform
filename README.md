@@ -15,7 +15,10 @@
 - [Quick Setup Guide with Traceform Onboard CLI](#quick-setup-guide-with-traceform-onboard-cli)
 - [See Traceform in Action: Demo Applications](#see-traceform-in-action-demo-applications)
 - [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+- [System Requirements](#system-requirements)
 - [Roadmap & Future Enhancements](#roadmap--future-enhancements)
+- [Contributing](#contributing)
+- [License](#license)
 
 </details>
 
@@ -71,7 +74,7 @@ Want to try Traceform immediately without setting it up in your own project? We'
 
 2.  Run the onboarding tool within the chosen demo app directory:
     ```bash
-    # Install Node types if needed for the demo
+    # Install Node types 
     npm install --save-dev @types/node
     # Run the onboarding check
     npx @lucidlayer/traceform-onboard check
@@ -97,6 +100,15 @@ A: The Traceform browser extension is currently available for Google Chrome and 
 **Q: How does the `traceform-onboard` CLI simplify setup?**
 A: The CLI automates checking prerequisites, installing the VS Code and browser extensions, and correctly configuring the Babel plugin in your project's configuration file, reducing manual setup errors.
 
+## System Requirements
+
+| Requirement       | Details                                     |
+|-------------------|---------------------------------------------|
+| Node.js           | v16 or newer recommended                    |
+| Supported OS      | macOS, Windows, Linux (where VS Code runs)  |
+| Supported Browsers| Google Chrome, Microsoft Edge               |
+| VS Code           | Latest version recommended                  |
+
 ## Roadmap & Future Enhancements
 
 We're continuously working to improve Traceform. Here's what's planned:
@@ -105,6 +117,16 @@ We're continuously working to improve Traceform. Here's what's planned:
 -   **Expanded browser support:** Adding support for Firefox and other popular browsers.
 -   **Framework extensions:** Creating similar tools for Vue and Svelte developers.
 -   **Simplified architecture:** Exploring ways to reduce the number of components needed for setup.
+
+---
+
+## Contributing
+
+We welcome contributions! If you encounter a bug or have a feature request, please open an issue on our [GitHub Issues](https://github.com/lucidlayer/traceform/issues) or [Discord Bug-Reports](https://discord.gg/dsrFUNGjCB). We appreciate your help in making Traceform better.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
