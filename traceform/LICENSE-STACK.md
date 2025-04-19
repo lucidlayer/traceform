@@ -29,4 +29,9 @@ This repository uses a layered licensing approach to balance open collaboration 
 ### Additional Notes
 - Each directory contains its own LICENSE file where required.
 - All source files include SPDX license headers matching their package's license.
-- For questions, see [docs/licensing.md](docs/licensing.md) or contact LucidLayer Inc. 
+- For questions, see [docs/licensing.md](docs/licensing.md) or contact LucidLayer Inc.
+
+### SPDX Header Automation
+- All source files are required to include an SPDX license header matching their package's license.
+- Enforcement is automated via a pre-commit hook (Husky) and a GitHub Actions workflow.
+- To support new file types, update the shell script at `traceform/scripts/check_spdx.sh`. 
