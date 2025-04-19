@@ -1,5 +1,5 @@
 <h1 align="center">Traceform: Instant React UI Mapping from VS Code</h1>
-<p align="center">Instantly map React components from VS Code to your browser.</p>
+<p align="center">Traceform is a React developer toolchain that instantly highlights any React component from your VS Code editor directly in your browser, streamlining debugging and component visualization. </p>
 
 <p align="center"><code>npx @lucidlayer/traceform-onboard check</code></p>
 
@@ -10,10 +10,11 @@
 <details>
 <summary><strong>Table&nbsp;of&nbsp;Contents</strong></summary>
 
-- [Why Traceform?<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Instant Code-to-UI Mapping for React Development</span>](#why-traceform-instant-code-to-ui-mapping-for-react-development)
-- [Core Functionality:<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Visual Debugging Workflow Integration</span>](#core-functionality-visual-debugging-workflow-integration)
-- [Quick Setup Guide<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> with Traceform Onboard CLI</span>](#quick-setup-guide-with-traceform-onboard-cli)
-- [See Traceform in Action:<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Demo Applications</span>](#see-traceform-in-action-demo-applications)
+- [Installation](#installation)
+- [Quickstart<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> with Traceform Onboard CLI</span>](#quickstart)
+- [See Traceform in Action<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Demo Applications</span>](#see-traceform-in-action)
+- [Why Traceform?<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Instant Code-to-UI Mapping for React Development</span>](#why-traceform)
+- [How Traceform Works<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Visual Debugging Workflow Integration</span>](#how-traceform-works)
 - [Frequently Asked Questions<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> (FAQ)</span>](#frequently-asked-questions-faq)
 - [System Requirements](#system-requirements)
 - [Roadmap<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> & Future Enhancements</span>](#roadmap--future-enhancements)
@@ -23,28 +24,6 @@
 </details>
 
 ---
-
-## Why Traceform?<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Instant Code-to-UI Mapping for React Development</span>
-
-React development often involves a persistent disconnect: you write code in one place (your editor) and see results somewhere else (your browser). This cognitive gap costs developers significant time and focus, especially when trying to map complex UI elements back to their source code. Have you ever stared at a UI wondering which component renders it?
-
-Traceform eliminates this friction. By creating a direct visual connection between your code and the UI, Traceform increases React development velocity by eliminating guesswork. It provides real-time visual component tracking directly within your existing VS Code and Chrome/Edge workflow. Developers debugging complex UIs benefit from instant visual feedback when selecting components in their codebase, reducing context-switching and boosting productivity. 
-
-It's ideal for large codebases or onboarding new team members.
-
-## How Traceform Works<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Visual Debugging Workflow Integration</span>
-
-Select any React component in VS Code → See it highlighted in your browser instantly.
-
-Traceform achieves this seamless connection using three key parts working together:
-
-| Component           | Description                                      | Installation Method        |
-|---------------------|--------------------------------------------------|----------------------------|
-| Babel Plugin        | Injects traceable IDs into React components during build. | Handled by `traceform-onboard` CLI |
-| VS Code Extension   | Allows selecting components directly in your editor. | Install from Marketplace / CLI |
-| Browser Extension | Listens for selections and highlights components in the browser. | Install for Chrome/Edge / CLI |
-
-These pieces communicate to create a seamless bridge between your code editor and the browser interface. This developer toolchain provides a powerful component visualization and debugging tool right within your existing workflow.
 
 ## Installation
 
@@ -62,7 +41,7 @@ We've created a simple Command Line Interface (CLI) onboarding tool that handles
 1.  Ensure you have Node.js installed. In your React project directory, open a terminal and run:
     ```bash
     # Install Node types if you haven't already (recommended)
-    npm install --save-dev @types/node 
+    npm install --save-dev @types/node
     # Run the onboarding check
     npx @lucidlayer/traceform-onboard check
     ```
@@ -85,7 +64,7 @@ Want to try Traceform immediately without setting it up in your own project? We'
 
 2.  Run the onboarding tool within the chosen demo app directory:
     ```bash
-    # Install Node types 
+    # Install Node types
     npm install --save-dev @types/node
     # Run the onboarding check
     npx @lucidlayer/traceform-onboard check
@@ -93,6 +72,28 @@ Want to try Traceform immediately without setting it up in your own project? We'
     npm run dev
     ```
     Now you can open the demo app in your browser and test Traceform's highlighting features.
+
+## Why Traceform?<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Instant Code-to-UI Mapping for React Development</span>
+
+React development often involves a persistent disconnect: you write code in one place (your editor) and see results somewhere else (your browser). This cognitive gap costs developers significant time and focus, especially when trying to map complex UI elements back to their source code. Have you ever stared at a UI wondering which component renders it?
+
+Traceform eliminates this friction. By creating a direct visual connection between your code and the UI, Traceform increases React development velocity by eliminating guesswork. It provides real-time visual component tracking directly within your existing VS Code and Chrome/Edge workflow. Developers debugging complex UIs benefit from instant visual feedback when selecting components in their codebase, reducing context-switching and boosting productivity.
+
+It's ideal for large codebases or onboarding new team members.
+
+## How Traceform Works
+
+Select any React component in VS Code → See it highlighted in your browser instantly.
+
+Traceform achieves this seamless connection using three key parts working together:
+
+| Component           | Description                                      | Installation Method        |
+|---------------------|--------------------------------------------------|----------------------------|
+| Babel Plugin        | Injects traceable IDs into React components during build. | Handled by `traceform-onboard` CLI |
+| VS Code Extension   | Allows selecting components directly in your editor. | Install from Marketplace / CLI |
+| Browser Extension | Listens for selections and highlights components in the browser. | Install for Chrome/Edge / CLI |
+
+These pieces communicate to create a seamless bridge between your code editor and the browser interface. This developer toolchain provides a powerful component visualization and debugging tool right within your existing workflow.
 
 ## Frequently Asked Questions (FAQ)
 
