@@ -47,7 +47,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
         <Text color="cyan">  Traceform for VS Code Extension (Marketplace)</Text>
       </Link>
       <Newline />
-      {confirmed === null && <Text color="yellow">Waiting for confirmation...</Text>}
+      {confirmed === null && <Text color="yellow">Press Enter to continue...</Text>}
       {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
     </Box>
   );

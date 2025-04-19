@@ -266,7 +266,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
   useEffect(() => {
     if (showContinuePrompt) {
       const prompt = async () => {
-        setPromptMessage('Waiting for confirmation...'); // Show waiting message
+        setPromptMessage('Press Enter to continue...'); // Show waiting message
         const inquirer = (await import('inquirer')).default;
         const { proceed } = await inquirer.prompt([
           {

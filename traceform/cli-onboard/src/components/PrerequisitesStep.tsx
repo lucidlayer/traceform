@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text } from 'ink';
+import { Box, Text, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 
 interface PrerequisitesStepProps {
@@ -20,18 +20,20 @@ async function checkCommandVersion(
     const minVersionParts = minVersion.split('.').map(Number);
 
     for (let i = 0; i < minVersionParts.length; i++) {
-      if (versionParts[i] > minVersionParts[i]) {
-        return { passed: true, message: `${command} v${version} found.`, version };
-      }
-      if (versionParts[i] < minVersionParts[i]) {
+      // Handle cases like '18' vs '18.17.0' where versionParts might be shorter
+      if (i >= versionParts.length || versionParts[i] < minVersionParts[i]) {
         return {
           passed: false,
           message: `Error: ${command} version ${version} is below the required minimum ${minVersion}. Please install or update.`,
           version,
         };
       }
+      if (versionParts[i] > minVersionParts[i]) {
+        return { passed: true, message: `${command} v${version} found.`, version };
+      }
     }
-    return { passed: true, message: `${command} v${version} found.`, version }; // Versions are equal or version has more parts
+    // If loops completes, versions are equal up to minVersionParts length, or versionParts is longer (e.g., 18.17.1 vs 18.17.0)
+    return { passed: true, message: `${command} v${version} found.`, version };
   } catch (error) {
     return {
       passed: false,
@@ -47,17 +49,16 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
   const [pmPassed, setPmPassed] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckComplete, setIsCheckComplete] = useState(false);
-  const [showContinuePrompt, setShowContinuePrompt] = useState(false); // New state for prompt
-  const [promptMessage, setPromptMessage] = useState<string | null>(null); // State for prompt message
+  const [showContinuePrompt, setShowContinuePrompt] = useState(false); // State to indicate readiness for Enter key
+  const [promptMessage, setPromptMessage] = useState<string | null>(null);
 
   // Effect to run the checks
   useEffect(() => {
     const runChecks = async () => {
       setIsLoading(true);
-      setIsCheckComplete(false); // Reset completion state
+      setIsCheckComplete(false);
       setNodeStatus('Checking Node.js version...');
       const nodeResult = await checkCommandVersion('node', '-v', '18.17.0');
-      // Update state immediately after check
       setNodeStatus(nodeResult.message);
       setNodePassed(nodeResult.passed);
 
@@ -65,20 +66,21 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
         setPmStatus('Skipped (Node.js check failed)');
         setPmPassed(false);
         setIsLoading(false);
-        setIsCheckComplete(true); // Mark check as complete (failed)
-        // onComplete(false); // Don't call onComplete here yet
+        setIsCheckComplete(true);
         return;
       }
 
       setPmStatus('Checking for package manager (npm, yarn, or pnpm)...');
       let packageManagerFound = false;
       let pmMessage = '';
+      let pmFound = null; // Store which PM was found
 
       // Check npm
       const npmResult = await checkCommandVersion('npm', '-v', '8.0.0');
       if (npmResult.passed) {
         packageManagerFound = true;
         pmMessage = `npm v${npmResult.version} found.`;
+        pmFound = 'npm';
       }
 
       // Check yarn only if npm wasn't found
@@ -87,6 +89,7 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
         if (yarnResult.passed) {
           packageManagerFound = true;
           pmMessage = `yarn v${yarnResult.version} found.`;
+          pmFound = 'yarn';
         }
       }
 
@@ -96,11 +99,12 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
         if (pnpmResult.passed) {
           packageManagerFound = true;
           pmMessage = `pnpm v${pnpmResult.version} found.`;
+          pmFound = 'pnpm';
         }
       }
 
       if (!packageManagerFound) {
-        setPmStatus('Error: No supported package manager found. Please install npm, yarn, or pnpm.');
+        setPmStatus('Error: No supported package manager found (npm >= 8, yarn >= 1.22, pnpm >= 7). Please install or update.');
         setPmPassed(false);
       } else {
         setPmStatus(`Package manager check passed (${pmMessage})`);
@@ -108,8 +112,7 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
       }
 
       setIsLoading(false);
-      setIsCheckComplete(true); // Mark check as complete (passed or failed PM check)
-      // Don't call onComplete here
+      setIsCheckComplete(true);
     };
 
     void runChecks();
@@ -120,44 +123,67 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
     if (isCheckComplete && !isLoading) {
       const success = nodePassed === true && pmPassed === true;
       if (success) {
-        // Don't call onComplete yet, trigger the prompt instead
-        setShowContinuePrompt(true);
+        setShowContinuePrompt(true); // Enable listening for Enter
+        setPromptMessage('Press Enter to continue...'); // Set prompt message
       } else {
         // If checks failed, call onComplete immediately
         onComplete(false);
       }
     }
-  }, [isCheckComplete, isLoading, nodePassed, pmPassed]); // Removed onComplete dependency here
+    // Intentionally not including onComplete in dependencies to avoid potential loops if parent re-renders
+  }, [isCheckComplete, isLoading, nodePassed, pmPassed]);
 
-  // Effect to handle the continue prompt
-  useEffect(() => {
-    if (showContinuePrompt) {
-      const prompt = async () => {
-        setPromptMessage('Waiting for confirmation...'); // Show waiting message
-        const inquirer = (await import('inquirer')).default;
-        const { proceed } = await inquirer.prompt([
-          {
-            type: 'confirm',
-            name: 'proceed',
-            message: 'Prerequisites passed. Proceed to next step?',
-            default: true,
-          },
-        ]);
-        setPromptMessage(null); // Clear waiting message
-        setShowContinuePrompt(false); // Hide prompt trigger
-        onComplete(proceed); // Call onComplete with user's choice
-      };
-      void prompt();
-    }
-  }, [showContinuePrompt, onComplete]);
+  // Input handler for continuing
+  useInput(
+    (input, key) => {
+      if (showContinuePrompt && key.return) {
+        // Check if the prompt is active and Enter key was pressed
+        setShowContinuePrompt(false); // Disable prompt
+        setPromptMessage(null); // Clear message
+        onComplete(true); // Signal success
+      }
+      // Allow Ctrl+C to exit (Ink handles this by default if not overridden)
+    },
+    { isActive: showContinuePrompt } // Only activate the hook when the prompt should be shown
+  );
 
   const getStatusColor = (passed: boolean | null): string => {
     if (passed === null) return 'yellow';
     return passed ? 'green' : 'red';
   };
 
+  const getStatusIcon = (passed: boolean | null): string => {
+     if (isLoading && passed === null) return ''; // Handled by spinner text below
+     if (passed === null) return '○'; // Still waiting or skipped
+     return passed ? '✔' : '✖';
+  };
+
   return (
-    <Box flexDirection="column"><Text bold>--- Step 1: Prerequisites ---</Text><Box><Text color={getStatusColor(nodePassed)}>{nodeStatus === null && isLoading ? <Spinner type="dots" /> : (nodePassed === null ? "○" : nodePassed ? "✔" : "✖")}{` ${nodeStatus ?? "Waiting..."}`}</Text></Box><Box><Text color={getStatusColor(pmPassed)}>{pmStatus === null && isLoading ? <Spinner type="dots" /> : (pmPassed === null ? "○" : pmPassed ? "✔" : "✖")}{` ${pmStatus ?? "Waiting..."}`}</Text></Box>{!isLoading && !(nodePassed && pmPassed) && (<Box marginTop={1}><Text color="red">Prerequisite checks failed. Please address the issues above and restart the wizard.</Text></Box>)}{!isLoading && nodePassed && pmPassed && !showContinuePrompt && (<Box marginTop={1}><Text color="green">Prerequisites passed.</Text></Box>)}{promptMessage && <Text color="yellow">{promptMessage}</Text>}</Box>
+    <Box flexDirection="column">
+      <Text bold>--- Step 1: Prerequisites ---</Text>
+      <Box>
+         <Text color={getStatusColor(nodePassed)}>
+           {isLoading && nodeStatus?.startsWith('Checking') ? <Spinner type="dots" /> : getStatusIcon(nodePassed)}{` ${nodeStatus ?? 'Waiting...'}`}
+         </Text>
+      </Box>
+      <Box>
+         <Text color={getStatusColor(pmPassed)}>
+           {isLoading && nodePassed && pmStatus?.startsWith('Checking') ? <Spinner type="dots" /> : getStatusIcon(pmPassed)}{` ${pmStatus ?? 'Waiting...'}`}
+         </Text>
+      </Box>
+      {/* Failure Message */}
+      {!isLoading && isCheckComplete && !(nodePassed && pmPassed) && (
+        <Box marginTop={1}>
+          <Text color="red">Prerequisite checks failed. Please address the issues above and restart the wizard.</Text>
+        </Box>
+      )}
+      {/* Success Message & Prompt */}
+      {promptMessage && (
+        <Box marginTop={1}>
+           <Text color="cyan">{promptMessage}</Text>
+        </Box>
+      )}
+    </Box>
   );
 };
 
