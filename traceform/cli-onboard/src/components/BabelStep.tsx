@@ -92,13 +92,28 @@ module.exports = {
 };
 `;
     default:
-      return `
-Could not automatically detect project type. Please add the following plugin
-to your Babel configuration for development builds:
-'${BABEL_PLUGIN_NAME}'
-
-See documentation for examples: https://github.com/lucidlayer/traceform#getting-started-with-traceform
-`;
+      return [
+        '',
+        'Could not automatically detect project type.',
+        '',
+        'Please add the following plugin to your Babel configuration for development builds:',
+        '',
+        `    '${BABEL_PLUGIN_NAME}'`,
+        '',
+        'See documentation for examples:',
+        '  https://github.com/lucidlayer/traceform#getting-started-with-traceform',
+        '',
+        'Example (babel.config.js):',
+        '',
+        'module.exports = {',
+        '  presets: [/* your existing presets */],',
+        '  plugins: [',
+        `    ...(process.env.NODE_ENV === 'development' ? ['${BABEL_PLUGIN_NAME}'] : []),`,
+        '    // ... any other plugins you might have',
+        '  ],',
+        '};',
+        ''
+      ].join('\n');
   }
 }
 

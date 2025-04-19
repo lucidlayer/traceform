@@ -7,9 +7,9 @@ import App from './app.js'; // Import the main Ink application component
 // using something like `meow` or `yargs` as `commander` might conflict with Ink's focus management.
 // For now, we just render the app directly.
 
-// Render the Ink application with additional options to prevent unexpected exit
+// Render the Ink application with exitOnCtrlC set to true to allow ctrl+c to stop the script
 render(React.createElement(App), { 
-  exitOnCtrlC: false,
+  exitOnCtrlC: true,
   patchConsole: false
 });
 

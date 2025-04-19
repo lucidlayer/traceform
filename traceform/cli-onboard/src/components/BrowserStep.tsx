@@ -33,13 +33,17 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete }) => {
       <Text bold>--- Step 4: Browser Extension ---</Text>
       <Text color="yellow">Install the Traceform Browser Extension manually.</Text>
       <Newline />
-      <Text>Instructions:</Text>
-      <Text>1. Download the latest release (.zip) from the link below.</Text>
-      <Text>2. Extract the downloaded file to a folder of your choice.</Text>
-      <Text>3. Open your browser and navigate to the extensions page (e.g., chrome://extensions for Chrome, about:addons for Firefox).</Text>
-      <Text>4. Enable Developer Mode (if applicable).</Text>
-      <Text>5. Click on "Load unpacked" (or the equivalent) and select the extracted folder.</Text>
-      <Text>6. Ensure the extension is enabled.</Text>
+      <Box flexDirection="column" marginBottom={1}>
+        <Text>Instructions:</Text>
+        <Box flexDirection="column" marginLeft={2}>
+          <Text>1. Download the latest release (.zip) from the link below.</Text>
+          <Text>2. Extract the downloaded file to a folder of your choice.</Text>
+          <Text>3. Open your browser and navigate to the extensions page (e.g., chrome://extensions for Chrome, about:addons for Firefox).</Text>
+          <Text>4. Enable Developer Mode (if applicable).</Text>
+          <Text>5. Click on "Load unpacked" (or the equivalent) and select the extracted folder.</Text>
+          <Text>6. Ensure the extension is enabled.</Text>
+        </Box>
+      </Box>
       <Newline />
       <Link url="https://github.com/lucidlayer/traceform/releases">
         <Text color="cyan">Download Link (Latest Release .zip)</Text>
