@@ -8,7 +8,10 @@ import App from './app.js'; // Import the main Ink application component
 // For now, we just render the app directly.
 
 // Render the Ink application with additional options to prevent unexpected exit
-render(React.createElement(App), { exitOnCtrlC: false });
+render(React.createElement(App), { 
+  exitOnCtrlC: false,
+  patchConsole: false
+});
 
 // Keep the process alive until Ink exits
 // (Ink handles exit automatically on unmount or Ctrl+C)
