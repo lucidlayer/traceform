@@ -8,6 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install licensee
-        run: sudo apt-get update && sudo apt-get install -y ruby-full && gem install licensee
+        run: sudo apt-get update && sudo apt-get install -y ruby-full && sudo gem install licensee
       - name: Run licensee
         run: licensee detect . --json 
