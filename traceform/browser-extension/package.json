@@ -1,8 +1,9 @@
 {
   "name": "traceform-browser-extension",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "Browser extension component for Traceform",
   "private": true,
+  "license": "BUSL-1.1",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
@@ -21,7 +22,6 @@
     "traceform"
   ],
   "author": "LucidLayer",
-  "license": "MIT",
   "devDependencies": {
     "@types/chrome": "^0.0.263",
     "@types/node": "^20.11.24",

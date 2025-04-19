@@ -121,3 +121,12 @@ Traceform aims to seamlessly connect your code to its rendered UI, eliminating t
 ---
 
 *This extension is part of the Traceform developer toolset. For more information, visit [traceform github](https://github.com/lucidlayer/traceform)*
+
+## License & Legal Notice
+
+This extension is licensed under the Business Source License 1.1 (BUSL-1.1).
+- Production use for ≤ 3 dev seats is free.
+- All BUSL-licensed code will convert to Apache-2.0 on 2028-04-15.
+- See [LICENSE](./LICENSE) and [LICENSE-STACK.md](../LICENSE-STACK.md) for details.
+
+For more, see the [Traceform Licensing FAQ](../docs/licensing.md).

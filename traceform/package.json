@@ -1,8 +1,9 @@
 {
   "name": "traceform-workspace",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Root workspace for the Traceform project",
+  "license": "BUSL-1.1",
   "workspaces": [
     "babel-plugin-traceform",
     "browser-extension",
