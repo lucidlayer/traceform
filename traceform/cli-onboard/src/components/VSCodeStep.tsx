@@ -13,7 +13,9 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
   useEffect(() => {
     if (prompted) return;
     setPrompted(true);
-    const prompt = async () => {
+    const promptUser = async () => {
+      // Delay the prompt by 750ms to allow lingering input (e.g., Enter key) to clear
+      await new Promise(resolve => setTimeout(resolve, 750));
       const inquirerModule = await import('inquirer');
       const inquirer = (inquirerModule.default || inquirerModule) as any;
       const { confirmed: userConfirmed } = await inquirer.prompt([
@@ -31,7 +33,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
         onComplete(false);
       }
     };
-    void prompt();
+    void promptUser();
   }, [onComplete, prompted]);
 
   return (
