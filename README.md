@@ -2,7 +2,7 @@
 <p align="center">Instantly map React components from VS Code to your browser.</p>
 
 <p align="center">
-  <code>npx @lucidlayer/traceform-onboard check</code><br/>
+  <code>npx @lucidlayer/traceform-onboard check</code><br/> 
   <a href="https://mariadb.com/bsl11/">
     <img src="https://img.shields.io/badge/license-BUSL--1.1-blue" alt="License: BUSL-1.1">
   </a>

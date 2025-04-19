@@ -1,6 +1,6 @@
 {
   "name": "traceform-browser-extension",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "description": "Browser extension component for Traceform",
   "private": true,
   "license": "BUSL-1.1",
