@@ -231,21 +231,21 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
   // 1. Check config first, then dependency
   const performChecks = async () => {
     setIsLoading(true);
-    // Reset states before checks
     setShowInstallPrompt(false);
     setShowConfigHelp(false);
     setShowRecheckPrompt(false);
-    setShowContinuePrompt(false); // Ensure continue prompt is hidden
-    setFinalResult(null); // Reset final result before checks
-    setStatus('Starting checks...'); // Initial status
+    setShowContinuePrompt(false);
+    setFinalResult(null);
+    setPromptMessage(null);
+    setStatus('Starting checks...');
 
     // 1. Check dependency first
     const depOk = await checkPackageJson();
     if (!depOk) {
-      // If dep check returned false and didn't trigger prompt (e.g., file error), fail immediately
+      // If dep check returned false and didn't trigger prompt (e.g., file error), show error and allow retry/quit
       if (!showInstallPrompt) {
         setFinalResult('failed_dependency');
-        onComplete('failed_dependency');
+        setPromptMessage('Press R to retry, or Q to quit.');
       }
       setIsLoading(false);
       return;
@@ -254,6 +254,8 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     // 2. After dependency is confirmed, check config
     const configOk = await checkConfigFiles();
     if (!configOk) {
+      setFinalResult('failed_config');
+      setPromptMessage('Press R to retry, or Q to quit.');
       setIsLoading(false);
       return;
     }
@@ -309,24 +311,24 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
 
   // --- Prompt Handlers ---
   const handleInstallConfirm = async (confirm: boolean) => {
-    setShowInstallPrompt(false); // Hide prompt indicator
+    setShowInstallPrompt(false);
     if (confirm) {
-      setIsLoading(true); // Show loading while installing
+      setIsLoading(true);
       const installed = await installPlugin();
       if (installed) {
         // Re-run checks after successful install
         void performChecks();
       } else {
-        // Install failed - call onComplete directly
-        setFinalResult('failed_dependency'); // Update state for UI message
+        // Install failed - show retry/quit
+        setFinalResult('failed_dependency');
+        setPromptMessage('Install failed. Press R to retry, or Q to quit.');
         setIsLoading(false);
-        onComplete('failed_dependency'); // Signal failure to parent
       }
     } else {
-      setStatus('Skipping installation.');
-      setFinalResult('failed_dependency'); // Update state for UI message
+      // User declined install - show retry/quit
+      setFinalResult('failed_dependency');
+      setPromptMessage('Dependency not installed. Press R to retry, or Q to quit.');
       setIsLoading(false);
-      onComplete('failed_dependency'); // Signal failure to parent
     }
   };
 
@@ -390,6 +392,19 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     }
   }, { isActive: showContinuePrompt });
 
+  // Add useInput handler for retry/quit on failure
+  useInput((input, key) => {
+    if ((finalResult === 'failed_dependency' || finalResult === 'failed_config') && !isLoading && !showInstallPrompt) {
+      if (input.toLowerCase() === 'r') {
+        setFinalResult(null);
+        setPromptMessage(null);
+        void performChecks();
+      } else if (input.toLowerCase() === 'q') {
+        onComplete(finalResult);
+      }
+    }
+  });
+
   return (
     <Box flexDirection="column">
       <Text bold>--- Step 2: Babel Plugin ---</Text>
@@ -422,11 +437,15 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       </>}
       {promptMessage && (
         <Box marginTop={1}>
-          <Text color="cyan">{promptMessage}</Text>
+          <Text color="yellow">{promptMessage}</Text>
         </Box>
       )}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && <Text color="red">Babel plugin dependency is missing or install failed.</Text>}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && <Text color="red">Babel plugin configuration is missing or incorrect.</Text>}
+      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && (
+        <Text color="red">Babel plugin dependency is missing or install failed.</Text>
+      )}
+      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && (
+        <Text color="red">Babel plugin configuration is missing or incorrect.</Text>
+      )}
       {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}
     </Box>
   );

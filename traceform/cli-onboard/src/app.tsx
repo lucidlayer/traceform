@@ -62,14 +62,9 @@ const App: React.FC = () => {
     setBabelCompleted(true);
     if (status === 'passed') {
       setCurrentStep('vscode');
-    } else if (status === 'failed_dependency') {
-      setFinalMessage('❌ Babel plugin dependency is missing or install failed. Exiting.');
-      setFinalMessageColor('red');
-      setCurrentStep('failed');
-    } else if (status === 'failed_config') {
-      setFinalMessage('❌ Babel plugin configuration is missing or incorrect. Exiting.');
-      setFinalMessageColor('red');
-      setCurrentStep('failed');
+    } else if (status === 'failed_dependency' || status === 'failed_config') {
+      // Stay on the Babel step and let BabelStep handle retry/quit logic.
+      setFinalMessage(null);
     }
   };
   const handleVSCodeComplete = (success: boolean) => {
