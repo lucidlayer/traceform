@@ -55,12 +55,12 @@ We've created a simple Command Line Interface (CLI) onboarding tool that handles
 
 2.  The CLI will guide you through installing and configuring all three required components:
     *   VS Code extension (from the Marketplace)
-    *   Babel plugin configuration (modifies your `babel.config.js` or similar)
+    *   Babel plugin configuration (modify your `babel.config.js` or `vite.config.ts` or similar)
     *   Browser extension (links to Chrome Web Store / Edge Add-ons)
 
 ## See Traceform in Action: Demo Applications
 
-Want to try Traceform immediately without setting it up in your own project? We've prepared ready-to-use demo applications:
+Want to try Traceform immediately without setting it up in your own project? We've prepared ready to use demo applications:
 
 1.  Clone the demo repository:
     ```bash
