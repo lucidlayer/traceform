@@ -3,6 +3,9 @@
 
 <p align="center">
   <code>npx @lucidlayer/traceform-onboard check</code><br/>
+  <a href="https://mariadb.com/bsl11/">
+    <img src="https://img.shields.io/badge/license-BUSL--1.1-blue" alt="License: BUSL-1.1">
+  </a>
 </p>
 
 ![Traceform demonstrating real-time React component highlighting from VS Code selection to browser visualization](./.github/demo.gif "GIF showing Traceform highlighting a React button in Chrome from VS Code")
@@ -160,7 +163,11 @@ This is just the beginning, and we welcome contributions! If you encounter a bug
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is primarily licensed under the Business Source License 1.1 (BUSL-1.1).
+- Most of the codebase is under BUSL-1.1. See the [LICENSE](LICENSE) file for details and parameters.
+- The CLI onboarding tool (`traceform/cli-onboard`) is licensed under Apache-2.0.
+- The Babel plugin (`traceform/babel-plugin-traceform`) is licensed under MIT.
+- For a full breakdown, see [LICENSE-STACK.md](traceform/LICENSE-STACK.md).
 
 ---
 
