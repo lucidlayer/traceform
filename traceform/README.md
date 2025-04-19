@@ -151,3 +151,16 @@ Creating tools like Traceform reminds me why I'm passionate about developer expe
 I hope Traceform helps you build better React applications with less friction. We're continuing to evolve this toolset based on real-world feedback, so please share your experiences with us.
 
 **Learn more at [traceform.framer.website](https://traceform.framer.website/)** or explore the subproject READMEs for technical details.
+
+## License
+
+This project is licensed under the Business Source License 1.1 (BUSL-1.1) at the root, with per-directory overrides:
+- **BUSL-1.1**: Most packages (see LICENSE files in each directory)
+- **MIT**: `babel-plugin-traceform`
+- **Apache-2.0**: `cli-onboard`
+
+See [LICENSE-STACK.md](LICENSE-STACK.md) for a full breakdown of license coverage and per-directory overrides.
+
+[![License: BUSL-1.1](https://img.shields.io/badge/license-BUSL--1.1-blue)](https://mariadb.com/bsl11/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-orange)](https://www.apache.org/licenses/LICENSE-2.0)
