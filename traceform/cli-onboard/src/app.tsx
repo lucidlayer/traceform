@@ -12,6 +12,7 @@ type Step = 'prerequisites' | 'babel' | 'vscode' | 'browser' | 'validate' | 'don
 
 const MIN_WIDTH = 60;
 const MIN_HEIGHT = 15;
+const MAX_WIDTH = 120;
 
 // Custom hook to track terminal dimensions
 const useTerminalDimensions = () => {
@@ -144,7 +145,7 @@ const App: React.FC = () => {
       borderStyle="round"
       padding={1}
       flexDirection="column"
-      width={columns < 80 ? columns : 80}
+      width={columns < MAX_WIDTH ? columns : MAX_WIDTH}
       height={rows >= 2 ? rows - 1 : rows}
       alignItems="center"
       justifyContent="center"
