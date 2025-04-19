@@ -41,15 +41,10 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete }) => {
           <Text>2. Extract the downloaded file to a folder of your choice.</Text>
           <Text>3. Open your browser and navigate to the extensions page:</Text>
           <Box flexDirection="column" marginLeft={2}>
-            <Link url="chrome://extensions">
-              <Text color="cyan">chrome://extensions (for Chrome)</Text>
-            </Link>
-            <Link url="edge://extensions">
-              <Text color="cyan">edge://extensions (for Edge)</Text>
-            </Link>
-            <Link url="brave://extensions">
-              <Text color="cyan">brave://extensions (for Brave)</Text>
-            </Link>
+            <Text color="cyan">chrome://extensions (for Chrome)</Text>
+            <Text color="cyan">edge://extensions (for Edge)</Text>
+            <Text color="cyan">brave://extensions (for Brave)</Text>
+            <Text color="gray">(Copy and paste the above address into your browser's address bar.)</Text>
           </Box>
           <Text>4. Enable Developer Mode (if applicable).</Text>
           <Text>5. Click on "Load unpacked" (or the equivalent) and select the extracted folder.</Text>
