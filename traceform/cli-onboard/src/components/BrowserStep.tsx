@@ -32,7 +32,7 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete }) => {
     <Box flexDirection="column">
       <Text bold>--- Step 4: Browser Extension ---</Text>
       <Text color="yellow">Install the Traceform Browser Extension manually.</Text>
-      <Text color="magenta">(If you can't see all the instructions, please resize your terminal window to be wider or taller.)</Text>
+      <Text color="magenta">(Please resize the terminal vertically so you can see all of the instructions.)</Text>
       <Newline />
       <Box flexDirection="column" marginBottom={1}>
         <Text>Instructions:</Text>
@@ -41,8 +41,15 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete }) => {
           <Text>2. Extract the downloaded file to a folder of your choice.</Text>
           <Text>3. Open your browser and navigate to the extensions page:</Text>
           <Box flexDirection="column" marginLeft={2}>
-            <Text>chrome://extensions (for Chrome)</Text>
-            <Text>about:addons (for Firefox)</Text>
+            <Link url="chrome://extensions">
+              <Text color="cyan">chrome://extensions (for Chrome)</Text>
+            </Link>
+            <Link url="edge://extensions">
+              <Text color="cyan">edge://extensions (for Edge)</Text>
+            </Link>
+            <Link url="brave://extensions">
+              <Text color="cyan">brave://extensions (for Brave)</Text>
+            </Link>
           </Box>
           <Text>4. Enable Developer Mode (if applicable).</Text>
           <Text>5. Click on "Load unpacked" (or the equivalent) and select the extracted folder.</Text>
