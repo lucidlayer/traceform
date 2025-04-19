@@ -239,14 +239,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     setFinalResult(null); // Reset final result before checks
     setStatus('Starting checks...'); // Initial status
 
-    // 1. Check config file first
-    const configOk = await checkConfigFiles();
-    if (!configOk) {
-      // Show config help and wait for user interaction
-      setIsLoading(false);
-      return;
-    }
-    // 2. After config is confirmed, check dependency
+    // 1. Check dependency first
     const depOk = await checkPackageJson();
     if (!depOk) {
       // If dep check returned false and didn't trigger prompt (e.g., file error), fail immediately
@@ -257,7 +250,14 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       setIsLoading(false);
       return;
     }
-    // 3. If both are OK, show continue prompt
+
+    // 2. After dependency is confirmed, check config
+    const configOk = await checkConfigFiles();
+    if (!configOk) {
+      setIsLoading(false);
+      return;
+    }
+
     setStatus('✅ Babel plugin setup appears correct.');
     setFinalResult('passed');
     setIsLoading(false);
