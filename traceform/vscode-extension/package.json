@@ -2,7 +2,7 @@
   "name": "traceform-vscode",
   "displayName": "Traceform for VS Code",
   "description": "VS Code extension for Traceform. Instantly map React source code components to their rendered elements in the browser for faster debugging and development.",
-  "version": "0.1.26",
+  "version": "0.2.0",
   "private": false,
   "publisher": "LucidLayer",
   "repository": {
@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/lucidlayer/traceform/issues"
   },
-  "license": "MIT",
+  "license": "BUSL-1.1",
   "keywords": [
     "vscode",
     "vscode-extension",
