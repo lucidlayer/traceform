@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import { transform } from '@babel/core';
 import injectComponentIdPlugin from '../src/index'; // Adjust path as needed
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 const urlInput = document.getElementById('targetUrl');
 const saveButton = document.getElementById('saveButton');
 const statusDiv = document.getElementById('status');

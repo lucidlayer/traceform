@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 const OVERLAY_CONTAINER_ID = 'traceform-overlay-container';
 const OVERLAY_CLASS = 'traceform-highlight-overlay';
 // Ensure the overlay container exists

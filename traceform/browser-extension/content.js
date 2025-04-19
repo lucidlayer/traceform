@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 import { removeOverlays, highlightElements } from './overlay';
 console.log('Code-to-UI Mapper: Content script loaded.');
 // Listen for messages from the background script or popup

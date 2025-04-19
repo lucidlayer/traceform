@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 const fs = require('fs-extra');
 const path = require('path');
 const archiver = require('archiver');

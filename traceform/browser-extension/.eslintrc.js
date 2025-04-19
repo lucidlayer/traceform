@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
