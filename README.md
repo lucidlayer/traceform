@@ -1,5 +1,5 @@
-<h1 align="center">Traceform: Real-Time React Component Visualization for VS Code</h1>
-<p align="center">Traceform is a React developer toolchain that instantly highlights any React component from your VS Code editor directly in your browser, streamlining debugging and component visualization.</p>
+<h1 align="center">Traceform: Instant React UI Mapping from VS Code</h1>
+<p align="center">Instantly map React components from VS Code to your browser.</p>
 
 <p align="center"><code>npx @lucidlayer/traceform-onboard check</code></p>
 
@@ -10,13 +10,13 @@
 <details>
 <summary><strong>Table&nbsp;of&nbsp;Contents</strong></summary>
 
-- [Why Traceform? Instant Code-to-UI Mapping for React Development](#why-traceform-instant-code-to-ui-mapping-for-react-development)
-- [Core Functionality: Visual Debugging Workflow Integration](#core-functionality-visual-debugging-workflow-integration)
-- [Quick Setup Guide with Traceform Onboard CLI](#quick-setup-guide-with-traceform-onboard-cli)
-- [See Traceform in Action: Demo Applications](#see-traceform-in-action-demo-applications)
-- [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+- [Why Traceform?<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Instant Code-to-UI Mapping for React Development</span>](#why-traceform-instant-code-to-ui-mapping-for-react-development)
+- [Core Functionality:<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Visual Debugging Workflow Integration</span>](#core-functionality-visual-debugging-workflow-integration)
+- [Quick Setup Guide<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> with Traceform Onboard CLI</span>](#quick-setup-guide-with-traceform-onboard-cli)
+- [See Traceform in Action:<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Demo Applications</span>](#see-traceform-in-action-demo-applications)
+- [Frequently Asked Questions<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> (FAQ)</span>](#frequently-asked-questions-faq)
 - [System Requirements](#system-requirements)
-- [Roadmap & Future Enhancements](#roadmap--future-enhancements)
+- [Roadmap<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> & Future Enhancements</span>](#roadmap--future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -24,7 +24,7 @@
 
 ---
 
-## Why Traceform? Instant Code-to-UI Mapping for React Development
+## Why Traceform?<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Instant Code-to-UI Mapping for React Development</span>
 
 React development often involves a persistent disconnect: you write code in one place (your editor) and see results somewhere else (your browser). This cognitive gap costs developers significant time and focus, especially when trying to map complex UI elements back to their source code. Have you ever stared at a UI wondering which component renders it?
 
@@ -32,7 +32,7 @@ Traceform eliminates this friction. By creating a direct visual connection betwe
 
 It's ideal for large codebases or onboarding new team members.
 
-## How Traceform Works: Visual Debugging Workflow Integration
+## How Traceform Works<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Visual Debugging Workflow Integration</span>
 
 Select any React component in VS Code → See it highlighted in your browser instantly.
 
@@ -72,7 +72,7 @@ We've created a simple Command Line Interface (CLI) onboarding tool that handles
     *   Babel plugin configuration (modify your `babel.config.js` or `vite.config.ts` or similar)
     *   Browser extension (links to Chrome Web Store / Edge Add-ons)
 
-## See Traceform in Action: Demo Applications
+## See Traceform in Action<span style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"> Demo Applications</span>
 
 Want to try Traceform immediately without setting it up in your own project? We've prepared ready to use demo applications:
 
