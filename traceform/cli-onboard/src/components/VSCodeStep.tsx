@@ -35,9 +35,10 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
       <Text>3. In the search box, type: <Text bold>Traceform</Text></Text>
       <Text>4. Find <Text bold>Traceform for VS Code</Text> by LucidLayer and click <Text bold>Install</Text>.</Text>
       <Text>5. Or, open the extension in your browser:</Text>
-      <Link url="https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode">
-        <Text color="cyan">  Traceform for VS Code Extension (Marketplace)</Text>
-      </Link>
+      <Box flexDirection="column" marginLeft={2}>
+        <Text color="cyan">Traceform for VS Code Extension (Marketplace)</Text>
+        <Text color="gray" wrap="wrap">https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode</Text>
+      </Box>
       <Newline />
       {confirmed === null && <Text color="yellow">Have you installed the VS Code extension? (Y/n)</Text>}
       {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
