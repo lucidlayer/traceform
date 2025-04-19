@@ -32,7 +32,7 @@ Traceform eliminates this friction. By creating a direct visual connection betwe
 
 It's ideal for large codebases or onboarding new team members.
 
-## Core Functionality: Visual Debugging Workflow Integration
+## How Traceform Works: Visual Debugging Workflow Integration
 
 Select any React component in VS Code → See it highlighted in your browser instantly.
 
@@ -46,7 +46,16 @@ Traceform achieves this seamless connection using three key parts working togeth
 
 These pieces communicate to create a seamless bridge between your code editor and the browser interface. This developer toolchain provides a powerful component visualization and debugging tool right within your existing workflow.
 
-## Quick Setup Guide with Traceform Onboard CLI
+## Installation
+
+Traceform consists of three main components:
+- **Babel Plugin**: Injects traceable IDs into your React components.
+- **VS Code Extension**: Lets you select components in your editor.
+- **Browser Extension**: Highlights the selected component in your running app (Chrome/Edge).
+
+The recommended way to install and configure all components is to use the onboarding CLI (see Quickstart below). You can also install each part manually if needed.
+
+## Quickstart
 
 We've created a simple Command Line Interface (CLI) onboarding tool that handles the entire setup process for you, configuring the Babel plugin and installing the necessary extensions.
 
