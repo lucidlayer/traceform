@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 "use strict";
 const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Default bridge server URL (Updated to match server)
 let socket = null;

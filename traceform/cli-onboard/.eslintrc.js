@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 module.exports = {
   root: true, // Prevent ESLint from looking further up the directory tree
   parser: '@typescript-eslint/parser',
