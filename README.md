@@ -1,4 +1,4 @@
-<h1 align="center">Traceform: Real-Time React Component Highlighting & Debugging</h1>
+<h1 align="center">Traceform: Real-Time React Component Visualization for VS Code</h1>
 <p align="center">Traceform is a React developer toolchain that instantly highlights any React component from your VS Code editor directly in your browser, streamlining debugging and component visualization.</p>
 
 <p align="center"><code>npx @lucidlayer/traceform-onboard check</code></p>
@@ -10,8 +10,8 @@
 <details>
 <summary><strong>Table&nbsp;of&nbsp;Contents</strong></summary>
 
-- [Why Traceform? The Challenge of Visualizing React Components](#why-traceform-the-challenge-of-visualizing-react-components)
-- [Core Functionality: Linking VS Code to Browser Highlights](#core-functionality-linking-vs-code-to-browser-highlights)
+- [Why Traceform? Instant Code-to-UI Mapping for React Development](#why-traceform-instant-code-to-ui-mapping-for-react-development)
+- [Core Functionality: Visual Debugging Workflow Integration](#core-functionality-visual-debugging-workflow-integration)
 - [Quick Setup Guide with Traceform Onboard CLI](#quick-setup-guide-with-traceform-onboard-cli)
 - [See Traceform in Action: Demo Applications](#see-traceform-in-action-demo-applications)
 - [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
@@ -24,13 +24,15 @@
 
 ---
 
-## Why Traceform? The Challenge of Visualizing React Components
+## Why Traceform? Instant Code-to-UI Mapping for React Development
 
 Have you ever stared at a complex React application wondering which specific component renders a particular part of the UI? Tired of searching your codebase to find where a UI element is rendered? Traceform eliminates this frustration by creating a direct visual connection between your code and the running application in your browser.
 
+Increasing React development velocity by eliminating code-to-UI mapping guesswork, Traceform provides real-time visual component tracking directly within your existing VS Code and Chrome/Edge workflow. Developers debugging complex UIs benefit from instant visual feedback when selecting components in their codebase, reducing context-switching between editor and browser.
+
 It's ideal for React developers working on large codebases, onboarding new team members, or needing to rapidly debug complex UI interactions. Boost your developer productivity by instantly seeing the code-to-UI link.
 
-## Core Functionality: Linking VS Code to Browser Highlights
+## Core Functionality: Visual Debugging Workflow Integration
 
 Select any React component in VS Code → See it highlighted in your browser instantly.
 
@@ -99,6 +101,9 @@ A: The Traceform browser extension is currently available for Google Chrome and 
 
 **Q: How does the `traceform-onboard` CLI simplify setup?**
 A: The CLI automates checking prerequisites, installing the VS Code and browser extensions, and correctly configuring the Babel plugin in your project's configuration file, reducing manual setup errors.
+
+**Q: Does Traceform work with dynamically generated components or conditional rendering?**
+A: Yes, Traceform works with components regardless of how they are rendered. As long as the component exists in the React tree when you select it in VS Code, and the Babel plugin has processed its source code to add the necessary ID, the browser extension should be able to highlight the corresponding DOM element(s).
 
 ## System Requirements
 
