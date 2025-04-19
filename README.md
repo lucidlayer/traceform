@@ -1,6 +1,24 @@
-# Traceform: See Your React Components in Real-Time
+<h1 align="center">Traceform: See Your React Components in Real-Time</h1>
+<p align="center">Traceform instantly highlights any React component from your code editor directly in your browser.</p>
 
-**Traceform instantly highlights any React component from your code editor directly in your browser.** No more guessing which code creates which UI element.
+<p align="center"><code>npx @lucidlayer/traceform-onboard check</code></p>
+
+![Traceform demo GIF using: traceform code-to-ui](./.github/demo.gif)
+
+---
+
+<details>
+<summary><strong>Table&nbsp;of&nbsp;Contents</strong></summary>
+
+- [The Problem We Solve](#the-problem-we-solve)
+- [How It Works](#how-it-works)
+- [Getting Started](#getting-started)
+- [Try with Demo Apps](#try-with-demo-apps)
+- [What's Next](#whats-next)
+
+</details>
+
+---
 
 ## The Problem We Solve
 
@@ -28,7 +46,7 @@ We've created a simple CLI onboarding tool that handles the entire setup process
 2. The CLI will guide you through installing all three required components:
    - VS Code extension
    - Babel plugin configuration
-   - rowser extension
+   - Browser extension
 
 ## Try with Demo Apps
 
