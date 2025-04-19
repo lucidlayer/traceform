@@ -1,3 +1,7 @@
+/*
+// SPDX-License-Identifier: Apache-2.0
+*/
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Text, Newline } from 'ink';
 import Spinner from 'ink-spinner';

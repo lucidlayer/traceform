@@ -1,3 +1,7 @@
+/*
+// SPDX-License-Identifier: MIT
+*/
+
 import { PluginObj, PluginPass, NodePath } from '@babel/core';
 import * as t from '@babel/types'; // Import babel types
 import pathLib from 'path'; // Import path library for normalization

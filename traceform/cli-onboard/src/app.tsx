@@ -1,3 +1,7 @@
+/*
+// SPDX-License-Identifier: Apache-2.0
+*/
+
 import React, { useState, useEffect } from 'react'; // Add useEffect here
 import { Box, Text, useApp, useInput } from 'ink';
 // Import step components

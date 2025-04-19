@@ -1,3 +1,7 @@
+/*
+// SPDX-License-Identifier: Apache-2.0
+*/
+
 import React, { useState } from 'react';
 import { Box, Text, Newline, useInput } from 'ink';
 import Link from 'ink-link'; // For clickable links
