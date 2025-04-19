@@ -26,11 +26,11 @@
 
 ## Why Traceform? Instant Code-to-UI Mapping for React Development
 
-Have you ever stared at a complex React application wondering which specific component renders a particular part of the UI? Tired of searching your codebase to find where a UI element is rendered? Traceform eliminates this frustration by creating a direct visual connection between your code and the running application in your browser.
+React development often involves a persistent disconnect: you write code in one place (your editor) and see results somewhere else (your browser). This cognitive gap costs developers significant time and focus, especially when trying to map complex UI elements back to their source code. Have you ever stared at a UI wondering which component renders it?
 
-Increasing React development velocity by eliminating code-to-UI mapping guesswork, Traceform provides real-time visual component tracking directly within your existing VS Code and Chrome/Edge workflow. Developers debugging complex UIs benefit from instant visual feedback when selecting components in their codebase, reducing context-switching between editor and browser.
+Traceform eliminates this friction. By creating a direct visual connection between your code and the UI, Traceform increases React development velocity by eliminating guesswork. It provides real-time visual component tracking directly within your existing VS Code and Chrome/Edge workflow. Developers debugging complex UIs benefit from instant visual feedback when selecting components in their codebase, reducing context-switching and boosting productivity. 
 
-It's ideal for React developers working on large codebases, onboarding new team members, or needing to rapidly debug complex UI interactions. Boost your developer productivity by instantly seeing the code-to-UI link.
+It's ideal for large codebases or onboarding new team members.
 
 ## Core Functionality: Visual Debugging Workflow Integration
 
@@ -44,7 +44,7 @@ Traceform achieves this seamless connection using three key parts working togeth
 | VS Code Extension   | Allows selecting components directly in your editor. | Install from Marketplace / CLI |
 | Browser Extension | Listens for selections and highlights components in the browser. | Install for Chrome/Edge / CLI |
 
-This developer toolchain provides a powerful component visualization and debugging tool right within your existing workflow.
+These pieces communicate to create a seamless bridge between your code editor and the browser interface. This developer toolchain provides a powerful component visualization and debugging tool right within your existing workflow.
 
 ## Quick Setup Guide with Traceform Onboard CLI
 
@@ -87,6 +87,9 @@ Want to try Traceform immediately without setting it up in your own project? We'
 
 ## Frequently Asked Questions (FAQ)
 
+**Q: Will this slow down my application?**
+A: No. Traceform is a development-only tool. The Babel plugin adds minimal overhead during development builds and should **never** be included in production builds.
+
 **Q: How does Traceform improve React debugging?**
 A: Traceform saves significant time by instantly showing you which component in your code corresponds to an element you see in the browser, eliminating the need to manually search or add temporary logs/styles.
 
@@ -127,7 +130,7 @@ We're continuously working to improve Traceform. Here's what's planned:
 
 ## Contributing
 
-We welcome contributions! If you encounter a bug or have a feature request, please open an issue on our [GitHub Issues](https://github.com/lucidlayer/traceform/issues) or [Discord Bug-Reports](https://discord.gg/dsrFUNGjCB). We appreciate your help in making Traceform better.
+This is just the beginning, and we welcome contributions! If you encounter a bug or have a feature request, please open an issue on our [GitHub Issues](https://github.com/lucidlayer/traceform/issues) or [Discord Bug-Reports](https://discord.gg/dsrFUNGjCB). We appreciate your help in making Traceform better.
 
 ## License
 
