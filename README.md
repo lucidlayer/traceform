@@ -153,9 +153,6 @@ We're continuously working to improve Traceform. Here's what's planned:
 -   **Simplified architecture:** Exploring ways to reduce the number of components needed for setup.
 
 ## Changelog
-See our [CHANGELOG](CHANGELOG.md) for the latest updates and release notes.
-
----
 
 ## Contributing
 

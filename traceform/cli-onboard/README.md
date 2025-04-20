@@ -1,57 +1,116 @@
-# Traceform Onboarding CLI (`@lucidlayer/traceform-onboard`)
+<h1 align="center">Traceform Onboarding CLI: Effortless Setup for Code-to-UI Mapping</h1>
+<p align="center">Interactive wizard to install and validate the Traceform toolchain in your React projects.</p>
 
-## What It Is
+<p align="center">
+  <a href="https://www.apache.org/licenses/LICENSE-2.0">
+    <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0">
+  </a>
+</p>
 
-The Traceform Onboarding CLI is a command-line wizard designed to streamline the setup and validation of the Traceform toolset within your React projects. It acts as your guide, ensuring all components (VS Code extension, Babel plugin, Browser extension) are correctly installed and configured.
+---
 
-Think of it as your setup assistant, removing the guesswork and ensuring a smooth start with Traceform.
+<details>
+<summary><strong>Table&nbsp;of&nbsp;Contents</strong></summary>
 
-## How It Works
+- [Installation](#installation)
+- [Quickstart](#quickstart)
+- [Use Cases](#use-cases)
+- [Why Traceform Onboarding CLI?](#why-traceform-onboarding-cli)
+- [How It Works](#how-it-works)
+  - [Technical Details](#technical-details)
+- [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
+- [Changelog](#changelog)
+- [Contributing](#contributing)
+- [License](#license)
 
-The CLI tool simplifies the Traceform setup process by automating checks and providing clear instructions:
+</details>
 
-1.  **Environment Check:** Verifies you have compatible versions of Node.js and a supported package manager (npm, yarn, or pnpm).
-2.  **Component Guidance:** Walks you through the installation and verification of each Traceform piece:
-    *   **VS Code Extension:** Checks if it's installed and provides marketplace links.
-    *   **Babel Plugin:** Scans your `package.json` and common config files (`babel.config.js`, `vite.config.ts`, etc.) to ensure the plugin is installed and configured correctly, offering setup snippets if needed.
-    *   **Browser Extension:** Guides the manual installation process using the `.zip` file from GitHub Releases.
-3.  **Validation:** Offers a final check to confirm the entire toolchain is working end-to-end, typically by using the "Find Component in UI" feature.
+---
 
-## Setup & Usage
+## Installation
 
-Running the onboarding wizard is straightforward. Use `npx` to execute it directly within your project's root directory:
+You don't need to install globally. Just run it with `npx` in your project root:
 
 ```bash
 npx @lucidlayer/traceform-onboard check
 ```
 
-The `check` command initiates the interactive wizard, guiding you through each setup step.
+---
 
-## Key Features
+## Quickstart
 
-*   **Interactive Wizard:** Step-by-step guidance simplifies the setup process.
-*   **Prerequisite Checks:** Ensures your development environment meets Traceform's requirements.
-*   **Automated Detection:** Scans project files to verify installation and configuration of the Babel plugin.
-*   **Contextual Instructions:** Provides tailored guidance based on your project setup (e.g., Vite vs. Babel config).
-*   **Clear Validation Steps:** Helps you confirm that Traceform is functioning correctly after setup.
+1. In your React project directory, run:
+   ```bash
+   npx @lucidlayer/traceform-onboard check
+   ```
+2. Follow the interactive wizard to:
+   - Check your environment (Node.js, package manager)
+   - Install and verify the Traceform VS Code extension
+   - Install and configure the Traceform Babel plugin
+   - Install the Traceform browser extension
+   - Validate the full toolchain with "Find Component in UI"
 
-## Technical Implementation
+---
 
-This CLI tool is built with Node.js and utilizes libraries such as:
+## Use Cases
+- **First-Time Setup:** Get Traceform working in minutes, even in complex monorepos.
+- **Team Onboarding:** Standardize setup for new developers.
+- **Troubleshooting:** Quickly verify and debug your Traceform installation.
 
-*   `commander`: For parsing command-line arguments.
-*   `inquirer`: For creating the interactive prompt experience.
-*   `chalk`: For styling terminal output.
-*   `fs-extra`: For file system interactions (reading `package.json`, config files).
-*   `execa`: For running checks like Node.js/npm versions.
+---
 
-## Integration with Traceform
+## Why Traceform Onboarding CLI?
 
-The Onboarding CLI is the recommended starting point for integrating Traceform into your project. It ensures that the other core components – the VS Code Extension, Babel Plugin, and Browser Extension – are correctly installed and configured to work together seamlessly.
+Setting up a multi-part toolchain can be error-prone. The Onboarding CLI removes the guesswork, automates checks, and provides clear, contextual instructions for every step. It ensures your Traceform workflow is ready to go.
 
-## About Traceform
+---
 
-Traceform aims to seamlessly connect your code to its rendered UI, eliminating the mental overhead of context switching and making front-end development more intuitive.
+## How It Works
+
+- **Environment Check:** Verifies Node.js and package manager versions.
+- **Component Guidance:**
+  - Checks for the VS Code extension and provides install links.
+  - Scans for the Babel plugin in your `package.json` and config files, offering setup snippets if needed.
+  - Guides you through manual installation of the browser extension.
+- **Validation:** Offers a final check to confirm the entire toolchain is working, using "Find Component in UI".
+
+### Technical Details
+
+- Built with Node.js
+- Uses `commander`, `inquirer`, `chalk`, `fs-extra`, and `execa` for a smooth CLI experience
+- Scans project files and provides tailored setup instructions for Babel, Vite, and more
+
+---
+
+## Frequently Asked Questions (FAQ)
+
+**Q: Do I need to install this globally?**  
+A: No, just use `npx` for the latest version every time.
+
+**Q: Does this modify my project files?**  
+A: Only if you choose to copy/paste the provided config snippets. The CLI itself does not write to your files automatically.
+
+**Q: Can I use this in a monorepo?**  
+A: Yes, the CLI detects monorepo roots and works with common setups.
+
+**Q: What if something fails validation?**  
+A: The wizard provides troubleshooting tips and links to documentation for each step.
+
+---
+
+## Changelog
+
+---
+
+## Contributing
+
+We welcome contributions! If you find a bug or have a feature request, open an issue on our [GitHub Issues](https://github.com/lucidlayer/traceform/issues).
+
+---
+
+## License
+
+This CLI tool is licensed under the Apache-2.0 License. See the [LICENSE](./LICENSE) file for details.
 
 ---
 
