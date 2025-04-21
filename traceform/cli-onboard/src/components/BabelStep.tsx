@@ -478,7 +478,26 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
             </Box>
           )}
           {awaitingPluginInstall && !isLoading && !depCheckPassed && !pluginInstallError && (
-            <Text color="yellow" bold>⚠️ @lucidlayer/babel-plugin-traceform not found in package.json. Would you like to install it now? (y/n, Q to quit)</Text>
+            <>
+              <Text>
+                It looks like the Traceform Babel plugin is not yet installed in your project.
+              </Text>
+              <Text color="gray">
+                The Traceform Babel plugin enables code-to-UI mapping for your React components.
+              </Text>
+              <Text> </Text>
+              <Text color="yellow" bold> @lucidlayer/babel-plugin-traceform not found in package.json.</Text>
+              <Text> </Text>
+              <Text>
+                Would you like me to install it for you now?
+              </Text>
+              <Text color="yellow">
+                Press Y to install or Q to quit.
+              </Text>
+              <Text color="red" bold>
+                This plugin is <Text underline>required</Text> for Traceform tools to work.
+              </Text>
+            </>
           )}
           {pluginInstallError && !isLoading && (
             <Text color="red">{pluginInstallError}</Text>
