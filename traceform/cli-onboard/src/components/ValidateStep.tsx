@@ -18,11 +18,7 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
 
   useInput((input, key) => {
     if (!answered && confirmed === null) {
-      if (input.toLowerCase() === 'n') {
-        setConfirmed(false);
-        setAnswered(true);
-        onComplete(false);
-      } else if (input.toLowerCase() === 'y' || key.return) {
+      if (key.return) {
         setConfirmed(true);
         setAnswered(true);
         onComplete(true);
@@ -49,7 +45,7 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
       <Text>4. In VS Code, open a React component file.</Text>
       <Text>5. Right-click the component name and select 'Traceform: Find Component in UI'.</Text>
       <Text>6. Check your browser for highlighted components.</Text>
-      {confirmed === null && <Text color="yellow">Did it work? (Y/n, Q to quit)</Text>}
+      {confirmed === null && <Text color="yellow">Press Enter to continue or Q to quit</Text>}
       {confirmed === true && (
         <Text color="green" bold>🎉 Congratulations! Your Traceform setup is working correctly!</Text>
       )}

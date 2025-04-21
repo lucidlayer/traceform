@@ -21,12 +21,7 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
   // Use Ink's useInput hook for confirmation
   useInput((input, key) => {
     if (!answered && confirmed === null) {
-      // Treat 'n' input as no; 'y' or Enter as yes
-      if (input.toLowerCase() === 'n') {
-        setConfirmed(false);
-        setAnswered(true);
-        onComplete(false);
-      } else if (input.toLowerCase() === 'y' || key.return) {
+      if (key.return) {
         setConfirmed(true);
         setAnswered(true);
         onComplete(true);
@@ -51,7 +46,7 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
       <Text color="cyan">https://github.com/lucidlayer/traceform/releases</Text>
       <Text>2. Extract the file and load it as an unpacked extension in your browser.</Text>
       <Text>3. Enable the extension.</Text>
-      {confirmed === null && <Text color="yellow">Have you installed and enabled the browser extension? (Y/n, Q to quit)</Text>}
+      {confirmed === null && <Text color="yellow">Press Enter to continue or Q to quit</Text>}
       {confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ Browser Extension step not confirmed. Please install/enable the extension and restart the wizard.</Text>}
     </Box>

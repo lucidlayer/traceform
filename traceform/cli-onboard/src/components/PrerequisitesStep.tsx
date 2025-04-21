@@ -195,7 +195,7 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete, stepI
       {/* Success Message & Prompt */}
       {promptMessage && (
         <Box marginTop={1}>
-           <Text color="cyan">{promptMessage} (Q to quit)</Text>
+           <Text color="cyan">Press Enter to continue or Q to quit</Text>
         </Box>
       )}
     </Box>
