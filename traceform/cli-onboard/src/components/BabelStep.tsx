@@ -472,27 +472,24 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
       <Text bold>--- Step 2: Babel Plugin ---</Text>
       {subStep === 1 && (
         <>
-          <Box>
-            <Text color={depCheckPassed ? 'green' : pluginInstallError ? 'red' : 'yellow'}>
-              {isLoading ? <Spinner type="dots" /> : depCheckPassed ? '✔' : pluginInstallError ? '✖' : '○'}{' '}
-              {depCheckPassed ? '@lucidlayer/babel-plugin-traceform is installed in package.json.' : status}
-            </Text>
-          </Box>
-          {depCheckPassed && waitingForDepContinue && (
-            <Text color="cyan">Press Enter to continue...</Text>
+          {isLoading && (
+            <Box>
+              <Text color="yellow"><Spinner type="dots" /> Checking package.json...</Text>
+            </Box>
           )}
           {awaitingPluginInstall && !isLoading && !depCheckPassed && !pluginInstallError && (
-            <Text color="yellow">@lucidlayer/babel-plugin-traceform not found in package.json. Would you like to install it now? (y/n, Q to quit)</Text>
+            <Text color="yellow" bold>⚠️ @lucidlayer/babel-plugin-traceform not found in package.json. Would you like to install it now? (y/n, Q to quit)</Text>
           )}
           {pluginInstallError && !isLoading && (
             <Text color="red">{pluginInstallError}</Text>
           )}
-          {!awaitingPluginInstall && !depCheckPassed && !isLoading && (
-            <Box flexDirection="column" marginTop={1}>
-              <Text color="yellow">To continue, open a new terminal and run:</Text>
-              <Text color="cyan">  {installCommand}</Text>
-              <Text color="yellow">After installing, return here and press R to retry, or Q to quit.</Text>
-            </Box>
+          {depCheckPassed && !isLoading && (
+            <>
+              <Box>
+                <Text color="green">✔ @lucidlayer/babel-plugin-traceform is installed in package.json.</Text>
+              </Box>
+              {waitingForDepContinue && <Text color="cyan">Press Enter to continue...</Text>}
+            </>
           )}
         </>
       )}

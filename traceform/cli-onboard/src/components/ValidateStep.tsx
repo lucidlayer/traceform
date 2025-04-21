@@ -28,10 +28,10 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
       <Text bold>--- Step 5: Final Validation ---</Text>
       <Text color="yellow">Checklist to validate your Traceform setup:</Text>
       <Text>1. Start your React dev server (e.g., npm run dev).</Text>
-      <Text>2. Open your project in VS Code.</Text>
-      <Text>3. Open your app in the browser with the extension enabled.</Text>
-      <Text>4. In VS Code, open a React component file.</Text>
-      <Text>5. Right-click the component name and select 'Traceform: Find Component in UI'.</Text>
+      <Text>2. Navigate to the sidebar to the Traceform VS Code extension and make sure the latest logs show <Text color="green">client connected</Text>. If not, press <Text color="yellow">Restart</Text>.</Text>
+      <Text>3. Open your app in the browser. (e.g., open <Text color="cyan">http://localhost:5173/</Text>)</Text>
+      <Text>4. In VS Code, open a React component file. (e.g., <Text color="cyan">Demo-01\src\components\StockCard.tsx</Text>)</Text>
+      <Text>5. Highlight and right-click the component name and select <Text color="yellow">'Traceform: Find Component in UI'</Text>.</Text>
       <Text>6. Check your browser for highlighted components.</Text>
       {confirmed === true && (
         <Text color="green" bold>🎉 Congratulations! Your Traceform setup is working correctly!</Text>
