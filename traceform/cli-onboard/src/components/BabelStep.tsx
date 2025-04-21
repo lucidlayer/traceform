@@ -526,7 +526,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
               {configCheckPassed ? '@lucidlayer/babel-plugin-traceform is configured correctly.' : status}
             </Text>
           </Box>
-          {showConfigHelp && (
+          {showConfigHelp && !configCheckPassed && (
             <Box flexDirection="column" marginTop={1}>
               <Text color="red" bold>✖ Traceform Babel plugin is not yet configured!</Text>
               <Text>
