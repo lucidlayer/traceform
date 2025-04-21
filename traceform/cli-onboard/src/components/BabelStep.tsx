@@ -14,6 +14,8 @@ import clipboard from 'clipboardy';
 export type BabelCheckStatus = 'passed' | 'failed_dependency' | 'failed_config'; // Export the type
 interface BabelStepProps {
   onComplete: (status: BabelCheckStatus) => void;
+  stepIndex: number;
+  totalSteps: number;
 }
 
 const BABEL_PLUGIN_NAME = '@lucidlayer/babel-plugin-traceform';
@@ -123,44 +125,39 @@ module.exports = {
 
 // --- Component ---
 
-const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
+const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps }) => {
   const [status, setStatus] = useState<string>('Initializing...');
   const [isLoading, setIsLoading] = useState(true);
-  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [showConfigHelp, setShowConfigHelp] = useState(false);
   const [configSnippet, setConfigSnippet] = useState<string>('');
   const [configFilePath, setConfigFilePath] = useState<string>('');
-  const [showRecheckPrompt, setShowRecheckPrompt] = useState(false);
   const [finalResult, setFinalResult] = useState<BabelCheckStatus | null>(null);
   const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   const [promptMessage, setPromptMessage] = useState<string | null>(null);
+  const [installCommand, setInstallCommand] = useState<string>('');
+  const [depCheckPassed, setDepCheckPassed] = useState(false);
+  const [waitingForDepContinue, setWaitingForDepContinue] = useState(false);
+  const [configCheckPassed, setConfigCheckPassed] = useState(false);
+  const [waitingForConfigContinue, setWaitingForConfigContinue] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
-  const projectRoot = process.cwd(); // Assuming CWD is the target project
+  const projectRoot = process.cwd();
 
   // --- Check Logic (Helper Functions) ---
-  const installPlugin = async (): Promise<boolean> => {
-    setStatus('Detecting package manager...');
-    let packageManager = 'npm';
+  const detectPackageManager = async (): Promise<'npm' | 'yarn' | 'pnpm'> => {
     if (await fs.pathExists(path.join(projectRoot, 'yarn.lock'))) {
-      packageManager = 'yarn';
+      return 'yarn';
     } else if (await fs.pathExists(path.join(projectRoot, 'pnpm-lock.yaml'))) {
-      packageManager = 'pnpm';
+      return 'pnpm';
     }
-    const installCommand = packageManager === 'yarn'
-      ? `yarn add --dev ${BABEL_PLUGIN_NAME}`
-      : `${packageManager} install --save-dev ${BABEL_PLUGIN_NAME}`;
-    setStatus(`Attempting to install ${BABEL_PLUGIN_NAME} using ${packageManager}...`);
-    try {
-      const { execa } = await import('execa');
-      await execa(installCommand, { shell: true, cwd: projectRoot });
-      setStatus(`Successfully installed ${BABEL_PLUGIN_NAME}.`);
-      return true;
-    } catch (error: any) {
-      const errorDetails = error.stderr?.split('\n')[0] ?? error.shortMessage ?? String(error);
-      setStatus(`Error installing plugin: ${errorDetails}. Please try installing manually: ${installCommand}`);
-      return false;
-    }
+    return 'npm';
+  };
+
+  const getInstallCommand = (pm: 'npm' | 'yarn' | 'pnpm') => {
+    if (pm === 'yarn') return 'yarn add --dev @lucidlayer/babel-plugin-traceform';
+    if (pm === 'pnpm') return 'pnpm add -D @lucidlayer/babel-plugin-traceform';
+    return 'npm install --save-dev @lucidlayer/babel-plugin-traceform';
   };
 
   const checkPackageJson = async (): Promise<boolean> => {
@@ -179,8 +176,8 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
         return true;
       } else {
         setStatus(`${BABEL_PLUGIN_NAME} not found in package.json.`);
-        setShowInstallPrompt(true); // Trigger install prompt UI
-        return false; // Wait for user interaction
+        setInstallCommand(getInstallCommand(await detectPackageManager()));
+        return false;
       }
     } catch (error) {
       setStatus(`Error reading or parsing package.json: ${error instanceof Error ? error.message : error}`);
@@ -225,7 +222,6 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
       setConfigFilePath(fullConfigPath); // Store path for display
       setConfigSnippet(getBabelConfigSnippet(projectType));
       setShowConfigHelp(true); // Trigger config help UI
-      setShowRecheckPrompt(true); // Trigger recheck prompt UI
       return false; // Wait for user interaction
     }
     return true;
@@ -235,170 +231,67 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
   // 1. Check config first, then dependency
   const performChecks = async () => {
     setIsLoading(true);
-    setShowInstallPrompt(false);
     setShowConfigHelp(false);
-    setShowRecheckPrompt(false);
     setShowContinuePrompt(false);
     setFinalResult(null);
     setPromptMessage(null);
     setStatus('Starting checks...');
+    setDepCheckPassed(false);
+    setWaitingForDepContinue(false);
 
     // 1. Check dependency first
+    const pm = await detectPackageManager();
+    setInstallCommand(getInstallCommand(pm));
     const depOk = await checkPackageJson();
     if (!depOk) {
-      // If dep check returned false and didn't trigger prompt (e.g., file error), show error and allow retry/quit
-      if (!showInstallPrompt) {
-        setFinalResult('failed_dependency');
-        setPromptMessage('Press R to retry, or Q to quit.');
-      }
+      setFinalResult('failed_dependency');
+      setPromptMessage('');
       setIsLoading(false);
       return;
     }
-
-    // 2. After dependency is confirmed, check config
-    const configOk = await checkConfigFiles();
-    if (!configOk) {
-      setFinalResult('failed_config');
-      setPromptMessage('Press R to retry, or Q to quit.');
-      setIsLoading(false);
-      return;
-    }
-
-    setStatus('✅ Babel plugin setup appears correct.');
-    setFinalResult('passed');
+    // If dependency is found, show success and wait for Enter
+    setDepCheckPassed(true);
     setIsLoading(false);
-    // Wait for user confirmation in continue prompt before calling onComplete('passed')
+    setWaitingForDepContinue(true);
+    return;
   };
 
   // Run checks only once on mount
   useEffect(() => {
     void performChecks();
-  }, []); // Empty dependency array ensures it runs only once initially
+  }, []);
 
-  // Effect to trigger the continue prompt ONLY when checks pass
-  useEffect(() => {
-    if (finalResult === 'passed' && !isLoading) {
-      setShowContinuePrompt(true); // Trigger the prompt to ask user if they want to continue
-    }
-    // Failure cases are now handled directly by the prompt handlers calling onComplete
-  }, [finalResult, isLoading]);
-
-  // Effect to handle the continue prompt
-  useEffect(() => {
-    if (showContinuePrompt) {
-      const prompt = async () => {
-        setPromptMessage('Press Enter to continue...'); // Show waiting message
-        const inquirer = (await import('inquirer')).default;
-        const { proceed } = await inquirer.prompt([
-          {
-            type: 'confirm',
-            name: 'proceed',
-            message: 'Babel setup passed. Proceed to next step?',
-            default: true,
-          },
-        ]);
-        setPromptMessage(null); // Clear waiting message
-        setShowContinuePrompt(false); // Hide prompt trigger
-        if (proceed) {
-          // Wait for user confirmation before proceeding
-          setTimeout(() => {
-            setShowContinuePrompt(true);
-            setPromptMessage('Press Enter to continue...');
-          }, 750);
-        } else {
-          onComplete('failed_config');
-        }
-      };
-      void prompt();
-    }
-  }, [showContinuePrompt, onComplete]); // Keep onComplete here as it's called directly
-
-  // --- Prompt Handlers ---
-  const handleInstallConfirm = async (confirm: boolean) => {
-    setShowInstallPrompt(false);
-    if (confirm) {
+  // Listen for Enter after dependency check passes
+  useInput((input, key) => {
+    if (waitingForDepContinue && key.return) {
+      setWaitingForDepContinue(false);
       setIsLoading(true);
-      const installed = await installPlugin();
-      if (installed) {
-        // Re-run checks after successful install
-        void performChecks();
-      } else {
-        // Install failed - show retry/quit
-        setFinalResult('failed_dependency');
-        setPromptMessage('Install failed. Press R to retry, or Q to quit.');
+      // Now run config check
+      (async () => {
+        const configOk = await checkConfigFiles();
+        if (!configOk) {
+          setFinalResult('failed_config');
+          setPromptMessage('');
+          setIsLoading(false);
+          return;
+        }
+        setConfigCheckPassed(true);
         setIsLoading(false);
-      }
-    } else {
-      // User declined install - show retry/quit
-      setFinalResult('failed_dependency');
-      setPromptMessage('Dependency not installed. Press R to retry, or Q to quit.');
-      setIsLoading(false);
+        setWaitingForConfigContinue(true);
+      })();
     }
-  };
-
-  const handleRecheckConfirm = async (confirm: boolean) => {
-    setShowRecheckPrompt(false); // Hide prompt indicator
-    setShowConfigHelp(false); // Hide help text after decision
-    if (confirm) {
-      // Re-run checks
-      void performChecks();
-    } else {
-      setStatus('Configuration not updated. Please add the configuration and try again.');
-      setFinalResult('failed_config');
-      setIsLoading(false);
-      onComplete('failed_config');
-    }
-  };
-
-   // --- Dynamic Inquirer Prompts ---
-  useEffect(() => {
-    if (showInstallPrompt) {
-      const prompt = async () => {
-        const inquirer = (await import('inquirer')).default;
-        const { install } = await inquirer.prompt([
-          { type: 'confirm', name: 'install', message: `${BABEL_PLUGIN_NAME} not found. Install now?`, default: true },
-        ]);
-        await handleInstallConfirm(install);
-      };
-      void prompt();
-    }
-  }, [showInstallPrompt]);
-
-  useEffect(() => {
-    if (showRecheckPrompt) {
-      const prompt = async () => {
-        const inquirer = (await import('inquirer')).default;
-        const { recheck } = await inquirer.prompt([
-          { type: 'confirm', name: 'recheck', message: 'After adding the snippet, re-check configuration?', default: true },
-        ]);
-        await handleRecheckConfirm(recheck);
-      };
-      void prompt();
-    }
-  }, [showRecheckPrompt]);
-
-  // Handle 'c' key to copy code snippet
-  useInput((input, key) => {
-    if (showConfigHelp && (input === 'c' || input === 'C')) {
-      clipboard.writeSync(configSnippet);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, { isActive: showConfigHelp });
-
-  // Add a useInput hook to listen for the continue prompt key
-  useInput((input, key) => {
-    if (showContinuePrompt && key.return) {
+    if (waitingForConfigContinue && key.return) {
+      setWaitingForConfigContinue(false);
       setShowContinuePrompt(false);
-      setPromptMessage(null);
+      setConfigCheckPassed(false);
+      setFinalResult('passed');
       onComplete('passed');
-      return; // Prevent further propagation
     }
-  }, { isActive: showContinuePrompt });
+  }, { isActive: waitingForDepContinue || waitingForConfigContinue });
 
   // Add useInput handler for retry/quit on failure
   useInput((input, key) => {
-    if ((finalResult === 'failed_dependency' || finalResult === 'failed_config') && !isLoading && !showInstallPrompt) {
+    if ((finalResult === 'failed_dependency' || finalResult === 'failed_config') && !isLoading) {
       if (input.toLowerCase() === 'r') {
         setFinalResult(null);
         setPromptMessage(null);
@@ -409,48 +302,103 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete }) => {
     }
   });
 
+  // Handle input for quit confirmation and both parts of the step
+  useInput((input, key) => {
+    if (showQuitConfirm) {
+      if (input.toLowerCase() === 'y') {
+        onComplete('failed_config');
+      } else if (input.toLowerCase() === 'n') {
+        setShowQuitConfirm(false);
+      }
+      return;
+    }
+    // Show quit confirmation popup on 'q' in any part of the step
+    if (input.toLowerCase() === 'q') {
+      setShowQuitConfirm(true);
+      return;
+    }
+    // Config step: copy and recheck
+    if (showConfigHelp) {
+      if (input.toLowerCase() === 'c') {
+        clipboard.writeSync(configSnippet);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else if (input.toLowerCase() === 'r') {
+        setIsLoading(true);
+        (async () => {
+          const configOk = await checkConfigFiles();
+          if (!configOk) {
+            setFinalResult('failed_config');
+            setPromptMessage('');
+            setIsLoading(false);
+            return;
+          }
+          setConfigCheckPassed(true);
+          setIsLoading(false);
+          setWaitingForConfigContinue(true);
+        })();
+      }
+    }
+  }, { isActive: showConfigHelp || showQuitConfirm || depCheckPassed || waitingForDepContinue });
+
+  // Format config file path for cross-platform clarity
+  const formattedConfigFilePath = configFilePath.replace(/\\/g, '/');
+
   return (
     <Box flexDirection="column">
+      <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
       <Text bold>--- Step 2: Babel Plugin ---</Text>
       <Box>
-        <Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : 'yellow'}>
-          {isLoading && !showInstallPrompt && !showRecheckPrompt ? <Spinner type="dots" /> : (finalResult === 'passed' ? "✔" : finalResult ? "✖" : "○")}{` ${status}`}
+        <Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : depCheckPassed || configCheckPassed ? 'green' : 'yellow'}>
+          {isLoading ? <Spinner type="dots" /> : configCheckPassed ? '✔' : depCheckPassed ? '✔' : (finalResult === 'passed' ? "✔" : finalResult ? "✖" : "○")}{` ${configCheckPassed ? '@lucidlayer/babel-plugin-traceform is configured correctly.' : depCheckPassed ? '@lucidlayer/babel-plugin-traceform is installed in package.json.' : status}`}
         </Text>
       </Box>
-      {showInstallPrompt && <Text color="yellow">Waiting for install confirmation...</Text>}
-      {showConfigHelp && (
+      {depCheckPassed && waitingForDepContinue && (
+        <Text color="cyan">Press Enter to continue...</Text>
+      )}
+      {finalResult === 'failed_dependency' && !isLoading && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text color="yellow">@lucidlayer/babel-plugin-traceform not found in package.json.</Text>
+          <Text color="yellow">To continue, open a new terminal and run:</Text>
+          <Text color="cyan">  {installCommand}</Text>
+          <Text color="yellow">After installing, return here and press R to retry, or Q to quit.</Text>
+        </Box>
+      )}
+      {showConfigHelp && !showQuitConfirm && (
         <Box flexDirection="column">
-          <Text color="yellow">Action Required: Add the plugin to <Text bold>{configFilePath}</Text> for DEVELOPMENT builds.</Text>
-          <Text color="cyan">Copy and paste the following snippet:</Text>
-          <Text color="magenta">Press <Text bold>C</Text> to copy the code snippet to your clipboard.</Text>
-          <Box marginY={1} flexDirection="column">
+          <Text color="yellow">Paste this snippet into your config file: {formattedConfigFilePath} for DEVELOPMENT builds.</Text>
+          <Box marginY={1} paddingLeft={2} flexDirection="column">
             {configSnippet.split('\n').map((line, i) => (
               <Text key={i}>{line}</Text>
             ))}
           </Box>
+          <Text color="magenta">Press <Text bold>C</Text> to copy the code snippet to your clipboard.</Text>
           {copied && <Text color="green">Code snippet copied to clipboard!</Text>}
+          <Text color="yellow">After updating your config, press R to retry, or Q to quit.</Text>
         </Box>
       )}
-      {showRecheckPrompt && <>
-        <Text color="yellow">Waiting for re-check confirmation...</Text>
-        <Newline />
-        <Text color="magenta" bold>
-          ⬆️⬆️ PLEASE SCROLL UP TO SEE THE INSTRUCTIONS ⬆️⬆️
-        </Text>
-        <Newline />
-      </>}
-      {promptMessage && (
-        <Box marginTop={1}>
-          <Text color="yellow">{promptMessage}</Text>
+      {showQuitConfirm && (
+        <Box
+          borderStyle="round"
+          borderColor="yellow"
+          padding={1}
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          marginTop={1}
+        >
+          <Text color="yellow" bold>Are you sure you want to quit the onboarding? (y/n)</Text>
         </Box>
       )}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_dependency' && (
-        <Text color="red">Babel plugin dependency is missing or install failed.</Text>
+      {finalResult === 'failed_config' && !isLoading && !showConfigHelp && (
+        <Text color="red">Babel plugin is not configured. Add the snippet above and press R to recheck, or Q to quit.</Text>
       )}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'failed_config' && (
-        <Text color="red">Babel plugin configuration is missing or incorrect.</Text>
+      {configCheckPassed && waitingForConfigContinue && (
+        <Text color="cyan">Press Enter to continue...</Text>
       )}
-      {!isLoading && !showInstallPrompt && !showRecheckPrompt && !showContinuePrompt && finalResult === 'passed' && <Text color="green">Babel setup passed.</Text>}
+      {showContinuePrompt && (
+        <Text color="cyan">Press Enter to continue...</Text>
+      )}
     </Box>
   );
 };

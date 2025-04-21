@@ -43,12 +43,18 @@ npx @lucidlayer/traceform-onboard check
    ```bash
    npx @lucidlayer/traceform-onboard check
    ```
-2. Follow the interactive wizard to:
-   - Check your environment (Node.js, package manager)
-   - Install and verify the Traceform VS Code extension
-   - Install and configure the Traceform Babel plugin
-   - Install the Traceform browser extension
-   - Validate the full toolchain with "Find Component in UI"
+2. Follow the interactive wizard. The onboarding flow is now:
+   - Minimal, step-by-step, and easy to follow
+   - Each step shows a simple progress indicator (e.g., "Step 2 of 5")
+   - Clear, actionable instructions for:
+     - Checking your environment (Node.js, package manager)
+     - Installing and verifying the Traceform VS Code extension
+     - Installing and configuring the Traceform Babel plugin
+     - Installing the Traceform browser extension
+     - Validating the full toolchain with "Find Component in UI"
+   - No advanced UI, splash screens, or automation—just clear guidance
+   - Telemetry is opt-out (see below)
+   - For CI/headless use, run with `--no-ui` (if supported)
 
 ---
 
@@ -69,10 +75,12 @@ Setting up a multi-part toolchain can be error-prone. The Onboarding CLI removes
 
 - **Environment Check:** Verifies Node.js and package manager versions.
 - **Component Guidance:**
-  - Checks for the VS Code extension and provides install links.
-  - Scans for the Babel plugin in your `package.json` and config files, offering setup snippets if needed.
+  - Checks for the VS Code extension and provides install instructions.
+  - Scans for the Babel plugin in your `package.json` and config files, offering a minimal setup snippet if needed.
   - Guides you through manual installation of the browser extension.
-- **Validation:** Offers a final check to confirm the entire toolchain is working, using "Find Component in UI".
+- **Validation:** Offers a final checklist to confirm the entire toolchain is working, using "Find Component in UI".
+- **Progress Indicator:** Each step shows "Step X of Y" at the top.
+- **Telemetry:** Anonymous usage telemetry is enabled by default. To opt out, set the environment variable `TRACEFORM_TELEMETRY=off` before running the CLI.
 
 ### Technical Details
 

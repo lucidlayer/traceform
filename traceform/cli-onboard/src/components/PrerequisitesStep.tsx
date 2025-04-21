@@ -8,6 +8,8 @@ import Spinner from 'ink-spinner';
 
 interface PrerequisitesStepProps {
   onComplete: (success: boolean) => void;
+  stepIndex: number;
+  totalSteps: number;
 }
 
 // Simplified version check logic adapted for React state
@@ -46,7 +48,7 @@ async function checkCommandVersion(
   }
 }
 
-const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => {
+const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete, stepIndex, totalSteps }) => {
   const [nodeStatus, setNodeStatus] = useState<string | null>(null);
   const [pmStatus, setPmStatus] = useState<string | null>(null);
   const [nodePassed, setNodePassed] = useState<boolean | null>(null);
@@ -164,6 +166,7 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete }) => 
 
   return (
     <Box flexDirection="column">
+      <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
       <Text bold>--- Step 1: Prerequisites ---</Text>
       <Box>
          <Text color={getStatusColor(nodePassed)}>

@@ -9,9 +9,11 @@ import Link from 'ink-link'; // For clickable links in supported terminals
 
 interface VSCodeStepProps {
   onComplete: (success: boolean) => void;
+  stepIndex: number;
+  totalSteps: number;
 }
 
-const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
+const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete, stepIndex, totalSteps }) => {
   const [confirmed, setConfirmed] = useState<boolean | null>(null);
   const [answered, setAnswered] = useState(false); // to avoid repeated answers
 
@@ -33,18 +35,13 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete }) => {
 
   return (
     <Box flexDirection="column">
+      <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
       <Text bold>--- Step 3: VS Code Extension ---</Text>
       <Text color="yellow">Install the Traceform VS Code extension:</Text>
       <Text>1. Open VS Code.</Text>
-      <Text>2. Click the Extensions icon in the Activity Bar (or press <Text bold>Ctrl+Shift+X</Text>).</Text>
-      <Text>3. In the search box, type: <Text bold>Traceform</Text></Text>
-      <Text>4. Find <Text bold>Traceform for VS Code</Text> by LucidLayer and click <Text bold>Install</Text>.</Text>
-      <Text>5. Or, open the extension in your browser:</Text>
-      <Box flexDirection="column" marginLeft={2}>
-        <Text color="cyan">Traceform for VS Code Extension (Marketplace)</Text>
-        <Text color="gray" wrap="wrap">https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode</Text>
-      </Box>
-      <Newline />
+      <Text>2. Go to Extensions (Ctrl+Shift+X).</Text>
+      <Text>3. Search for <Text bold>Traceform</Text> and install it.</Text>
+      <Text>4. Or visit: https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode</Text>
       {confirmed === null && <Text color="yellow">Have you installed the VS Code extension? (Y/n)</Text>}
       {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ VS Code Extension step not confirmed.</Text>}

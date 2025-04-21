@@ -4,69 +4,56 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Newline } from 'ink';
+import { useInput } from 'ink';
 
 interface ValidateStepProps {
-  onComplete: (success: boolean) => void; // Or maybe just signal completion?
+  onComplete: (success: boolean) => void;
+  stepIndex: number;
+  totalSteps: number;
 }
 
-const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete }) => {
-  const [isWaitingForConfirm, setIsWaitingForConfirm] = useState(true);
-  const [worked, setWorked] = useState<boolean | null>(null);
+const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, totalSteps }) => {
+  const [confirmed, setConfirmed] = useState<boolean | null>(null);
+  const [answered, setAnswered] = useState(false);
 
-  useEffect(() => {
-    const prompt = async () => {
-      const inquirer = (await import('inquirer')).default;
-      const { worked: userConfirmed } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'worked',
-          message: 'Did the component highlighting work correctly in the browser?',
-          default: false,
-        },
-      ]);
-      setWorked(userConfirmed);
-      setIsWaitingForConfirm(false);
-      onComplete(userConfirmed); // Signal completion and success/failure
-    };
-    void prompt();
-  }, [onComplete]);
+  useInput((input, key) => {
+    if (!answered && confirmed === null) {
+      if (input.toLowerCase() === 'n') {
+        setConfirmed(false);
+        setAnswered(true);
+        onComplete(false);
+      } else if (input.toLowerCase() === 'y' || key.return) {
+        setConfirmed(true);
+        setAnswered(true);
+        onComplete(true);
+      }
+    }
+  }, { isActive: confirmed === null });
 
   return (
     <Box flexDirection="column">
+      <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
       <Text bold>--- Step 5: Final Validation ---</Text>
-      <Text color="yellow">Please follow these steps to validate your Traceform setup:</Text>
-      <Newline />
-      {[
-        '1. Ensure your React development server is running.',
-        '   (e.g., `npm run dev`, `yarn dev`, `pnpm dev`)',
-        '2. Open your project folder in VS Code.',
-        '3. Open your running application in the browser where you installed the Traceform extension.',
-        '   (Make sure the extension is enabled!)',
-        '4. In VS Code, open a file containing a React component definition.',
-        '   (e.g., `src/components/Button.tsx`)',
-        '5. Right-click on the component name (e.g., `Button`).',
-        '6. Select "Traceform: Find Component in UI" from the context menu.',
-        '7. Check your browser. Did the instances of that component get highlighted?',
-      ].map((line, i) => <Text key={i} color={i === 9 ? 'yellow' : undefined}>{line}</Text>)}
-      <Newline />
-      {isWaitingForConfirm && <Text color="yellow">Press Enter to continue...</Text>}
-      {worked === true && (
-        <Text color="green" bold>
-          <Newline />🎉 Congratulations! Your Traceform setup is working correctly!
-        </Text>
+      <Text color="yellow">Checklist to validate your Traceform setup:</Text>
+      <Text>1. Start your React dev server (e.g., npm run dev).</Text>
+      <Text>2. Open your project in VS Code.</Text>
+      <Text>3. Open your app in the browser with the extension enabled.</Text>
+      <Text>4. In VS Code, open a React component file.</Text>
+      <Text>5. Right-click the component name and select 'Traceform: Find Component in UI'.</Text>
+      <Text>6. Check your browser for highlighted components.</Text>
+      {confirmed === null && <Text color="yellow">Did it work? (Y/n)</Text>}
+      {confirmed === true && (
+        <Text color="green" bold>🎉 Congratulations! Your Traceform setup is working correctly!</Text>
       )}
-      {worked === false && (
+      {confirmed === false && (
         <Box flexDirection="column" marginTop={1}>
           <Text color="red" bold>❌ Validation failed.</Text>
           <Text color="cyan">Troubleshooting Tips:</Text>
-          {[
-            '- Double-check all previous setup steps (VS Code ext enabled, Babel plugin config correct, Browser ext enabled).',
-            '- Ensure the Babel plugin is active in your DEV build (check terminal output).',
-            '- Check the VS Code Traceform sidebar for connection status/errors.',
-            "- Check the browser extension's service worker status (see `chrome://extensions`).",
-            '- Consult the troubleshooting sections in the README files.',
-            '- Try restarting VS Code and your browser.',
-          ].map((tip, i) => <Text key={i} color="cyan">  {tip}</Text>)}
+          <Text color="cyan">- Double-check all previous setup steps.</Text>
+          <Text color="cyan">- Ensure the Babel plugin is active in your DEV build.</Text>
+          <Text color="cyan">- Check the VS Code Traceform sidebar for errors.</Text>
+          <Text color="cyan">- Check the browser extension's status.</Text>
+          <Text color="cyan">- Try restarting VS Code and your browser.</Text>
         </Box>
       )}
     </Box>

@@ -60,6 +60,7 @@ const App: React.FC = () => {
     if (!success) {
       setFinalMessage('❌ Prerequisites not met. Exiting.');
       setFinalMessageColor('red');
+      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
     }
   };
   const handleBabelComplete = (status: BabelCheckStatus) => {
@@ -67,8 +68,10 @@ const App: React.FC = () => {
     if (status === 'passed') {
       setCurrentStep('vscode');
     } else if (status === 'failed_dependency' || status === 'failed_config') {
-      // Stay on the Babel step and let BabelStep handle retry/quit logic.
-      setFinalMessage(null);
+      setFinalMessage('Onboarding cancelled.');
+      setFinalMessageColor('yellow');
+      setCurrentStep('failed');
+      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
     }
   };
   const handleVSCodeComplete = (success: boolean) => {
@@ -77,6 +80,7 @@ const App: React.FC = () => {
     if (!success) {
       setFinalMessage('❌ VSCode extension setup failed. Exiting.');
       setFinalMessageColor('red');
+      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
     }
   };
   const handleBrowserComplete = (success: boolean) => {
@@ -85,26 +89,42 @@ const App: React.FC = () => {
     if (!success) {
       setFinalMessage('❌ Browser setup failed. Exiting.');
       setFinalMessageColor('red');
+      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
     }
   };
   const handleValidationComplete = (success: boolean) => {
     setCurrentStep(success ? 'done' : 'failed');
     setFinalMessage(success ? '🎉 All steps completed successfully!' : '❌ Validation failed. Exiting.');
     setFinalMessageColor(success ? 'green' : 'red');
+    if (!success) setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
   };
 
+  const stepOrder: Step[] = ['prerequisites', 'babel', 'vscode', 'browser', 'validate'];
+  const stepTitles: Record<Step, string> = {
+    prerequisites: 'Prerequisites',
+    babel: 'Babel Plugin',
+    vscode: 'VS Code Extension',
+    browser: 'Browser Extension',
+    validate: 'Final Validation',
+    done: '',
+    failed: '',
+  };
+  const getStepIndex = (step: Step) => stepOrder.indexOf(step) + 1;
+  const totalSteps = stepOrder.length;
+
   const renderStep = () => {
+    const stepIndex = getStepIndex(currentStep);
     switch (currentStep) {
       case 'prerequisites':
-        return <PrerequisitesStep onComplete={handlePrereqComplete} />;
+        return <PrerequisitesStep onComplete={handlePrereqComplete} stepIndex={stepIndex} totalSteps={totalSteps} />;
       case 'babel':
-        return <BabelStep onComplete={handleBabelComplete} />;
+        return <BabelStep onComplete={handleBabelComplete} stepIndex={stepIndex} totalSteps={totalSteps} />;
       case 'vscode':
-        return <VSCodeStep onComplete={handleVSCodeComplete} />;
+        return <VSCodeStep onComplete={handleVSCodeComplete} stepIndex={stepIndex} totalSteps={totalSteps} />;
       case 'browser':
-        return <BrowserStep onComplete={handleBrowserComplete} />;
+        return <BrowserStep onComplete={handleBrowserComplete} stepIndex={stepIndex} totalSteps={totalSteps} />;
       case 'validate':
-        return <ValidateStep onComplete={handleValidationComplete} />;
+        return <ValidateStep onComplete={handleValidationComplete} stepIndex={stepIndex} totalSteps={totalSteps} />;
       case 'done':
       case 'failed':
         return <Text color={finalMessageColor}>{finalMessage}</Text>;
