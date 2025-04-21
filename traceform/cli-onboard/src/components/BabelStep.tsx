@@ -466,7 +466,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
     <Box flexDirection="column">
       <Box marginBottom={1}>
         <Text color="yellow" bold>
-          Step {stepIndex + 1} of {totalSteps}, substep {subStep} of 3
+          Step {stepIndex} of {totalSteps}, substep {subStep} of 3
         </Text>
       </Box>
       <Text bold>--- Step 2: Babel Plugin ---</Text>

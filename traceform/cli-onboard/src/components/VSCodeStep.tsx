@@ -20,12 +20,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete, stepIndex, totalSte
   // Use Ink's useInput hook to handle user response
   useInput((input, key) => {
     if (!answered && confirmed === null) {
-      // Treat 'n' input as no; 'y' or Enter as yes
-      if (input.toLowerCase() === 'n') {
-        setConfirmed(false);
-        setAnswered(true);
-        onComplete(false);
-      } else if (input.toLowerCase() === 'y' || key.return) {
+      if (key.return) {
         setConfirmed(true);
         setAnswered(true);
         onComplete(true);
@@ -50,7 +45,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete, stepIndex, totalSte
       <Text>2. Go to Extensions (Ctrl+Shift+X).</Text>
       <Text>3. Search for <Text bold>Traceform</Text> and install it.</Text>
       <Text>4. Or visit: https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode</Text>
-      {confirmed === null && <Text color="yellow">Have you installed the VS Code extension? (Y/n, Q to quit)</Text>}
+      {confirmed === null && <Text color="yellow">Press Enter to continue or Q to quit</Text>}
       {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ VS Code Extension step not confirmed.</Text>}
     </Box>
