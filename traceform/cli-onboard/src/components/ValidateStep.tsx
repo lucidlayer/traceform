@@ -4,7 +4,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Newline } from 'ink';
-import { useInput } from 'ink';
 
 interface ValidateStepProps {
   onComplete: (success: boolean) => void;
@@ -14,25 +13,16 @@ interface ValidateStepProps {
 
 const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, totalSteps }) => {
   const [confirmed, setConfirmed] = useState<boolean | null>(null);
-  const [answered, setAnswered] = useState(false);
 
-  useInput((input, key) => {
-    if (!answered && confirmed === null) {
-      if (key.return) {
-        setConfirmed(true);
-        setAnswered(true);
-        onComplete(true);
-      }
-    }
-  }, { isActive: confirmed === null });
-
-  // Add universal quit handler
-  useInput((input, key) => {
-    if (input.toLowerCase() === 'q') {
-      onComplete(false);
-      return;
-    }
-  });
+  useEffect(() => {
+    // Print checklist to console before exiting
+    const checklist = `\nStep ${stepIndex} of ${totalSteps}\n--- Step 5: Final Validation ---\nChecklist to validate your Traceform setup:\n1. Start your React dev server (e.g., npm run dev).\n2. Open your project in VS Code.\n3. Open your app in the browser with the extension enabled.\n4. In VS Code, open a React component file.\n5. Right-click the component name and select 'Traceform: Find Component in UI'.\n6. Check your browser for highlighted components.\n`;
+    const timer = setTimeout(() => {
+      console.log(checklist);
+      process.exit(0);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <Box flexDirection="column">
@@ -45,7 +35,6 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
       <Text>4. In VS Code, open a React component file.</Text>
       <Text>5. Right-click the component name and select 'Traceform: Find Component in UI'.</Text>
       <Text>6. Check your browser for highlighted components.</Text>
-      {confirmed === null && <Text color="yellow">Press Enter to continue or Q to quit</Text>}
       {confirmed === true && (
         <Text color="green" bold>🎉 Congratulations! Your Traceform setup is working correctly!</Text>
       )}
