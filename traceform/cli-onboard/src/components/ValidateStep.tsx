@@ -16,9 +16,7 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
 
   useEffect(() => {
     // Print checklist to console before exiting
-    const checklist = `\nStep ${stepIndex} of ${totalSteps}\n--- Step 5: Final Validation ---\nChecklist to validate your Traceform setup:\n1. Start your React dev server (e.g., npm run dev).\n2. Open your project in VS Code.\n3. Open your app in the browser with the extension enabled.\n4. In VS Code, open a React component file.\n5. Right-click the component name and select 'Traceform: Find Component in UI'.\n6. Check your browser for highlighted components.\n`;
     const timer = setTimeout(() => {
-      console.log(checklist);
       process.exit(0);
     }, 2000);
     return () => clearTimeout(timer);
