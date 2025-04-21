@@ -41,11 +41,10 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
     <Box flexDirection="column">
       <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
       <Text bold>--- Step 4: Browser Extension ---</Text>
-      <Text color="yellow">Install the Traceform Browser Extension manually.</Text>
-      <Text>1. Download the latest release (.zip) from:</Text>
-      <Text color="cyan">https://github.com/lucidlayer/traceform/releases</Text>
-      <Text>2. Extract the file and load it as an unpacked extension in your browser.</Text>
-      <Text>3. Enable the extension.</Text>
+      <Text color="yellow">Install the Traceform Browser Extension from the Chrome Web Store:</Text>
+      <Text>1. Open the Chrome Web Store page</Text>
+      <Text color="cyan">https://chromewebstore.google.com/detail/giidcepndnnabhfkopmgcnpnnilkaefa?utm_source=item-share-cb</Text>
+      <Text>2. Click "Add to Chrome"</Text>
       {confirmed === null && <Text color="yellow">Press Enter to continue or Q to quit</Text>}
       {confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ Browser Extension step not confirmed. Please install/enable the extension and restart the wizard.</Text>}
