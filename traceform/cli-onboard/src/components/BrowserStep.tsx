@@ -34,6 +34,14 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
     }
   }, { isActive: confirmed === null });
 
+  // Add universal quit handler
+  useInput((input, key) => {
+    if (input.toLowerCase() === 'q') {
+      onComplete(false);
+      return;
+    }
+  });
+
   return (
     <Box flexDirection="column">
       <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
@@ -43,7 +51,7 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
       <Text color="cyan">https://github.com/lucidlayer/traceform/releases</Text>
       <Text>2. Extract the file and load it as an unpacked extension in your browser.</Text>
       <Text>3. Enable the extension.</Text>
-      {confirmed === null && <Text color="yellow">Have you installed and enabled the browser extension? (Y/n)</Text>}
+      {confirmed === null && <Text color="yellow">Have you installed and enabled the browser extension? (Y/n, Q to quit)</Text>}
       {confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ Browser Extension step not confirmed. Please install/enable the extension and restart the wizard.</Text>}
     </Box>

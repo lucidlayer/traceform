@@ -9,6 +9,8 @@ import fs from 'fs-extra'; // Use fs-extra methods directly
 import path from 'path';
 import { useInput } from 'ink';
 import clipboard from 'clipboardy';
+import { execa } from 'execa';
+import Link from 'ink-link';
 
 // Type definitions
 export type BabelCheckStatus = 'passed' | 'failed_dependency' | 'failed_config'; // Export the type
@@ -126,6 +128,8 @@ module.exports = {
 // --- Component ---
 
 const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps }) => {
+  // Step state: 1 = plugin, 2 = @types/node, 3 = config
+  const [subStep, setSubStep] = useState<1 | 2 | 3>(1);
   const [status, setStatus] = useState<string>('Initializing...');
   const [isLoading, setIsLoading] = useState(true);
   const [showConfigHelp, setShowConfigHelp] = useState(false);
@@ -136,11 +140,16 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
   const [promptMessage, setPromptMessage] = useState<string | null>(null);
   const [installCommand, setInstallCommand] = useState<string>('');
   const [depCheckPassed, setDepCheckPassed] = useState(false);
-  const [waitingForDepContinue, setWaitingForDepContinue] = useState(false);
+  const [typesCheckPassed, setTypesCheckPassed] = useState(false);
   const [configCheckPassed, setConfigCheckPassed] = useState(false);
+  const [waitingForDepContinue, setWaitingForDepContinue] = useState(false);
+  const [waitingForTypesContinue, setWaitingForTypesContinue] = useState(false);
   const [waitingForConfigContinue, setWaitingForConfigContinue] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [awaitingTypesInstall, setAwaitingTypesInstall] = useState(false);
+  const [typesInstallError, setTypesInstallError] = useState<string | null>(null);
+  const [awaitingPluginInstall, setAwaitingPluginInstall] = useState(false);
+  const [pluginInstallError, setPluginInstallError] = useState<string | null>(null);
 
   const projectRoot = process.cwd();
 
@@ -227,97 +236,205 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
     return true;
   };
 
-  // --- Check Logic (Adapted for New Flow) ---
-  // 1. Check config first, then dependency
-  const performChecks = async () => {
-    setIsLoading(true);
-    setShowConfigHelp(false);
-    setShowContinuePrompt(false);
-    setFinalResult(null);
-    setPromptMessage(null);
-    setStatus('Starting checks...');
-    setDepCheckPassed(false);
-    setWaitingForDepContinue(false);
-
-    // 1. Check dependency first
-    const pm = await detectPackageManager();
-    setInstallCommand(getInstallCommand(pm));
-    const depOk = await checkPackageJson();
-    if (!depOk) {
-      setFinalResult('failed_dependency');
-      setPromptMessage('');
-      setIsLoading(false);
-      return;
+  // --- Helper for @types/node ---
+  const getTypesInstallCommand = (pm: 'npm' | 'yarn' | 'pnpm') => {
+    if (pm === 'yarn') return 'yarn add --dev @types/node';
+    if (pm === 'pnpm') return 'pnpm add -D @types/node';
+    return 'npm install --save-dev @types/node';
+  };
+  const checkTypesNode = async (): Promise<boolean> => {
+    setStatus('Checking package.json for @types/node...');
+    const packageJsonPath = path.join(projectRoot, 'package.json');
+    try {
+      if (!await fs.pathExists(packageJsonPath)) {
+        setStatus(`Could not find package.json at ${packageJsonPath}. Skipping @types/node check.`);
+        return false;
+      }
+      const packageJson = await fs.readJson(packageJsonPath);
+      const devDependencies = packageJson.devDependencies || {};
+      if (devDependencies['@types/node']) {
+        setStatus('Found @types/node in devDependencies.');
+        return true;
+      } else {
+        setStatus('@types/node not found in devDependencies.');
+        setInstallCommand(getTypesInstallCommand(await detectPackageManager()));
+        return false;
+      }
+    } catch (error) {
+      setStatus(`Error reading or parsing package.json: ${error instanceof Error ? error.message : error}`);
+      return false;
     }
-    // If dependency is found, show success and wait for Enter
-    setDepCheckPassed(true);
-    setIsLoading(false);
-    setWaitingForDepContinue(true);
-    return;
   };
 
-  // Run checks only once on mount
+  // --- Step logic ---
   useEffect(() => {
-    void performChecks();
-  }, []);
-
-  // Listen for Enter after dependency check passes
-  useInput((input, key) => {
-    if (waitingForDepContinue && key.return) {
-      setWaitingForDepContinue(false);
+    const runStep = async () => {
       setIsLoading(true);
-      // Now run config check
-      (async () => {
+      setShowConfigHelp(false);
+      setShowContinuePrompt(false);
+      setFinalResult(null);
+      setPromptMessage(null);
+      setTypesInstallError(null);
+      setPluginInstallError(null);
+      if (subStep === 1) {
+        setStatus('Starting plugin check...');
+        setDepCheckPassed(false);
+        setWaitingForDepContinue(false);
+        setAwaitingPluginInstall(false);
+        const pm = await detectPackageManager();
+        setInstallCommand(getInstallCommand(pm));
+        const depOk = await checkPackageJson();
+        if (!depOk) {
+          setAwaitingPluginInstall(true);
+          setIsLoading(false);
+          return;
+        }
+        setDepCheckPassed(true);
+        setIsLoading(false);
+        setWaitingForDepContinue(true);
+      } else if (subStep === 2) {
+        setStatus('Starting @types/node check...');
+        setTypesCheckPassed(false);
+        setWaitingForTypesContinue(false);
+        setAwaitingTypesInstall(false);
+        const pm = await detectPackageManager();
+        setInstallCommand(getTypesInstallCommand(pm));
+        const typesOk = await checkTypesNode();
+        if (!typesOk) {
+          setAwaitingTypesInstall(true);
+          setIsLoading(false);
+          return;
+        }
+        setTypesCheckPassed(true);
+        setIsLoading(false);
+        setWaitingForTypesContinue(true);
+      } else if (subStep === 3) {
+        setStatus('Starting config check...');
+        setConfigCheckPassed(false);
+        setWaitingForConfigContinue(false);
         const configOk = await checkConfigFiles();
         if (!configOk) {
           setFinalResult('failed_config');
-          setPromptMessage('');
           setIsLoading(false);
           return;
         }
         setConfigCheckPassed(true);
         setIsLoading(false);
         setWaitingForConfigContinue(true);
-      })();
-    }
-    if (waitingForConfigContinue && key.return) {
+      }
+    };
+    void runStep();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subStep]);
+
+  // Navigation for each part
+  useInput((input, key) => {
+    if (waitingForDepContinue && key.return) {
+      setWaitingForDepContinue(false);
+      setSubStep(2);
+    } else if (waitingForTypesContinue && key.return) {
+      setWaitingForTypesContinue(false);
+      setSubStep(3);
+    } else if (waitingForConfigContinue && key.return) {
       setWaitingForConfigContinue(false);
       setShowContinuePrompt(false);
       setConfigCheckPassed(false);
       setFinalResult('passed');
       onComplete('passed');
     }
-  }, { isActive: waitingForDepContinue || waitingForConfigContinue });
+  }, { isActive: waitingForDepContinue || waitingForTypesContinue || waitingForConfigContinue });
 
-  // Add useInput handler for retry/quit on failure
+  // Handle install prompt for Babel plugin
   useInput((input, key) => {
-    if ((finalResult === 'failed_dependency' || finalResult === 'failed_config') && !isLoading) {
+    if (subStep === 1 && awaitingPluginInstall && !isLoading) {
+      if (input.toLowerCase() === 'y') {
+        setIsLoading(true);
+        setPluginInstallError(null);
+        (async () => {
+          try {
+            await execa(installCommand, { stdio: 'inherit', shell: true });
+            // After install, re-check
+            const depOk = await checkPackageJson();
+            if (depOk) {
+              setDepCheckPassed(true);
+              setIsLoading(false);
+              setAwaitingPluginInstall(false);
+              setWaitingForDepContinue(true);
+            } else {
+              setPluginInstallError('Install completed, but @lucidlayer/babel-plugin-traceform still not found.');
+              setIsLoading(false);
+            }
+          } catch (err: any) {
+            setPluginInstallError('Install failed: ' + (err.shortMessage || err.message || String(err)));
+            setIsLoading(false);
+          }
+        })();
+      } else if (input.toLowerCase() === 'n') {
+        setAwaitingPluginInstall(false);
+        setPluginInstallError(null);
+      } else if (input.toLowerCase() === 'q') {
+        onComplete('failed_dependency');
+      }
+    }
+  }, { isActive: subStep === 1 && awaitingPluginInstall && !isLoading });
+
+  // Handle install prompt for @types/node
+  useInput((input, key) => {
+    if (subStep === 2 && awaitingTypesInstall && !isLoading) {
+      if (input.toLowerCase() === 'y') {
+        setIsLoading(true);
+        setTypesInstallError(null);
+        (async () => {
+          try {
+            await execa(installCommand, { stdio: 'inherit', shell: true });
+            // After install, re-check
+            const typesOk = await checkTypesNode();
+            if (typesOk) {
+              setTypesCheckPassed(true);
+              setIsLoading(false);
+              setAwaitingTypesInstall(false);
+              setWaitingForTypesContinue(true);
+            } else {
+              setTypesInstallError('Install completed, but @types/node still not found.');
+              setIsLoading(false);
+            }
+          } catch (err: any) {
+            setTypesInstallError('Install failed: ' + (err.shortMessage || err.message || String(err)));
+            setIsLoading(false);
+          }
+        })();
+      } else if (input.toLowerCase() === 'n') {
+        setAwaitingTypesInstall(false);
+        setTypesInstallError(null);
+      } else if (input.toLowerCase() === 'q') {
+        onComplete('failed_dependency');
+      }
+    }
+  }, { isActive: subStep === 2 && awaitingTypesInstall && !isLoading });
+
+  // Retry/quit for each part
+  useInput((input, key) => {
+    if (finalResult === 'failed_dependency' && !isLoading) {
       if (input.toLowerCase() === 'r') {
         setFinalResult(null);
         setPromptMessage(null);
-        void performChecks();
+        setSubStep(subStep); // re-run current substep
       } else if (input.toLowerCase() === 'q') {
-        onComplete(finalResult);
+        onComplete('failed_dependency');
+      }
+    } else if (finalResult === 'failed_config' && !isLoading) {
+      if (input.toLowerCase() === 'r') {
+        setFinalResult(null);
+        setPromptMessage(null);
+        setSubStep(subStep); // re-run current substep
+      } else if (input.toLowerCase() === 'q') {
+        onComplete('failed_config');
       }
     }
   });
 
-  // Handle input for quit confirmation and both parts of the step
+  // Config step: copy and recheck
   useInput((input, key) => {
-    if (showQuitConfirm) {
-      if (input.toLowerCase() === 'y') {
-        onComplete('failed_config');
-      } else if (input.toLowerCase() === 'n') {
-        setShowQuitConfirm(false);
-      }
-      return;
-    }
-    // Show quit confirmation popup on 'q' in any part of the step
-    if (input.toLowerCase() === 'q') {
-      setShowQuitConfirm(true);
-      return;
-    }
-    // Config step: copy and recheck
     if (showConfigHelp) {
       if (input.toLowerCase() === 'c') {
         clipboard.writeSync(configSnippet);
@@ -339,65 +456,108 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
         })();
       }
     }
-  }, { isActive: showConfigHelp || showQuitConfirm || depCheckPassed || waitingForDepContinue });
+  }, { isActive: showConfigHelp });
 
   // Format config file path for cross-platform clarity
   const formattedConfigFilePath = configFilePath.replace(/\\/g, '/');
 
+  // --- Render logic for each part ---
   return (
     <Box flexDirection="column">
       <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
       <Text bold>--- Step 2: Babel Plugin ---</Text>
-      <Box>
-        <Text color={finalResult === 'passed' ? 'green' : finalResult ? 'red' : depCheckPassed || configCheckPassed ? 'green' : 'yellow'}>
-          {isLoading ? <Spinner type="dots" /> : configCheckPassed ? '✔' : depCheckPassed ? '✔' : (finalResult === 'passed' ? "✔" : finalResult ? "✖" : "○")}{` ${configCheckPassed ? '@lucidlayer/babel-plugin-traceform is configured correctly.' : depCheckPassed ? '@lucidlayer/babel-plugin-traceform is installed in package.json.' : status}`}
-        </Text>
-      </Box>
-      {depCheckPassed && waitingForDepContinue && (
-        <Text color="cyan">Press Enter to continue...</Text>
-      )}
-      {finalResult === 'failed_dependency' && !isLoading && (
-        <Box flexDirection="column" marginTop={1}>
-          <Text color="yellow">@lucidlayer/babel-plugin-traceform not found in package.json.</Text>
-          <Text color="yellow">To continue, open a new terminal and run:</Text>
-          <Text color="cyan">  {installCommand}</Text>
-          <Text color="yellow">After installing, return here and press R to retry, or Q to quit.</Text>
-        </Box>
-      )}
-      {showConfigHelp && !showQuitConfirm && (
-        <Box flexDirection="column">
-          <Text color="yellow">Paste this snippet into your config file: {formattedConfigFilePath} for DEVELOPMENT builds.</Text>
-          <Box marginY={1} paddingLeft={2} flexDirection="column">
-            {configSnippet.split('\n').map((line, i) => (
-              <Text key={i}>{line}</Text>
-            ))}
+      {subStep === 1 && (
+        <>
+          <Box>
+            <Text color={depCheckPassed ? 'green' : pluginInstallError ? 'red' : 'yellow'}>
+              {isLoading ? <Spinner type="dots" /> : depCheckPassed ? '✔' : pluginInstallError ? '✖' : '○'}{' '}
+              {depCheckPassed ? '@lucidlayer/babel-plugin-traceform is installed in package.json.' : status}
+            </Text>
           </Box>
-          <Text color="magenta">Press <Text bold>C</Text> to copy the code snippet to your clipboard.</Text>
-          {copied && <Text color="green">Code snippet copied to clipboard!</Text>}
-          <Text color="yellow">After updating your config, press R to retry, or Q to quit.</Text>
-        </Box>
+          {depCheckPassed && waitingForDepContinue && (
+            <Text color="cyan">Press Enter to continue...</Text>
+          )}
+          {awaitingPluginInstall && !isLoading && !depCheckPassed && !pluginInstallError && (
+            <Text color="yellow">@lucidlayer/babel-plugin-traceform not found in package.json. Would you like to install it now? (y/n, Q to quit)</Text>
+          )}
+          {pluginInstallError && !isLoading && (
+            <Text color="red">{pluginInstallError}</Text>
+          )}
+          {!awaitingPluginInstall && !depCheckPassed && !isLoading && (
+            <Box flexDirection="column" marginTop={1}>
+              <Text color="yellow">To continue, open a new terminal and run:</Text>
+              <Text color="cyan">  {installCommand}</Text>
+              <Text color="yellow">After installing, return here and press R to retry, or Q to quit.</Text>
+            </Box>
+          )}
+        </>
       )}
-      {showQuitConfirm && (
-        <Box
-          borderStyle="round"
-          borderColor="yellow"
-          padding={1}
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          marginTop={1}
-        >
-          <Text color="yellow" bold>Are you sure you want to quit the onboarding? (y/n)</Text>
-        </Box>
+      {subStep === 2 && (
+        <>
+          <Box>
+            <Text color={typesCheckPassed ? 'green' : typesInstallError ? 'red' : 'yellow'}>
+              {isLoading ? <Spinner type="dots" /> : typesCheckPassed ? '✔' : typesInstallError ? '✖' : '○'}{' '}
+              {typesCheckPassed ? '@types/node is installed in devDependencies.' : status}
+            </Text>
+          </Box>
+          {typesCheckPassed && waitingForTypesContinue && (
+            <Text color="cyan">Press Enter to continue...</Text>
+          )}
+          {awaitingTypesInstall && !isLoading && !typesCheckPassed && !typesInstallError && (
+            <Text color="yellow">@types/node not found in devDependencies. Would you like to install it now? (y/n, Q to quit)</Text>
+          )}
+          {typesInstallError && !isLoading && (
+            <Text color="red">{typesInstallError}</Text>
+          )}
+          {!awaitingTypesInstall && !typesCheckPassed && !isLoading && (
+            <Box flexDirection="column" marginTop={1}>
+              <Text color="yellow">To continue, open a new terminal and run:</Text>
+              <Text color="cyan">  {installCommand}</Text>
+              <Text color="yellow">After installing, return here and press R to retry, or Q to quit.</Text>
+            </Box>
+          )}
+        </>
       )}
-      {finalResult === 'failed_config' && !isLoading && !showConfigHelp && (
-        <Text color="red">Babel plugin is not configured. Add the snippet above and press R to recheck, or Q to quit.</Text>
-      )}
-      {configCheckPassed && waitingForConfigContinue && (
-        <Text color="cyan">Press Enter to continue...</Text>
-      )}
-      {showContinuePrompt && (
-        <Text color="cyan">Press Enter to continue...</Text>
+      {subStep === 3 && (
+        <>
+          <Box>
+            <Text color={configCheckPassed ? 'green' : finalResult ? 'red' : 'yellow'}>
+              {isLoading ? <Spinner type="dots" /> : configCheckPassed ? '✔' : finalResult ? '✖' : '○'}{' '}
+              {configCheckPassed ? '@lucidlayer/babel-plugin-traceform is configured correctly.' : status}
+            </Text>
+          </Box>
+          {showConfigHelp && (
+            <Box flexDirection="column" marginTop={1}>
+              <Text color="red" bold>✖ Traceform Babel plugin is not yet configured!</Text>
+              <Text>
+                <Text color="yellow" bold>1.</Text> Open this file: <Link url={`file://${formattedConfigFilePath}`}>{formattedConfigFilePath}</Link>
+              </Text>
+              <Text>
+                <Text color="yellow" bold>2.</Text> Copy and paste the following snippet for <Text color="magenta">DEVELOPMENT</Text> builds:
+              </Text>
+              <Text color="gray">----------------------------------------</Text>
+              <Box marginY={1} paddingLeft={2} flexDirection="column">
+                {configSnippet.split('\n').map((line, i) => (
+                  <Text key={i}>{line}</Text>
+                ))}
+              </Box>
+              <Text color="gray">----------------------------------------</Text>
+              <Text color="magenta" bold>Press C to copy the code snippet to your clipboard.</Text>
+              {copied && <Text color="green">Code snippet copied to clipboard!</Text>}
+              <Box marginTop={1} flexDirection="column">
+                <Text color="yellow" bold>What to do next:</Text>
+                <Text color="yellow">- Update your config file as shown above.</Text>
+                <Text color="yellow">- Press R to retry, or Q to quit.</Text>
+              </Box>
+            </Box>
+          )}
+          {finalResult === 'failed_config' && !isLoading && !showConfigHelp && (
+            <Text color="red">Babel plugin is not configured. Add the snippet above and press R to recheck, or Q to quit.</Text>
+          )}
+          {configCheckPassed && waitingForConfigContinue && (
+            <Text color="cyan">Press Enter to continue...</Text>
+          )}
+        </>
       )}
     </Box>
   );

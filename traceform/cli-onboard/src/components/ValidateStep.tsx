@@ -30,6 +30,14 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
     }
   }, { isActive: confirmed === null });
 
+  // Add universal quit handler
+  useInput((input, key) => {
+    if (input.toLowerCase() === 'q') {
+      onComplete(false);
+      return;
+    }
+  });
+
   return (
     <Box flexDirection="column">
       <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
@@ -41,7 +49,7 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
       <Text>4. In VS Code, open a React component file.</Text>
       <Text>5. Right-click the component name and select 'Traceform: Find Component in UI'.</Text>
       <Text>6. Check your browser for highlighted components.</Text>
-      {confirmed === null && <Text color="yellow">Did it work? (Y/n)</Text>}
+      {confirmed === null && <Text color="yellow">Did it work? (Y/n, Q to quit)</Text>}
       {confirmed === true && (
         <Text color="green" bold>🎉 Congratulations! Your Traceform setup is working correctly!</Text>
       )}

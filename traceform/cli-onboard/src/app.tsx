@@ -60,7 +60,7 @@ const App: React.FC = () => {
     if (!success) {
       setFinalMessage('❌ Prerequisites not met. Exiting.');
       setFinalMessageColor('red');
-      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
+      setTimeout(() => { console.log('Exiting...'); process.exit(0); }, 1500);
     }
   };
   const handleBabelComplete = (status: BabelCheckStatus) => {
@@ -71,7 +71,7 @@ const App: React.FC = () => {
       setFinalMessage('Onboarding cancelled.');
       setFinalMessageColor('yellow');
       setCurrentStep('failed');
-      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
+      setTimeout(() => { console.log('Exiting...'); process.exit(0); }, 1500);
     }
   };
   const handleVSCodeComplete = (success: boolean) => {
@@ -80,7 +80,7 @@ const App: React.FC = () => {
     if (!success) {
       setFinalMessage('❌ VSCode extension setup failed. Exiting.');
       setFinalMessageColor('red');
-      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
+      setTimeout(() => { console.log('Exiting...'); process.exit(0); }, 1500);
     }
   };
   const handleBrowserComplete = (success: boolean) => {
@@ -89,14 +89,14 @@ const App: React.FC = () => {
     if (!success) {
       setFinalMessage('❌ Browser setup failed. Exiting.');
       setFinalMessageColor('red');
-      setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
+      setTimeout(() => { console.log('Exiting...'); process.exit(0); }, 1500);
     }
   };
   const handleValidationComplete = (success: boolean) => {
     setCurrentStep(success ? 'done' : 'failed');
     setFinalMessage(success ? '🎉 All steps completed successfully!' : '❌ Validation failed. Exiting.');
     setFinalMessageColor(success ? 'green' : 'red');
-    if (!success) setTimeout(() => { console.log('Exiting...'); exit(); }, 1500);
+    if (!success) setTimeout(() => { console.log('Exiting...'); process.exit(0); }, 1500);
   };
 
   const stepOrder: Step[] = ['prerequisites', 'babel', 'vscode', 'browser', 'validate'];

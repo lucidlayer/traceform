@@ -33,6 +33,14 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete, stepIndex, totalSte
     }
   }, { isActive: confirmed === null });
 
+  // Add universal quit handler
+  useInput((input, key) => {
+    if (input.toLowerCase() === 'q') {
+      onComplete(false);
+      return;
+    }
+  });
+
   return (
     <Box flexDirection="column">
       <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
@@ -42,7 +50,7 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete, stepIndex, totalSte
       <Text>2. Go to Extensions (Ctrl+Shift+X).</Text>
       <Text>3. Search for <Text bold>Traceform</Text> and install it.</Text>
       <Text>4. Or visit: https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode</Text>
-      {confirmed === null && <Text color="yellow">Have you installed the VS Code extension? (Y/n)</Text>}
+      {confirmed === null && <Text color="yellow">Have you installed the VS Code extension? (Y/n, Q to quit)</Text>}
       {confirmed === true && <Text color="green">✔ VS Code Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ VS Code Extension step not confirmed.</Text>}
     </Box>

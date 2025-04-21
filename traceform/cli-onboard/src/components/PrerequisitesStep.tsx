@@ -153,6 +153,14 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete, stepI
     { isActive: showContinuePrompt } // Only activate the hook when the prompt should be shown
   );
 
+  // Add universal quit handler
+  useInput((input, key) => {
+    if (input.toLowerCase() === 'q') {
+      onComplete(false);
+      return;
+    }
+  });
+
   const getStatusColor = (passed: boolean | null): string => {
     if (passed === null) return 'yellow';
     return passed ? 'green' : 'red';
@@ -187,7 +195,7 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete, stepI
       {/* Success Message & Prompt */}
       {promptMessage && (
         <Box marginTop={1}>
-           <Text color="cyan">{promptMessage}</Text>
+           <Text color="cyan">{promptMessage} (Q to quit)</Text>
         </Box>
       )}
     </Box>
