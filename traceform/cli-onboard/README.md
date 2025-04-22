@@ -15,9 +15,9 @@
   </a>
 </p>
 
-```bash
-npx @lucidlayer/traceform-onboard check
-```
+<p align="center">
+  <code>npx @lucidlayer/traceform-onboard check</code><br/> 
+</p>
 
 
 
