@@ -1,7 +1,10 @@
-<h1 align="center">Traceform Onboarding CLI: Effortless Setup for Code-to-UI Mapping</h1>
-<p align="center">Interactive TUI wizard to install and validate the Traceform toolchain in your React projects.</p>
+<h1 align="center">Traceform Onboarding CLI</h1>
+<!-- Badges: npm version, downloads, build status, etc. -->
 
----
+<p align="center">Interactive Cli wizard to install and validate the Traceform toolchain in your React 
+projects.</p>
+
+
 
 ![Traceform CLI onboarding demo](.github/onboarding.gif)
 
@@ -153,6 +156,20 @@ A: Node.js >= 18.17.0 and one of npm >= 8, yarn >= 1.22, or pnpm >= 7.
 **Q: How do I opt out of telemetry?**  
 A: Set the environment variable `TRACEFORM_TELEMETRY=off` before running the CLI.
 
+---
+**A modern npm CLI tool and interactive onboarding wizard for React projects. Automate project setup, configuration, validation, and developer onboarding for Traceform, React, TypeScript, and monorepos. Perfect for initializing, validating, and managing your project toolchain from the command line.**
+
+
+## Features
+
+- Interactive CLI wizard for React project onboarding and setup
+- Automates configuration and validation of Traceform toolchain
+- Supports TypeScript, monorepos, and modern React workflows
+- Developer-friendly terminal UI (TUI) built with Ink
+- No project file modifications—manual, safe, and transparent
+- Works with npm, yarn, and pnpm
+- Ideal for team onboarding, troubleshooting, and project bootstrapping
+- Fast, reliable, and easy to use for all experience levels
 ---
 
 ## Changelog
