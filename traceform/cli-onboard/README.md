@@ -1,4 +1,5 @@
-# Traceform Onboarding CLI
+<h1 align="center">Traceform: Onboarding CLI</h1>
+<p align="center">Interactive Cli wizard to install and validate the Traceform toolchain in your React projects.</p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@lucidlayer/traceform-onboard">
@@ -9,6 +10,8 @@
   </a>
   <a href="./LICENSE">
     <img src="https://img.shields.io/npm/l/@lucidlayer/traceform-onboard.svg" alt="License" />
+  <a href="https://github.com/lucidlayer/traceform-demo">
+    <img src="https://visitor-badge.laobi.icu/badge?page_id=lucidlayer.traceform-demo" alt="Page views" />
   </a>
 </p>
 
@@ -16,15 +19,14 @@
 npx @lucidlayer/traceform-onboard check
 ```
 
-<p align="center">Interactive Cli wizard to install and validate the Traceform toolchain in your React projects.</p>
-
 
 
 ![Traceform CLI onboarding demo](.github/onboarding.gif)
-
-<p align="center"><em>Traceform CLI onboarding demo, full process from setup to validation</em></p>
+*See above for a visual walkthrough of the onboarding and validation process.*
 
 Watch here: https://www.youtube.com/watch?v=0ZnyWkS2g44
+
+---
 
 <details>
 <summary><strong>Video Chapters</strong></summary>
@@ -51,7 +53,7 @@ Watch here: https://www.youtube.com/watch?v=0ZnyWkS2g44
 
 </details>
 
----
+
 
 <details>
 <summary><strong>Table&nbsp;of&nbsp;Contents</strong></summary>
