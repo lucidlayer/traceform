@@ -3,9 +3,6 @@
 
 <p align="center">
   <code>npx @lucidlayer/traceform-onboard check</code><br/> 
-  <a href="https://mariadb.com/bsl11/">
-    <img src="https://img.shields.io/badge/license-BUSL--1.1-blue" alt="License: BUSL-1.1">
-  </a>
 </p>
 
 ![Traceform demonstrating real-time React component highlighting from VS Code selection to browser visualization](./.github/demo.gif "GIF showing Traceform highlighting a React button in Chrome from VS Code")
@@ -33,7 +30,21 @@
 
 ---
 
+## Which Installation Method Should I Use?
+
+- **Most users:**
+  Use the published tools for the fastest setup:
+  - **CLI Onboarding:** `npx @lucidlayer/traceform-onboard check`
+  - **VS Code Extension:** Install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode)
+  - **Browser Extension:** Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/giidcepndnnabhfkopmgcnpnnilkaefa?utm_source=item-share-cb)
+  - **Babel Plugin:** Installed/configured during the CLI onboarding, or manually from [npm](https://www.npmjs.com/package/@lucidlayer/babel-plugin-traceform)
+
+- **Developers/contributors:**
+  If you want to contribute or build from source, clone this repo and follow the [Contributing](#contributing) section.
+
 ## Installation
+
+- **Note:** You do **not** need to clone this repository to use Traceform. Use the published CLI onboarding (@lucidlayer/traceform-onboard), extensions, and npm package for the fastest setup. Cloning is only required for development or contributions.
 
 Traceform consists of three main components:
 - **Babel Plugin**: Injects traceable IDs into your React components. Works with common setups like Vite, Next.js, and Create React App.
@@ -58,6 +69,17 @@ We've created a simple Command Line Interface (CLI) onboarding tool that handles
     *   VS Code extension (from the Marketplace)
     *   Babel plugin configuration (modify your `babel.config.js` or `vite.config.ts` or similar)
     *   Browser extension (links to Chrome Web Store / Edge Add-ons)
+
+## Manual Build/Development
+
+If you want to contribute to Traceform or build from source (for custom development or PRs):
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/lucidlayer/traceform.git
+   cd traceform
+   ```
+2. Follow the [Contributing](#contributing) section for development and build instructions.
 
 ## See Traceform in Action
 
