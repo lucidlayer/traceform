@@ -1,16 +1,22 @@
-<h1 align="center">Traceform Onboarding CLI</h1>
-<!-- Badges: npm version, downloads, build status, etc. -->
-
-[![npm version](https://img.shields.io/npm/v/@lucidlayer/traceform-onboard.svg)](https://www.npmjs.com/package/@lucidlayer/traceform-onboard)
-[![npm downloads](https://img.shields.io/npm/dw/@lucidlayer/traceform-onboard.svg)](https://www.npmjs.com/package/@lucidlayer/traceform-onboard)
-[![License](https://img.shields.io/npm/l/@lucidlayer/traceform-onboard.svg)](./LICENSE)
+# Traceform Onboarding CLI
 
 <p align="center">
-  <code>npx @lucidlayer/traceform-onboard check</code><br/> 
+  <a href="https://www.npmjs.com/package/@lucidlayer/traceform-onboard">
+    <img src="https://img.shields.io/npm/v/@lucidlayer/traceform-onboard.svg" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@lucidlayer/traceform-onboard">
+    <img src="https://img.shields.io/npm/dw/@lucidlayer/traceform-onboard.svg" alt="npm downloads" />
+  </a>
+  <a href="./LICENSE">
+    <img src="https://img.shields.io/npm/l/@lucidlayer/traceform-onboard.svg" alt="License" />
+  </a>
 </p>
 
-<p align="center">Interactive Cli wizard to install and validate the Traceform toolchain in your React 
-projects.</p>
+```bash
+npx @lucidlayer/traceform-onboard check
+```
+
+<p align="center">Interactive Cli wizard to install and validate the Traceform toolchain in your React projects.</p>
 
 
 
