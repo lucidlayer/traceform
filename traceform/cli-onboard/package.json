@@ -65,5 +65,10 @@
   },
   "engines": {
     "node": ">=18.17.0"
-  }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
 }

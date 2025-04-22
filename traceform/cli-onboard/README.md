@@ -1,6 +1,14 @@
 <h1 align="center">Traceform Onboarding CLI</h1>
 <!-- Badges: npm version, downloads, build status, etc. -->
 
+[![npm version](https://img.shields.io/npm/v/@lucidlayer/traceform-onboard.svg)](https://www.npmjs.com/package/@lucidlayer/traceform-onboard)
+[![npm downloads](https://img.shields.io/npm/dw/@lucidlayer/traceform-onboard.svg)](https://www.npmjs.com/package/@lucidlayer/traceform-onboard)
+[![License](https://img.shields.io/npm/l/@lucidlayer/traceform-onboard.svg)](./LICENSE)
+
+<p align="center">
+  <code>npx @lucidlayer/traceform-onboard check</code><br/> 
+</p>
+
 <p align="center">Interactive Cli wizard to install and validate the Traceform toolchain in your React 
 projects.</p>
 
@@ -189,3 +197,4 @@ This CLI tool is licensed under the Apache-2.0 License. See the [LICENSE](./LICE
 ---
 
 *This CLI tool is part of the Traceform developer toolset. For more information, visit [github.com/lucidlayer/traceform](https://github.com/lucidlayer/traceform)*
+
