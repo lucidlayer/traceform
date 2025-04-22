@@ -1,11 +1,38 @@
 <h1 align="center">Traceform Onboarding CLI: Effortless Setup for Code-to-UI Mapping</h1>
 <p align="center">Interactive wizard to install and validate the Traceform toolchain in your React projects.</p>
 
-<p align="center">
-  <a href="https://www.apache.org/licenses/LICENSE-2.0">
-    <img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0">
-  </a>
-</p>
+---
+
+## 🚀 See the Onboarding CLI in Action
+
+![Traceform CLI onboarding demo](.github/onboarding.gif)
+
+<p align="center"><em>Traceform CLI onboarding demo – full process from setup to validation</em></p>
+
+<details>
+<summary><strong>Video Chapters</strong></summary>
+
+00:00 – Introduction  
+00:02 – Cloning the Demo Project Repository  
+00:15 – Creating a Local Playground Directory  
+00:18 – Opening the Project in Visual Studio Code  
+00:20 – Reviewing Prerequisites & Setup Steps  
+00:30 – Navigating to the Project Directory  
+00:37 – Installing Project Dependencies  
+00:43 – Running the Traceform Onboarding CLI  
+00:48 – Traceform Onboarding Wizard Overview  
+00:48 – Prerequisite Checks (Node.js, Package Manager)  
+00:51 – Installing Babel Plugin & Dependencies  
+00:59 – Updating Vite Configuration  
+01:24 – Installing the Traceform VS Code Extension  
+01:36 – Installing the Traceform Chrome Extension  
+01:51 – Final Validation of Setup  
+01:57 – Starting the React Dev Server  
+02:27 – Opening the Application in the Browser  
+02:33 – Using Traceform to Find Components in the UI  
+02:40 – Browsing and Highlighting Components
+
+</details>
 
 ---
 
