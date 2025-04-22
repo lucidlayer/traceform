@@ -3,13 +3,11 @@
 
 ---
 
-## 🚀 See the Onboarding CLI in Action
-
 ![Traceform CLI onboarding demo](.github/onboarding.gif)
 
 <p align="center"><em>Traceform CLI onboarding demo, full process from setup to validation</em></p>
 
-https://www.youtube.com/watch?v=0ZnyWkS2g44
+Watch here: https://www.youtube.com/watch?v=0ZnyWkS2g44
 
 <details>
 <summary><strong>Video Chapters</strong></summary>
