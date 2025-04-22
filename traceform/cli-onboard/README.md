@@ -1,5 +1,5 @@
 <h1 align="center">Traceform Onboarding CLI: Effortless Setup for Code-to-UI Mapping</h1>
-<p align="center">Interactive wizard to install and validate the Traceform toolchain in your React projects.</p>
+<p align="center">Interactive TUI wizard to install and validate the Traceform toolchain in your React projects.</p>
 
 ---
 
@@ -7,7 +7,9 @@
 
 ![Traceform CLI onboarding demo](.github/onboarding.gif)
 
-<p align="center"><em>Traceform CLI onboarding demo – full process from setup to validation</em></p>
+<p align="center"><em>Traceform CLI onboarding demo, full process from setup to validation</em></p>
+
+https://www.youtube.com/watch?v=0ZnyWkS2g44
 
 <details>
 <summary><strong>Video Chapters</strong></summary>
@@ -44,6 +46,7 @@
 - [Use Cases](#use-cases)
 - [Why Traceform Onboarding CLI?](#why-traceform-onboarding-cli)
 - [How It Works](#how-it-works)
+  - [Step-by-Step Wizard Flow](#step-by-step-wizard-flow)
   - [Technical Details](#technical-details)
 - [Frequently Asked Questions (FAQ)](#frequently-asked-questions-faq)
 - [Changelog](#changelog)
@@ -56,7 +59,7 @@
 
 ## Installation
 
-You don't need to install globally. Just run it with `npx` in your project root:
+Run with `npx` in your project root:
 
 ```bash
 npx @lucidlayer/traceform-onboard check
@@ -70,18 +73,7 @@ npx @lucidlayer/traceform-onboard check
    ```bash
    npx @lucidlayer/traceform-onboard check
    ```
-2. Follow the interactive wizard. The onboarding flow is now:
-   - Minimal, step-by-step, and easy to follow
-   - Each step shows a simple progress indicator (e.g., "Step 2 of 5")
-   - Clear, actionable instructions for:
-     - Checking your environment (Node.js, package manager)
-     - Installing and verifying the Traceform VS Code extension
-     - Installing and configuring the Traceform Babel plugin
-     - Installing the Traceform browser extension
-     - Validating the full toolchain with "Find Component in UI"
-   - No advanced UI, splash screens, or automation—just clear guidance
-   - Telemetry is opt-out (see below)
-   - For CI/headless use, run with `--no-ui` (if supported)
+2. Follow the interactive wizard in your terminal.
 
 ---
 
@@ -94,26 +86,52 @@ npx @lucidlayer/traceform-onboard check
 
 ## Why Traceform Onboarding CLI?
 
-Setting up a multi-part toolchain can be error-prone. The Onboarding CLI removes the guesswork, automates checks, and provides clear, contextual instructions for every step. It ensures your Traceform workflow is ready to go.
+Setting up a multi-part toolchain can be error prone. The Onboarding CLI removes the guesswork, automates checks, and provides clear, contextual instructions for every step. It ensures your Traceform workflow is ready to go.
 
 ---
 
 ## How It Works
 
-- **Environment Check:** Verifies Node.js and package manager versions.
-- **Component Guidance:**
-  - Checks for the VS Code extension and provides install instructions.
-  - Scans for the Babel plugin in your `package.json` and config files, offering a minimal setup snippet if needed.
-  - Guides you through manual installation of the browser extension.
-- **Validation:** Offers a final checklist to confirm the entire toolchain is working, using "Find Component in UI".
+### Step-by-Step Wizard Flow
+
+The CLI guides you through the following steps:
+
+1. **Prerequisites**
+   - Checks for Node.js (minimum version: **18.17.0**) and a supported package manager:
+     - npm (>= 8.0.0)
+     - yarn (>= 1.22.0)
+     - pnpm (>= 7.0.0)
+   - Prompts you to fix any missing prerequisites before continuing.
+2. **Babel Plugin Setup**
+   - Checks for `@lucidlayer/babel-plugin-traceform` in your `package.json`.
+   - If missing, provides the correct install command for your package manager.
+   - Detects your project type (Vite, Create React App, Next.js, or custom Babel) and offers a tailored config snippet.
+   - Does **not** modify your files automatically—copy/paste the snippet as needed.
+3. **VS Code Extension**
+   - Prompts you to install the [Traceform VS Code extension](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode).
+   - Press Enter to confirm once installed.
+4. **Browser Extension**
+   - Prompts you to install the [Traceform Chrome extension](https://chromewebstore.google.com/detail/giidcepndnnabhfkopmgcnpnnilkaefa?utm_source=item-share-cb).
+   - Press Enter to confirm once installed.
+5. **Final Validation**
+   - Provides a checklist to validate your setup:
+     - Start your React dev server (e.g., `npm run dev`).
+     - Check the Traceform VS Code extension sidebar for "client connected".
+     - Open your app in the browser.
+     - Use "Traceform: Find Component in UI" in VS Code.
+     - Look for highlighted components in the browser.
+   - If validation fails, troubleshooting tips are provided.
+
 - **Progress Indicator:** Each step shows "Step X of Y" at the top.
-- **Telemetry:** Anonymous usage telemetry is enabled by default. To opt out, set the environment variable `TRACEFORM_TELEMETRY=off` before running the CLI.
+
 
 ### Technical Details
 
-- Built with Node.js
-- Uses `commander`, `inquirer`, `chalk`, `fs-extra`, and `execa` for a smooth CLI experience
-- Scans project files and provides tailored setup instructions for Babel, Vite, and more
+- Built with Node.js and [Ink](https://github.com/vadimdemedes/ink) for a modern TUI experience.
+- Uses `fs-extra`, `execa`, `clipboardy`, and other utilities for project inspection and user guidance.
+- No subcommands or arguments, just run the CLI and follow the wizard.
+- **Does not modify your files automatically.** All configuration changes are manual (copy/paste from the wizard).
+- Works in monorepos and detects common project setups.
 
 ---
 
@@ -123,13 +141,19 @@ Setting up a multi-part toolchain can be error-prone. The Onboarding CLI removes
 A: No, just use `npx` for the latest version every time.
 
 **Q: Does this modify my project files?**  
-A: Only if you choose to copy/paste the provided config snippets. The CLI itself does not write to your files automatically.
+A: No. The CLI only provides config snippets and install commands. You must copy/paste them yourself.
 
 **Q: Can I use this in a monorepo?**  
 A: Yes, the CLI detects monorepo roots and works with common setups.
 
 **Q: What if something fails validation?**  
 A: The wizard provides troubleshooting tips and links to documentation for each step.
+
+**Q: What are the minimum requirements?**  
+A: Node.js >= 18.17.0 and one of npm >= 8, yarn >= 1.22, or pnpm >= 7.
+
+**Q: How do I opt out of telemetry?**  
+A: Set the environment variable `TRACEFORM_TELEMETRY=off` before running the CLI.
 
 ---
 
