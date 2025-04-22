@@ -482,10 +482,6 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
               <Text>
                 It looks like the Traceform Babel plugin is not yet installed in your project.
               </Text>
-              <Text color="gray">
-                The Traceform Babel plugin enables code-to-UI mapping for your React components.
-              </Text>
-              <Text> </Text>
               <Text color="yellow" bold> @lucidlayer/babel-plugin-traceform not found in package.json.</Text>
               <Text> </Text>
               <Text>
@@ -493,9 +489,6 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
               </Text>
               <Text color="yellow">
                 Press Y to install or Q to quit.
-              </Text>
-              <Text color="red" bold>
-                This plugin is <Text underline>required</Text> for Traceform tools to work.
               </Text>
             </>
           )}
@@ -553,7 +546,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
                 <Text color="yellow" bold>1.</Text> Open this file: <Link url={`file://${formattedConfigFilePath}`}>{formattedConfigFilePath}</Link>
               </Text>
               <Text>
-                <Text color="yellow" bold>2.</Text> Copy and paste the following snippet for <Text color="magenta">DEVELOPMENT</Text> builds:
+                <Text color="yellow" bold>2.</Text> Press C to copy the code snippet and paste it in the config file from step 1, this will make sure the plugin only works in development builds.
               </Text>
               <Text color="gray">----------------------------------------</Text>
               <Box marginY={1} paddingLeft={2} flexDirection="column">
@@ -562,7 +555,7 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
                 ))}
               </Box>
               <Text color="gray">----------------------------------------</Text>
-              <Text color="magenta" bold>Press C to copy the code snippet to your clipboard.</Text>
+              <Text color="magenta" bold>Expand your terminal vertically to see all instructions.</Text>
               {copied && <Text color="green">Code snippet copied to clipboard!</Text>}
               <Box marginTop={1} flexDirection="column">
                 <Text color="yellow" bold>What to do next:</Text>
