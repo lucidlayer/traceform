@@ -1,11 +1,35 @@
-<h1 align="center">Traceform Browser Extension: Instant UI Mapping in Chrome/Edge</h1>
-<p align="center">Highlights React components in your browser, instantly, from VS Code.</p>
+# Traceform Browser Extension: Instantly Highlight Every Instance, Live
 
-<p align="center">
-  <a href="https://mariadb.com/bsl11/">
-    <img src="https://img.shields.io/badge/license-BUSL--1.1-blue" alt="License: BUSL-1.1">
-  </a>
-</p>
+![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](../../.github/demo.gif)
+
+> See every place your code is actually rendered—live, as you code. The Traceform browser extension highlights every instance of your selected component, instantly, in your running app.
+
+---
+
+## Why This Extension?
+- No more DOM spelunking.
+- No more context switching.
+- Just click and see—every time.
+- Works seamlessly with the Traceform toolchain for instant, live feedback.
+
+## How It Works
+1. The VS Code extension sends a component ID to a local bridge server.
+2. The browser extension receives the ID and highlights all matching DOM elements using a non-intrusive overlay.
+3. Works instantly, with pixel-perfect accuracy, and does not interfere with your app's behavior.
+
+---
+
+## Quickstart
+1. Install the Traceform browser extension (Chrome/Edge).
+2. Install the VS Code extension and Babel plugin.
+3. Start your React dev server and open your app in the browser.
+4. Select a component in VS Code and trigger "Traceform: Find in UI."
+5. Instantly see every instance highlighted in your browser.
+
+---
+
+## License
+This extension is licensed under the Business Source License 1.1 (BUSL-1.1). See the LICENSE file for details.
 
 ---
 
@@ -46,20 +70,6 @@ Until then, you can install the extension manually:
 4. Enable Developer Mode.
 5. Click "Load unpacked" and select the extracted folder.
 
-## Quickstart
-
-1. Install the [Traceform VS Code extension](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode).
-2. Configure the [Traceform Babel plugin](https://www.npmjs.com/package/@lucidlayer/babel-plugin-traceform) in your React project.
-3. Start your development server.
-4. Open your app in Chrome or Edge with the extension enabled.
-5. Select a component in VS Code and trigger "Find in UI"—the corresponding element will be highlighted in your browser.
-
-## How It Works
-
-- The VS Code extension sends a component ID to a local bridge server.
-- The browser extension receives the ID and highlights all matching DOM elements using a non-intrusive overlay.
-- Works instantly, with pixel-perfect accuracy, and does not interfere with your app's behavior.
-
 ## Key Features
 
 - **Instant UI Highlighting:** See exactly which DOM elements correspond to your selected code.
@@ -82,11 +92,6 @@ A: Google Chrome and Microsoft Edge.
 A: No, Traceform is a development tool only.
 
 ## Changelog
-
-## License
-
-This extension is licensed under the Business Source License 1.1 (BUSL-1.1).  
-See the [LICENSE](LICENSE) file for details.
 
 ## Status
 

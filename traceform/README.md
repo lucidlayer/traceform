@@ -1,166 +1,51 @@
-# Traceform: Bridging the Gap Between Code and UI
+# Traceform: Instantly See Where Your Code Renders—Live
 
+![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](../.github/demo.gif)
 
-I'm excited to share Traceform with you, a developer toolchain we've built to solve a persistent challenge in React development. With Traceform, you can select any React component in VS Code and instantly see all its rendered instances highlighted in your browser. It's the kind of tool I wish I'd had years ago.
-
----
-
-## Getting Started with Traceform
-
-Setting up Traceform involves a few components. We recommend using our onboarding wizard for a guided setup and validation:
-
-```bash
-npx @lucidlayer/traceform-onboard-check
-```
-
-This wizard will check prerequisites and guide you through the steps below.
-
-If you prefer manual setup:
-
-1.  **Install the VS Code Extension**
-    * Get the "Traceform" extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode).
-
-2.  **Add the Babel Plugin**
-    * Install it as a dev dependency:
-      ```bash
-      npm install --save-dev @lucidlayer/babel-plugin-traceform
-      # or
-      yarn add --dev @lucidlayer/babel-plugin-traceform
-      ```
-    * Configure your build tool to use the plugin (development mode only):
-
-      **For Babel config files (including Next.js):**
-      ```javascript
-      // Example babel.config.js
-      module.exports = {
-        presets: [/* your presets */],
-        plugins: [
-          // Add Traceform plugin only in development
-          process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
-        ].filter(Boolean),
-      };
-
-      // For Next.js (.babelrc)
-      // {
-      //   "presets": ["next/babel"],
-      //   "plugins": [
-      //     process.env.NODE_ENV === 'development' && "@lucidlayer/babel-plugin-traceform"
-      //   ].filter(Boolean)
-      // }
-      ```
-
-      **For Vite projects:**
-      ```typescript
-      // Example vite.config.ts
-      import { defineConfig } from 'vite'
-      import react from '@vitejs/plugin-react'
-
-      export default defineConfig({
-        plugins: [
-          react({
-            babel: process.env.NODE_ENV === 'development' 
-              ? { plugins: ['@lucidlayer/babel-plugin-traceform'] } 
-              : {},
-          }),
-        ],
-      })
-      ```
-
-      **For Create React App (using craco):**
-      ```javascript
-      // craco.config.js
-      module.exports = {
-        babel: {
-          plugins: [
-            process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
-          ].filter(Boolean),
-        },
-      };
-      ```
-
-3.  **Install the Browser Extension**
-    * Download `traceform-browser-extension.zip` from the [GitHub Releases page](https://github.com/lucidlayer/traceform/releases)
-    * Unzip the file
-    * Load as an unpacked extension in Chrome/Edge:
-      * Go to `chrome://extensions` or `edge://extensions`
-      * Enable "Developer mode"
-      * Click "Load unpacked" and select the unzipped folder
-
-4.  **Using Traceform**
-    * Run your React app's dev server
-    * Open your project in VS Code
-    * Open your app in the browser with the Traceform extension installed
-    * In VS Code, right-click on a React component name or definition
-    * Select "Traceform: Find Component in UI"
-    * Watch as the component instances light up in your browser
-
-I've found that this setup process pays dividends almost immediately. Once configured, the time you save during development compounds with every debugging session.
+> Ever spent too long hunting through the DOM, trying to figure out where a React component is actually rendered?  
+> Your IDE shows you where it's used. DevTools shows you the component tree. But neither shows you every live instance on the screen—right now.
+>
+> **Traceform bridges that gap.**  
+> Click a component in VS Code, and every instance highlights in your running app. No more guessing. No more DOM spelunking. Just click and see.
 
 ---
 
-## Try the Demo Apps
+## Why Traceform?
+- **See it. Don't hunt for it.**
+- Instantly find every rendered instance—even in huge, complex apps.
+- Debug faster: see what's really on the screen, not just what could be.
+- Perfect for onboarding, debugging, and exploring new codebases.
+- **Complement, don't replace:** Traceform works alongside your IDE and DevTools, getting you to the right place faster.
 
-We've included two demo applications that demonstrate Traceform in action:
-
-### Simple Test App
-
-A minimal setup to get you familiar with the basics:
-
-```bash
-cd traceform-test-app--
-npm install
-npm run dev
-```
-
-Try highlighting components like `Button`, `Card`, `Footer`, or `Header` in their respective files in the `src/components/` directory.
-
-### Complex Demo
-
-A more representative example of real-world usage:
-
-```bash
-cd complex
-npm install
-npm run dev
-```
-
-Highlight components like `AlertBanner`, `Navbar`, or `Layout` to see Traceform in action within a more complex codebase.
-
-Both demos are pre-configured with the Babel plugin, so you can focus on experiencing the core functionality without additional setup.
+## Real-World Use Cases
+- **Dropped into a big project?** Click a component in VS Code, see every instance light up in your browser. No DOM digging. Immediate orientation.
+- **Debugging a weird UI bug?** Click the code, see exactly which button is which—no more guessing.
+- **Onboarding or teaching?** Show new devs what their code actually renders, live.
 
 ---
 
-## Documentation & Resources
+## Quickstart
 
-For those who want to dig deeper:
+![Traceform CLI onboarding walkthrough](../.github/onboarding.gif)
 
-- [Developer and contributor docs](docs/README.md)
-- [Test plan and deployment](docs/test_plan_and_deployment.md)
-- [Privacy policy](docs/PRIVACY_POLICY.md)
+*Get set up in minutes with the Traceform CLI. The fastest way to go from zero to 'aha'—see your code, live, in the UI.*
 
-## Developer Blog
+1. Install Node.js if you haven't already.
+2. In your React project directory, run:
+   ```bash
+   npx @lucidlayer/traceform-onboard check
+   ```
+3. Follow the CLI wizard to install the VS Code extension, Babel plugin, and browser extension.
+4. Start your dev server, open your app in the browser, and try Traceform!
 
-We're documenting our journey building Traceform, including technical decisions and lessons learned:
+---
 
-- [**Blog Index**](../blog/README.md)
+## How Traceform Works
+1. **Select code in VS Code.**
+2. **See every instance, live, in your browser.**
+3. **No more mental mapping, no more context switching.**
 
-## Final Thoughts
-
-Creating tools like Traceform reminds me why I'm passionate about developer experience. The right tools don't just save time, they fundamentally change how we approach problems. When the gap between writing code and seeing its impact narrows, creativity flourishes.
-
-I hope Traceform helps you build better React applications with less friction. We're continuing to evolve this toolset based on real-world feedback, so please share your experiences with us.
-
-**Learn more at [traceform.framer.website](https://traceform.framer.website/)** or explore the subproject READMEs for technical details.
+---
 
 ## License
-
-This project is licensed under the Business Source License 1.1 (BUSL-1.1) at the root, with per-directory overrides:
-- **BUSL-1.1**: Most packages (see LICENSE files in each directory)
-- **MIT**: `babel-plugin-traceform`
-- **Apache-2.0**: `cli-onboard`
-
-See [LICENSE-STACK.md](LICENSE-STACK.md) for a full breakdown of license coverage and per-directory overrides.
-
-[![License: BUSL-1.1](https://img.shields.io/badge/license-BUSL--1.1-blue)](https://mariadb.com/bsl11/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-orange)](https://www.apache.org/licenses/LICENSE-2.0)
+See LICENSE-STACK.md for details. Most code is under BUSL-1.1, with per-directory overrides (MIT/Apache-2.0 for some tools).
