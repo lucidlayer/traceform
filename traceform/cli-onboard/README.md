@@ -1,6 +1,8 @@
 <h1 align="center">Traceform CLI</h1>
 <p align="center">Fast Onboarding & Debugging Setup for Teams</p>
 
+![Traceform onboarding: Fast CLI setup experience](./.github/onboarding.gif)
+
 ---
 
 ## Why Use the Traceform CLI?

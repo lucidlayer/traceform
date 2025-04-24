@@ -1,7 +1,9 @@
 <h1 align="center">Traceform Babel Plugin</h1>
 <p align="center">Connect Your React Code to the Browser</p>
 
-<!-- Optional: Placeholder for relevant diagram or visual -->
+<p align="center">
+  <img src=".github/babel-graph.svg" alt="Babel Plugin Injection Flowchart" width="60%" />
+</p>
 
 ---
 
@@ -53,12 +55,6 @@ This Babel plugin is the engine that powers Traceform's core capability: instant
 
 *Note: Using the Traceform onboarding tool (`npx @lucidlayer/traceform-onboard check`) is the recommended way to ensure correct setup.*
 
----
-
-## Status
-
-- **Development Tool:** This plugin should only be active during development.
-- **Stable:** Core functionality is stable and tested across various frameworks.
 
 ---
 
