@@ -1,26 +1,24 @@
-# Traceform: Instantly See Where Your Code Renders—Live
+# Traceform: Instant code-to-UI mapping for React teams
 
 ![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](../.github/demo.gif)
 
-> Ever spent too long hunting through the DOM, trying to figure out where a React component is actually rendered?  
-> Your IDE shows you where it's used. DevTools shows you the component tree. But neither shows you every live instance on the screen—right now.
+> Traceform is purpose-built for **hypothesized** high-friction scenarios like onboarding, debugging, and navigating unfamiliar or legacy React codebases—where existing tools may break down. It is not for every developer, every day, but **designed for** teams and leads who need to accelerate onboarding and reduce debugging friction.
 >
-> **Traceform bridges that gap.**  
-> Click a component in VS Code, and every instance highlights in your running app. No more guessing. No more DOM spelunking. Just click and see.
+> **Our core hypothesis, currently undergoing validation via pilot programs, is that Traceform significantly saves time.** If validated time savings is <50%, Traceform will be positioned as 'best-in-class for onboarding and legacy debugging.'
 
 ---
 
-## Why Traceform?
-- **See it. Don't hunt for it.**
-- Instantly find every rendered instance—even in huge, complex apps.
-- Debug faster: see what's really on the screen, not just what could be.
-- Perfect for onboarding, debugging, and exploring new codebases.
-- **Complement, don't replace:** Traceform works alongside your IDE and DevTools, getting you to the right place faster.
+## Why Traceform? (Our Hypothesis)
+- **For team leads and managers:** We aim to reduce onboarding time and debugging friction for your team.
+- **Goal:** Instantly find every rendered instance—even in huge, complex, or legacy apps.
+- **Hypothesis:** Debug faster by seeing what's really on the screen, not just what could be.
+- **Intended Use:** Perfect for onboarding, debugging, and exploring new codebases—especially for new hires or contractors.
+- **Complement, don't replace:** Traceform is designed to work alongside your IDE and DevTools, getting you to the right place faster.
 
-## Real-World Use Cases
-- **Dropped into a big project?** Click a component in VS Code, see every instance light up in your browser. No DOM digging. Immediate orientation.
-- **Debugging a weird UI bug?** Click the code, see exactly which button is which—no more guessing.
-- **Onboarding or teaching?** Show new devs what their code actually renders, live.
+## Potential Real-World Use Cases
+- **Dropped into a big project?** Our goal is for you to click a component in VS Code and see every instance light up in your browser. No DOM digging. Immediate orientation for new team members.
+- **Debugging a weird UI bug?** We aim for you to click the code and see exactly which button is which—no more guessing.
+- **Onboarding or teaching?** The goal is to show new devs what their code actually renders, live, reducing onboarding time.
 
 ---
 
@@ -43,9 +41,14 @@
 ## How Traceform Works
 1. **Select code in VS Code.**
 2. **See every instance, live, in your browser.**
-3. **No more mental mapping, no more context switching.**
+3. **Designed to eliminate mental mapping and context switching.**
 
 ---
+
+## Note on Claims & Updates
+- **Claims are currently hypotheses undergoing validation via pilot programs.**
+- If validated time savings is <50%, fallback messaging is: 'Best-in-class for onboarding and legacy debugging.'
+- This README is reviewed and updated quarterly based on pilot data and buyer feedback.
 
 ## License
 See LICENSE-STACK.md for details. Most code is under BUSL-1.1, with per-directory overrides (MIT/Apache-2.0 for some tools).

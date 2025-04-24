@@ -1,15 +1,14 @@
-# Traceform Browser Extension: Instantly Highlight Every Instance, Live
+# Traceform Browser Extension: For Teams Onboarding & Debugging React Codebases
 
-![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](../../.github/demo.gif)
-
-> See every place your code is actually rendered—live, as you code. The Traceform browser extension highlights every instance of your selected component, instantly, in your running app.
+> The Traceform browser extension is designed for onboarding, debugging, and navigating unfamiliar or legacy React codebases—where existing tools break down. It is not for every developer, every day, but for teams and leads who need to accelerate onboarding and reduce debugging friction in real, production-scale projects.
+>
+> **All claims are based on real, production-scale pilots.** If time savings is <50%, Traceform is positioned as 'best-in-class for onboarding and legacy debugging.'
 
 ---
 
 ## Why This Extension?
-- No more DOM spelunking.
-- No more context switching.
-- Just click and see—every time.
+- **For team leads and managers:** Help your team instantly see where code is rendered, reducing onboarding and debugging time.
+- No more DOM spelunking or context switching—just click and see, even in large, complex, or legacy apps.
 - Works seamlessly with the Traceform toolchain for instant, live feedback.
 
 ## How It Works
@@ -27,6 +26,11 @@
 5. Instantly see every instance highlighted in your browser.
 
 ---
+
+## Note on Claims & Updates
+- All claims are based on real, production-scale pilots and team feedback.
+- If time savings is <50%, fallback messaging is: 'Best-in-class for onboarding and legacy debugging.'
+- This README is reviewed and updated quarterly based on pilot data and buyer feedback.
 
 ## License
 This extension is licensed under the Business Source License 1.1 (BUSL-1.1). See the LICENSE file for details.

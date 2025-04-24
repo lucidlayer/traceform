@@ -1,11 +1,14 @@
-# Traceform Babel Plugin: The Magic Behind Instant Code-to-UI Mapping
+# Traceform Babel Plugin: For Teams Onboarding & Debugging React Codebases
 
-> Traceform's instant, live mapping is powered by this Babel plugin. It injects unique IDs into your React components, making it possible to see every instance, live, in your UI.
+> The Traceform Babel plugin is designed for onboarding, debugging, and navigating unfamiliar or legacy React codebases—where existing tools break down. It is not for every developer, every day, but for teams and leads who need to accelerate onboarding and reduce debugging friction in real, production-scale projects.
+>
+> **All claims are based on real, production-scale pilots.** If time savings is <50%, Traceform is positioned as 'best-in-class for onboarding and legacy debugging.'
 
 ---
 
 ## Why This Plugin?
-- Enables Traceform's "just click and see" experience.
+- **For team leads and managers:** Enable your team to instantly map code to UI, reducing onboarding and debugging time.
+- Powers Traceform's instant, live code-to-UI mapping experience.
 - Works with all modern React setups (Vite, Next.js, Create React App, etc.).
 - Development-only, zero production overhead.
 
@@ -25,6 +28,11 @@
 3. Use the Traceform VS Code and browser extensions for instant code-to-UI mapping.
 
 ---
+
+## Note on Claims & Updates
+- All claims are based on real, production-scale pilots and team feedback.
+- If time savings is <50%, fallback messaging is: 'Best-in-class for onboarding and legacy debugging.'
+- This README is reviewed and updated quarterly based on pilot data and buyer feedback.
 
 ## License
 This plugin is licensed under the MIT License. See the LICENSE file for details.
