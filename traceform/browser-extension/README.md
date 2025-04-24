@@ -1,39 +1,63 @@
-# Traceform Browser Extension: For Teams Onboarding & Debugging React Codebases
+<h1 align="center">Traceform Browser Extension</h1>
+<p align="center">Instantly See Where Your React Code Renders</p>
 
-> The Traceform browser extension is designed for onboarding, debugging, and navigating unfamiliar or legacy React codebases—where existing tools break down. It is not for every developer, every day, but for teams and leads who need to accelerate onboarding and reduce debugging friction in real, production-scale projects.
->
-> **All claims are based on real, production-scale pilots.** If time savings is <50%, Traceform is positioned as 'best-in-class for onboarding and legacy debugging.'
+<!-- Placeholder for Demo GIF, can reuse root one if applicable -->
+<!-- ![Traceform demo](path/to/demo.gif) -->
 
 ---
 
-## Why This Extension?
-- **For team leads and managers:** Help your team instantly see where code is rendered, reducing onboarding and debugging time.
-- No more DOM spelunking or context switching—just click and see, even in large, complex, or legacy apps.
-- Works seamlessly with the Traceform toolchain for instant, live feedback.
+## Why Traceform Browser Extension?
+
+The Traceform Browser Extension is the critical visual link between your VS Code editor and your running React app. It works with the Traceform toolchain to eliminate guesswork and speed up development.
+
+- **Efficient Debugging:** Instantly see which DOM elements correspond to your selected code, right in your browser.
+- **Legacy Code Navigation:** Stop DOM spelunking. Map code to UI in large, complex, or unfamiliar React applications with a single click.
+- **Fast Onboarding:** Help new team members visually grasp component placement and structure immediately.
+- **Seamless Integration:** Works automatically with the Traceform VS Code extension and Babel plugin.
+
+---
 
 ## How It Works
-1. The VS Code extension sends a component ID to a local bridge server.
-2. The browser extension receives the ID and highlights all matching DOM elements using a non-intrusive overlay.
-3. Works instantly, with pixel-perfect accuracy, and does not interfere with your app's behavior.
+
+1. The Traceform VS Code extension sends a component identifier when you trigger "Traceform: Find in UI".
+2. The Traceform Babel plugin ensures components have unique `data-traceform-id` attributes in the DOM.
+3. This browser extension listens for the identifier and instantly highlights all matching DOM elements with a non-intrusive overlay.
+4. Highlights are pixel-perfect and don't interfere with your app's functionality.
 
 ---
 
 ## Quickstart
-1. Install the Traceform browser extension (Chrome/Edge).
-2. Install the VS Code extension and Babel plugin.
-3. Start your React dev server and open your app in the browser.
-4. Select a component in VS Code and trigger "Traceform: Find in UI."
-5. Instantly see every instance highlighted in your browser.
+
+1. **Install the Extension:**
+   - **Chrome/Edge Web Store:** *Pending approval.*
+   - **Manual Install:**
+     - Download the latest release `.zip` from [GitHub Releases](https://github.com/lucidlayer/traceform/releases).
+     - Extract the `.zip` file.
+     - Go to `chrome://extensions` (or `edge://extensions`).
+     - Enable "Developer Mode".
+     - Click "Load unpacked" and select the extracted folder.
+2. **Install Companions:** Ensure you have the [Traceform VS Code Extension](https://marketplace.visualstudio.com/items?itemName=Traceform.traceform) and the [@lucidlayer/babel-plugin-traceform](https://www.npmjs.com/package/@lucidlayer/babel-plugin-traceform) installed in your project (using `npx @lucidlayer/traceform-onboard check` is recommended).
+3. **Run Your App:** Start your React development server.
+4. **Trace:** Open your app in the browser, select a component in VS Code, right-click, and choose "Traceform: Find in UI". Corresponding elements will be highlighted.
 
 ---
 
-## Note on Claims & Updates
-- All claims are based on real, production-scale pilots and team feedback.
-- If time savings is <50%, fallback messaging is: 'Best-in-class for onboarding and legacy debugging.'
-- This README is reviewed and updated quarterly based on pilot data and buyer feedback.
+## Status
+
+- **Current version:** v0.2.3
+- **Web Store:** Submission pending approval.
+- **Development Tool:** Traceform is intended for development environments only.
+- **Privacy:** All communication is local. No data leaves your machine. See our [Privacy Policy](./docs/PRIVACY_POLICY.md).
+
+---
 
 ## License
-This extension is licensed under the Business Source License 1.1 (BUSL-1.1). See the LICENSE file for details.
+
+This extension is licensed under the Business Source License 1.1 (BUSL-1.1). See the `LICENSE` file in this directory for details.
+
+---
+
+*This extension is part of the Traceform developer toolset. For more information, visit [github.com/lucidlayer/traceform](https://github.com/lucidlayer/traceform)*
 
 ---
 

@@ -1,41 +1,70 @@
-# Traceform Babel Plugin: For Teams Onboarding & Debugging React Codebases
+<h1 align="center">Traceform Babel Plugin</h1>
+<p align="center">Connect Your React Code to the Browser</p>
 
-> The Traceform Babel plugin is designed for onboarding, debugging, and navigating unfamiliar or legacy React codebases—where existing tools break down. It is not for every developer, every day, but for teams and leads who need to accelerate onboarding and reduce debugging friction in real, production-scale projects.
->
-> **All claims are based on real, production-scale pilots.** If time savings is <50%, Traceform is positioned as 'best-in-class for onboarding and legacy debugging.'
+<!-- Optional: Placeholder for relevant diagram or visual -->
 
 ---
 
-## Why This Plugin?
-- **For team leads and managers:** Enable your team to instantly map code to UI, reducing onboarding and debugging time.
-- Powers Traceform's instant, live code-to-UI mapping experience.
-- Works with all modern React setups (Vite, Next.js, Create React App, etc.).
-- Development-only, zero production overhead.
+## Why Traceform Babel Plugin?
+
+This Babel plugin is the engine that powers Traceform's core capability: instantly mapping React components from your code to their rendered instances in the browser. It seamlessly integrates into your development build process.
+
+- **Enables Core Functionality:** Automatically injects necessary identifiers (`data-traceform-id`) into your components' JSX.
+- **Universal Compatibility:** Works with modern React setups including Vite, Next.js, Create React App, and custom Babel configurations.
+- **Development Only:** Designed exclusively for development builds, adding zero overhead to your production bundles.
+- **Effortless Integration:** Part of the simple Traceform setup process.
+
+---
 
 ## How It Works
-1. Hooks into Babel's compilation process.
-2. Finds React components and injects a unique `data-traceform-id` into the root JSX element.
-3. IDs are used by the Traceform toolchain to instantly map code to UI.
+
+1. The plugin hooks into your project's Babel compilation step during development builds.
+2. It traverses the Abstract Syntax Tree (AST) to identify React component definitions.
+3. For each component, it injects a unique `data-traceform-id` attribute onto the root JSX element returned by the component.
+4. These IDs are then used by the Traceform VS Code and Browser extensions to create the live link between your editor and the running application.
 
 ---
 
 ## Quickstart
-1. Install the plugin:
+
+1. **Install the Plugin:**
    ```bash
    npm install --save-dev @lucidlayer/babel-plugin-traceform
+   # or
+   yarn add --dev @lucidlayer/babel-plugin-traceform
    ```
-2. Add it to your Babel or Vite config (development only).
-3. Use the Traceform VS Code and browser extensions for instant code-to-UI mapping.
+2. **Configure Babel:** Add the plugin to your Babel configuration (e.g., `babel.config.js`, `.babelrc`, or Vite config) **for development environments only**.
+   
+   *Example (`babel.config.js`):*
+   ```javascript
+   module.exports = {
+     plugins: [
+       // ... other plugins
+       process.env.NODE_ENV === 'development' && '@lucidlayer/babel-plugin-traceform',
+     ].filter(Boolean),
+     // ... presets
+   };
+   ```
+   *For specific framework setup (Vite, Next.js), refer to the main Traceform documentation or the onboarding CLI.*
+
+3. **Install Companions:** Ensure you have the [Traceform VS Code Extension](https://marketplace.visualstudio.com/items?itemName=Traceform.traceform) and the [Traceform Browser Extension](https://github.com/lucidlayer/traceform/tree/main/traceform/browser-extension#quickstart) installed.
+4. **Run Your App:** Start your React development server.
+5. **Trace:** Use "Traceform: Find in UI" from VS Code to see components highlighted in the browser.
+
+*Note: Using the Traceform onboarding tool (`npx @lucidlayer/traceform-onboard check`) is the recommended way to ensure correct setup.*
 
 ---
 
-## Note on Claims & Updates
-- All claims are based on real, production-scale pilots and team feedback.
-- If time savings is <50%, fallback messaging is: 'Best-in-class for onboarding and legacy debugging.'
-- This README is reviewed and updated quarterly based on pilot data and buyer feedback.
+## Status
+
+- **Development Tool:** This plugin should only be active during development.
+- **Stable:** Core functionality is stable and tested across various frameworks.
+
+---
 
 ## License
-This plugin is licensed under the MIT License. See the LICENSE file for details.
+
+This plugin is licensed under the MIT License. See the `LICENSE` file in this directory for details.
 
 ---
 

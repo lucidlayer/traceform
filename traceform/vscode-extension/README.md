@@ -1,17 +1,22 @@
-# Traceform VS Code Extension: For Teams Onboarding & Debugging React Codebases
+<h1 align="center">Traceform VS Code Extension</h1>
+<p align="center">See Where Your React Components Render, Instantly</p>
 
-> The Traceform VS Code extension is designed for **hypothesized** high-friction scenarios like onboarding, debugging, and navigating unfamiliar or legacy React codebases. It is **intended for** teams and leads who need tools to potentially accelerate onboarding and reduce debugging friction.
->
-> **Our core hypothesis, currently undergoing validation via pilot programs, is that Traceform significantly saves time.** If validated time savings is <50%, Traceform will be positioned as 'best-in-class for onboarding and legacy debugging.'
+![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](images/demo.gif)
 
 ---
 
-## Why This Extension? (Intended Benefits)
-- **For team leads and managers:** Designed to help your team instantly see where code is rendered, potentially reducing onboarding and debugging time.
-- **Goal:** Instantly answer "Where is this actually rendered?"—even in large, complex, or legacy apps.
-- **Designed to** work with the Traceform toolchain for a seamless, live experience.
+## Why Use This Extension?
+
+The Traceform VS Code extension helps teams quickly understand and navigate React codebases by visually connecting components in your editor to their rendered instances in the browser.
+
+- **Efficient Debugging**: Click a component in VS Code and see the problematic element light up on-screen instantly.
+- **Code Navigation**: Map code to UI in large or unfamiliar React codebases with zero DOM sleuthing.
+- **Fast Onboarding**: New team members immediately visualize component locations without digging through code.
+
+---
 
 ## How It Works
+
 1. Select a component in VS Code.
 2. Right-click and choose "Traceform: Find in UI."
 3. Instantly see every instance highlighted in your running app.
@@ -19,8 +24,9 @@
 ---
 
 ## Quickstart
+
 1. Install the Traceform VS Code Extension from the Marketplace.
-2. Install the Babel plugin and browser extension (using the CLI tool is recommended: `npx @lucidlayer/traceform-onboard check`).
+2. Install the Babel plugin and browser extension (using the CLI Onboarding tool is recommended: `npx @lucidlayer/traceform-onboard check`).
 3. Open your React project in VS Code.
 4. Start your development server and open your app in the browser.
 5. Select a component in VS Code and trigger "Traceform: Find in UI" (right-click or Command Palette).
@@ -28,12 +34,14 @@
 
 ---
 
-## Note on Claims & Updates
-- **Claims are currently hypotheses undergoing validation via pilot programs.**
-- If validated time savings is <50%, fallback messaging is: 'Best-in-class for onboarding and legacy debugging.'
-- This README is reviewed and updated quarterly based on pilot data and buyer feedback.
+## Beta
+
+Traceform is currently in closed Beta. Claims about time savings are under active validation through pilot programs.
+
+---
 
 ## License
+
 This extension is licensed under the Business Source License 1.1 (BUSL-1.1). See the LICENSE file for details.
 
 ---

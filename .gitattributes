@@ -10,3 +10,5 @@
 cli-onboard/.github/onboarding.gif filter=lfs diff=lfs merge=lfs -text
 .github\demo.gif filter=lfs diff=lfs merge=lfs -text
 .github/onboarding.gif filter=lfs diff=lfs merge=lfs -text
+demo.gif filter=lfs diff=lfs merge=lfs -text
+traceform/vscode-extension/images/demo.gif filter=lfs diff=lfs merge=lfs -text
