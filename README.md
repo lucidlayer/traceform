@@ -1,57 +1,72 @@
-# Traceform: Instantly See Where Your Code Renders—Live
+<h1 align="center">Traceform</h1>
+<p align="center">Instantly See Where Your Code Renders, Live</p> 
+
+
+---
 
 ![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](./.github/demo.gif)
 
-> Ever spent too long hunting through the DOM, trying to figure out where a React component is actually rendered?  
-> Your IDE shows you where it's used. DevTools shows you the component tree. But neither shows you every live instance on the screen—right now.
->
-> **Traceform bridges that gap.**  
-> Click a component in VS Code, and every instance highlights in your running app. No more guessing. No more DOM spelunking. Just click and see.
+Traceform bridges VS Code and your running React app, highlighting every rendered instance of a component directly in your browser UI.
 
 ---
 
 ## Why Traceform?
-- **See it. Don't hunt for it.**
-- Instantly find every rendered instance—even in huge, complex apps.
-- Debug faster: see what's really on the screen, not just what could be.
-- Perfect for onboarding, debugging, and exploring new codebases.
-- **Complement, don't replace:** Traceform works alongside your IDE and DevTools, getting you to the right place faster.
 
-## Real-World Use Cases
-- **Dropped into a big project?** Click a component in VS Code, see every instance light up in your browser. No DOM digging. Immediate orientation.
-- **Debugging a weird UI bug?** Click the code, see exactly which button is which—no more guessing.
-- **Onboarding or teaching?** Show new devs what their code actually renders, live.
+Ever spent minutes hunting through DevTools or manually inspecting the DOM to find where a component actually renders? Traceform cuts that down to seconds:
+
+- **Efficient Debugging**: Click a component in VS Code and see the problematic element light up on-screen instantly.
+- **Legacy Code Navigation**: Map code to UI in large or unfamiliar React codebases with zero DOM sleuthing.
+- **Fast Onboarding**: New team members immediately visualize component locations without digging through code.
 
 ---
 
-## Quickstart
+## How It Works
 
-![Traceform CLI onboarding walkthrough](./.github/onboarding.gif)
+1. **Install**
+   ```bash
+   npx @lucidlayer/traceform-onboard check
+   ```
+2. **Select**
+   Click a component name in your VS Code editor.
+3. **Highlight**
+   Watch every matching element light up in your browser in real-time.
 
-*Get set up in minutes with the Traceform CLI. The fastest way to go from zero to 'aha'—see your code, live, in the UI.*
+---
 
-1. Install Node.js if you haven't already.
+## Getting Started
+
+1. Ensure you have **Node.js** (v14+) installed.
 2. In your React project directory, run:
    ```bash
    npx @lucidlayer/traceform-onboard check
    ```
-3. Follow the CLI wizard to install the VS Code extension, Babel plugin, and browser extension.
-4. Start your dev server, open your app in the browser, and try Traceform!
+3. Follow the CLI prompts to install:
+   - VS Code extension
+   - Babel plugin
+   - Browser extension
+4. Start your development server and open your app. Click any component in VS Code to see it highlighted.
 
 ---
 
-## How Traceform Works
-1. **Select code in VS Code.**
-2. **See every instance, live, in your browser.**
-3. **No more mental mapping, no more context switching.**
+## Join Our Early Adopters
+
+Interested in a guided pilot or want to share feedback directly?
+
+- **Email**: traceformhq@gmail.com
+- **Slack**: [Join our Slack community](https://join.slack.com/t/traceformworkspace/shared_invite/zt-348i5j51x-x3NMvFQ4e~qNTtcUP4d1eg)
+- **Discord**: [Join our Discord community](https://discord.gg/keCMHB8MX5)
+
+Limited pilot spots, get priority onboarding and influence the roadmap.
+
+---
+
+## Beta Status & Validation
+
+Traceform is currently in beta. Claims about time savings are hypotheses under active validation through pilot programs. We’ll update this README quarterly with real world metrics and case studies.
 
 ---
 
 ## License
-See LICENSE-STACK.md for details. Most code is under BUSL-1.1, with per-directory overrides (MIT/Apache-2.0 for some tools).
 
----
+Please refer to **LICENSE-STACK.md** for detailed licensing information. Most code is under BUSL-1.1, with select components under MIT or Apache-2.0.
 
-Check out our [blog](./blog/README.md) for more updates and learn more in our [Technical Deep Dive](https://traceform.framer.website/blog/technical-deep-dive).
-
-— The Traceform Team
