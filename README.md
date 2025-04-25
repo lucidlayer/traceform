@@ -10,7 +10,7 @@
 Traceform bridges VS Code and your running React app, instantly highlighting every rendered instance of a component directly in your browser UI.
 
 - **Efficient Debugging:** Click a component in VS Code and see the corresponding element light up in your app instantly.
-- **Legacy Code Navigation:** Map code to UI in large or unfamiliar React codebases with zero DOM sleuthing.
+- **Legacy Code Navigation:** Map code to UI in large or unfamiliar React codebases with zero DOM searching.
 - **Fast Onboarding:** New team members immediately visualize component locations without digging through code.
 
 ---
