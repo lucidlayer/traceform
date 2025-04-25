@@ -40,7 +40,7 @@ Traceform bridges VS Code and your running React app, instantly highlighting eve
 
 ---
 
-## Beta / Status
+## Beta / Current Status
 
 Traceform is currently in closed Beta. All claims are based on real, production-scale pilots and team feedback. If time savings is <50%, Traceform is positioned as 'best-in-class for onboarding and legacy debugging.'
 
