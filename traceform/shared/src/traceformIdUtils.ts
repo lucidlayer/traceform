@@ -19,6 +19,8 @@ BUSINESS SOURCE LICENSE 1.1
 [Full, unmodified BUSL 1.1 text goes here. For brevity, insert the official text verbatim from https://mariadb.com/bsl11/ including all sections, without omission or summary. The Parameters block above must appear at the top, as shown.]
 */
 
+import { createTraceformError, handleTraceformError } from './traceformError';
+
 /**
  * Creates a standardized Traceform ID.
  * Format: relativeFilePath::ComponentName::instanceIndex
@@ -35,9 +37,15 @@ export function createTraceformId(
 ): string {
   // Basic validation
   if (!relativePath || !componentName) {
-    console.warn('[Traceform Shared Util] Missing relativePath or componentName for createTraceformId');
-    // Return a placeholder or throw an error, depending on desired strictness
-    // For now, return an identifiable invalid ID
+    const err = createTraceformError(
+      'TF-SU-001',
+      '[Shared Util] Missing relativePath or componentName for createTraceformId',
+      { relativePath, componentName, instanceIndex },
+      'sharedUtil.createTraceformId.missingParam',
+      false
+    );
+    handleTraceformError(err, 'SharedUtil'); // @ErrorFeedback
+    // Return an identifiable invalid ID
     return 'invalid::invalid::invalid';
   }
 

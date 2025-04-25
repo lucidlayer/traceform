@@ -65,6 +65,18 @@ async function refreshTargetTab() {
         // Find tabs matching the target URL (ignoring trailing slash)
         const urlPattern = effectiveUrl.endsWith('/') ? effectiveUrl.slice(0, -1) : effectiveUrl;
         const tabs = await chrome.tabs.query({ url: `${urlPattern}*` }); // Match prefix
+        if (chrome.runtime.lastError) {
+            // Use TraceformError for tab query error
+            const err = createTraceformError(
+                'TF-BE-031',
+                '[Background] Error querying tabs',
+                chrome.runtime.lastError,
+                'browserExt.background.tabs.query.error',
+                true // telemetry
+            );
+            handleTraceformError(err, 'Background'); // @ErrorFeedback
+            return;
+        }
         if (tabs.length > 0 && tabs[0].id) {
             const tabId = tabs[0].id;
             console.log(`Found target tab ${tabId} matching ${urlPattern}*. Reloading...`);
@@ -232,6 +244,18 @@ function connectWebSocket() {
                 urlPattern += '/';
             urlPattern += '*';
             chrome.tabs.query({ url: urlPattern }, (tabs) => {
+                if (chrome.runtime.lastError) {
+                    // Use TraceformError for tab query error
+                    const err = createTraceformError(
+                        'TF-BE-031',
+                        '[Background] Error querying tabs',
+                        chrome.runtime.lastError,
+                        'browserExt.background.tabs.query.error',
+                        true // telemetry
+                    );
+                    handleTraceformError(err, 'Background'); // @ErrorFeedback
+                    return;
+                }
                 if (tabs && tabs.length > 0 && tabs[0].id) {
                     const targetTabId = tabs[0].id;
                     // console.log(`Relaying message to target tab ID: ${targetTabId}`, message); // Less verbose logging
@@ -274,7 +298,15 @@ function connectWebSocket() {
         }
     };
     socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        // Use TraceformError for WebSocket error
+        const err = createTraceformError(
+            'TF-BE-032',
+            '[Background] WebSocket error',
+            error,
+            'browserExt.background.websocket.error',
+            true // telemetry
+        );
+        handleTraceformError(err, 'Background'); // @ErrorFeedback
         // Note: onclose will usually be called after onerror
     };
     socket.onclose = (event) => {

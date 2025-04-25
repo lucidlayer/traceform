@@ -6,6 +6,7 @@ import { PluginObj, PluginPass, NodePath } from '@babel/core';
 import * as t from '@babel/types'; // Import babel types
 import pathLib from 'path'; // Import path library for normalization
 import fs from 'fs'; // Import fs for checking root markers
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 // Define state if needed for the visitor
 interface PluginState extends PluginPass {
@@ -18,35 +19,55 @@ function findWorkspaceRoot(startPath: string): string {
     // Limit search depth to avoid infinite loops in weird setups
     for (let i = 0; i < 20; i++) { // Limit search depth
         // Check for common monorepo markers
-        if (fs.existsSync(pathLib.join(currentPath, 'lerna.json')) ||
-            fs.existsSync(pathLib.join(currentPath, 'pnpm-workspace.yaml')) ||
-            fs.existsSync(pathLib.join(currentPath, 'nx.json'))) {
-            // eslint-disable-next-line no-console
-            console.log(`[Traceform Babel Plugin] Found monorepo marker at: ${currentPath}`);
-            return currentPath;
-        }
-        // Check for package.json with workspaces field
-        const pkgPath = pathLib.join(currentPath, 'package.json');
-        if (fs.existsSync(pkgPath)) {
-            try {
-                const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-                if (pkg.workspaces) {
-                    // eslint-disable-next-line no-console
-                    console.log(`[Traceform Babel Plugin] Found workspaces package.json at: ${currentPath}`);
-                    return currentPath;
-                }
-            } catch (e) {
+        try {
+            if (fs.existsSync(pathLib.join(currentPath, 'lerna.json')) ||
+                fs.existsSync(pathLib.join(currentPath, 'pnpm-workspace.yaml')) ||
+                fs.existsSync(pathLib.join(currentPath, 'nx.json'))) {
                 // eslint-disable-next-line no-console
-                console.warn(`[Traceform Babel Plugin] Error parsing package.json at ${pkgPath}:`, e);
-             }
+                console.log(`[Traceform Babel Plugin] Found monorepo marker at: ${currentPath}`);
+                return currentPath;
+            }
+            // Check for package.json with workspaces field
+            const pkgPath = pathLib.join(currentPath, 'package.json');
+            if (fs.existsSync(pkgPath)) {
+                try {
+                    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+                    if (pkg.workspaces) {
+                        // eslint-disable-next-line no-console
+                        console.log(`[Traceform Babel Plugin] Found workspaces package.json at: ${currentPath}`);
+                        return currentPath;
+                    }
+                } catch (e) {
+                    // Use TraceformError for package.json parse error
+                    const err = createTraceformError(
+                        'TF-BP-001',
+                        `[Babel Plugin] Error parsing package.json at ${pkgPath}`,
+                        e,
+                        'babelPlugin.packageJson.parse.error',
+                        false // not critical for telemetry
+                    );
+                    handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+                    // eslint-disable-next-line no-console
+                    console.warn(`[Traceform Babel Plugin] Error parsing package.json at ${pkgPath}:`, e);
+                }
+            }
+            // Check for git root as a fallback boundary
+            if (fs.existsSync(pathLib.join(currentPath, '.git'))) {
+                // eslint-disable-next-line no-console
+                console.log(`[Traceform Babel Plugin] Found .git boundary at: ${currentPath}`);
+                return currentPath; // Use git root if found
+            }
+        } catch (fsError) {
+            // Use TraceformError for file system error
+            const err = createTraceformError(
+                'TF-BP-002',
+                `[Babel Plugin] File system error during workspace root search at ${currentPath}`,
+                fsError,
+                'babelPlugin.fs.error',
+                true // telemetry
+            );
+            handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
         }
-        // Check for git root as a fallback boundary
-        if (fs.existsSync(pathLib.join(currentPath, '.git'))) {
-             // eslint-disable-next-line no-console
-             console.log(`[Traceform Babel Plugin] Found .git boundary at: ${currentPath}`);
-             return currentPath; // Use git root if found
-        }
-
         const parentPath = pathLib.dirname(currentPath);
         if (parentPath === currentPath) {
             // Reached the filesystem root
@@ -239,71 +260,194 @@ export default function injectComponentIdPlugin(): PluginObj<PluginState> {
       // Visit component definitions directly
       FunctionDeclaration(path: NodePath<t.FunctionDeclaration>, state: PluginState) {
         const componentName = getComponentName(path);
-        if (!componentName) return; // Not a valid component name
-
+        if (!componentName) {
+          // Use TraceformError for missing/invalid component name
+          const err = createTraceformError(
+            'TF-BP-010',
+            '[Babel Plugin] Could not determine component name in FunctionDeclaration',
+            { file: state.file?.opts?.filename },
+            'babelPlugin.componentName.missing',
+            false
+          );
+          handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+          return;
+        }
         // Find the return statement within the function body
         path.get('body').traverse({
           ReturnStatement(returnPath: NodePath<t.ReturnStatement>) {
             const argumentPath = returnPath.get('argument');
-            // Ensure argument exists before proceeding
-            if (!argumentPath.node) return;
-
-            // Now we know argumentPath points to a valid node, satisfy TS
+            if (!argumentPath.node) {
+              // Use TraceformError for missing return argument
+              const err = createTraceformError(
+                'TF-BP-011',
+                '[Babel Plugin] No return argument found in component',
+                { componentName, file: state.file?.opts?.filename },
+                'babelPlugin.returnArgument.missing',
+                false
+              );
+              handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+              return;
+            }
             const validArgumentPath = argumentPath as NodePath<t.Node>;
             const targetElementPath = findFirstJSXElement(validArgumentPath);
             if (targetElementPath) {
               const filePath = state.file.opts.filename;
-              // Ensure filePath is a valid string before adding attribute
-              if (typeof filePath === 'string') {
-                 addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
-                 // Stop traversal within this component once we've tagged the return
-                 returnPath.stop();
+              if (typeof filePath !== 'string' || !filePath.length) {
+                // Use TraceformError for missing/invalid file path
+                const err = createTraceformError(
+                  'TF-BP-012',
+                  '[Babel Plugin] Invalid or missing file path for component',
+                  { componentName, filePath },
+                  'babelPlugin.filePath.invalid',
+                  true
+                );
+                handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+                return;
               }
+              try {
+                addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
+                returnPath.stop();
+              } catch (e) {
+                // Use TraceformError for attribute injection failure
+                const err = createTraceformError(
+                  'TF-BP-013',
+                  '[Babel Plugin] Failed to inject data-traceform-id attribute',
+                  { componentName, filePath, error: e },
+                  'babelPlugin.attributeInjection.failed',
+                  true
+                );
+                handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+              }
+            } else {
+              // Use TraceformError for missing JSX element
+              const err = createTraceformError(
+                'TF-BP-014',
+                '[Babel Plugin] No JSX element found in return statement',
+                { componentName, file: state.file?.opts?.filename },
+                'babelPlugin.jsxElement.missing',
+                false
+              );
+              handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
             }
           }
         });
       },
 
       ArrowFunctionExpression(path: NodePath<t.ArrowFunctionExpression>, state: PluginState) {
-         // Check if it's likely a component (assigned to a variable starting with uppercase)
          const componentName = getComponentName(path);
-         if (!componentName) return;
-
-         const body = path.get('body');
-
-         // Case 1: Implicit return (body is not a BlockStatement)
-         if (!body.isBlockStatement()) {
-             // Ensure body is a valid node before proceeding
-             if (!body.node) return;
-             // Now we know body points to a valid node, satisfy TS
-             const validBodyPath = body as NodePath<t.Node>;
-            const targetElementPath = findFirstJSXElement(validBodyPath);
-            if (targetElementPath) {
-               const filePath = state.file.opts.filename;
-               // Ensure filePath is a valid string before adding attribute
-               if (typeof filePath === 'string') {
-                  addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
-               }
-            }
+         if (!componentName) {
+           const err = createTraceformError(
+             'TF-BP-020',
+             '[Babel Plugin] Could not determine component name in ArrowFunctionExpression',
+             { file: state.file?.opts?.filename },
+             'babelPlugin.componentName.missing',
+             false
+           );
+           handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+           return;
          }
-         // Case 2: Explicit return within a block statement
-         else {
+         const body = path.get('body');
+         if (!body.isBlockStatement()) {
+             if (!body.node) {
+               const err = createTraceformError(
+                 'TF-BP-021',
+                 '[Babel Plugin] No body node found in ArrowFunctionExpression',
+                 { componentName, file: state.file?.opts?.filename },
+                 'babelPlugin.bodyNode.missing',
+                 false
+               );
+               handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+               return;
+             }
+             const validBodyPath = body as NodePath<t.Node>;
+             const targetElementPath = findFirstJSXElement(validBodyPath);
+             if (targetElementPath) {
+               const filePath = state.file.opts.filename;
+               if (typeof filePath !== 'string' || !filePath.length) {
+                 const err = createTraceformError(
+                   'TF-BP-022',
+                   '[Babel Plugin] Invalid or missing file path for ArrowFunctionExpression',
+                   { componentName, filePath },
+                   'babelPlugin.filePath.invalid',
+                   true
+                 );
+                 handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+                 return;
+               }
+               try {
+                 addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
+               } catch (e) {
+                 const err = createTraceformError(
+                   'TF-BP-023',
+                   '[Babel Plugin] Failed to inject data-traceform-id attribute in ArrowFunctionExpression',
+                   { componentName, filePath, error: e },
+                   'babelPlugin.attributeInjection.failed',
+                   true
+                 );
+                 handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+               }
+             } else {
+               const err = createTraceformError(
+                 'TF-BP-024',
+                 '[Babel Plugin] No JSX element found in ArrowFunctionExpression body',
+                 { componentName, file: state.file?.opts?.filename },
+                 'babelPlugin.jsxElement.missing',
+                 false
+               );
+               handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+             }
+         } else {
             body.traverse({
                ReturnStatement(returnPath: NodePath<t.ReturnStatement>) {
                   const argumentPath = returnPath.get('argument');
-                  // Ensure argument exists before proceeding
-                  if (!argumentPath.node) return;
-
-                  // Now we know argumentPath points to a valid node, satisfy TS
+                  if (!argumentPath.node) {
+                    const err = createTraceformError(
+                      'TF-BP-025',
+                      '[Babel Plugin] No return argument found in ArrowFunctionExpression block',
+                      { componentName, file: state.file?.opts?.filename },
+                      'babelPlugin.returnArgument.missing',
+                      false
+                    );
+                    handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+                    return;
+                  }
                   const validArgumentPath = argumentPath as NodePath<t.Node>;
                   const targetElementPath = findFirstJSXElement(validArgumentPath);
                   if (targetElementPath) {
-                     const filePath = state.file.opts.filename;
-                     // Ensure filePath is a valid string before adding attribute
-                     if (typeof filePath === 'string') {
-                        addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
-                        returnPath.stop(); // Stop traversal for this component
-                     }
+                    const filePath = state.file.opts.filename;
+                    if (typeof filePath !== 'string' || !filePath.length) {
+                      const err = createTraceformError(
+                        'TF-BP-026',
+                        '[Babel Plugin] Invalid or missing file path for ArrowFunctionExpression block',
+                        { componentName, filePath },
+                        'babelPlugin.filePath.invalid',
+                        true
+                      );
+                      handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+                      return;
+                    }
+                    try {
+                      addDataTraceformIdAttribute(targetElementPath, componentName, filePath, state);
+                      returnPath.stop();
+                    } catch (e) {
+                      const err = createTraceformError(
+                        'TF-BP-027',
+                        '[Babel Plugin] Failed to inject data-traceform-id attribute in ArrowFunctionExpression block',
+                        { componentName, filePath, error: e },
+                        'babelPlugin.attributeInjection.failed',
+                        true
+                      );
+                      handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
+                    }
+                  } else {
+                    const err = createTraceformError(
+                      'TF-BP-028',
+                      '[Babel Plugin] No JSX element found in ArrowFunctionExpression block return',
+                      { componentName, file: state.file?.opts?.filename },
+                      'babelPlugin.jsxElement.missing',
+                      false
+                    );
+                    handleTraceformError(err, 'BabelPlugin'); // @ErrorFeedback
                   }
                }
             });
