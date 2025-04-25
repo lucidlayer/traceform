@@ -28,6 +28,7 @@ import {
   getLogs, // Import log getter
   bridgeServerLogEmitter // Import log emitter
 } from './bridgeServer'; // Import status and log related items
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 // Define the type for messages sent TO the webview
 type WebviewMessage =
@@ -71,37 +72,60 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     // --- Message Handling ---
     this._disposables.push(
       webviewView.webview.onDidReceiveMessage(async (data: ExtensionMessage) => {
-        switch (data.type) {
-          case 'startServer': {
-            vscode.commands.executeCommand('traceform.startServer');
-            break;
-          }
-          case 'stopServer': {
-            vscode.commands.executeCommand('traceform.stopServer');
-            break;
-          }
-          case 'restartServer': {
-            vscode.commands.executeCommand('traceform.restartServer');
-            break;
-          }
-          case 'clearLogs': {
-            // Although logs are cleared in webview, we could potentially clear the server buffer too if needed
-            // For now, just acknowledge or do nothing on the extension side
-            break;
-          }
-          case 'getInitialState': {
-            // Send initial status and logs when webview requests it
-            // Construct the initial payload
-            const initialStatus = getServerStatus();
-            const initialPayload: StatusUpdatePayload = { status: initialStatus };
-            if (initialStatus === 'running') {
-              // If already running on init, try to get port (might need adjustment in bridgeServer if port isn't stored)
-              // For now, we'll assume it might not be available on initial sync, port is optional
+        try {
+          switch (data.type) {
+            case 'startServer': {
+              vscode.commands.executeCommand('traceform.startServer');
+              break;
             }
-            this.updateStatusDisplay(initialPayload);
-            this.sendInitialLogs();
-            break;
+            case 'stopServer': {
+              vscode.commands.executeCommand('traceform.stopServer');
+              break;
+            }
+            case 'restartServer': {
+              vscode.commands.executeCommand('traceform.restartServer');
+              break;
+            }
+            case 'clearLogs': {
+              // Although logs are cleared in webview, we could potentially clear the server buffer too if needed
+              // For now, just acknowledge or do nothing on the extension side
+              break;
+            }
+            case 'getInitialState': {
+              // Send initial status and logs when webview requests it
+              // Construct the initial payload
+              const initialStatus = getServerStatus();
+              const initialPayload: StatusUpdatePayload = { status: initialStatus };
+              if (initialStatus === 'running') {
+                // If already running on init, try to get port (might need adjustment in bridgeServer if port isn't stored)
+                // For now, we'll assume it might not be available on initial sync, port is optional
+              }
+              this.updateStatusDisplay(initialPayload);
+              this.sendInitialLogs();
+              break;
+            }
+            default: {
+              // Use TraceformError for unknown message type
+              const err = createTraceformError(
+                'TF-VSC-030',
+                `Unknown message type received from webview: ${JSON.stringify(data)}`,
+                data,
+                'vscodeExt.sidebarProvider.unknownMessage.error',
+                false // not critical for telemetry
+              );
+              handleTraceformError(err, 'SidebarProvider'); // @ErrorFeedback
+            }
           }
+        } catch (error) {
+          // Use TraceformError for message handler error
+          const err = createTraceformError(
+            'TF-VSC-031',
+            'Error handling message from webview',
+            error,
+            'vscodeExt.sidebarProvider.messageHandler.error',
+            true // telemetry
+          );
+          handleTraceformError(err, 'SidebarProvider'); // @ErrorFeedback
         }
       })
     );

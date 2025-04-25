@@ -19,6 +19,8 @@ BUSINESS SOURCE LICENSE 1.1
 [Full, unmodified BUSL 1.1 text goes here. For brevity, insert the official text verbatim from https://mariadb.com/bsl11/ including all sections, without omission or summary. The Parameters block above must appear at the top, as shown.]
 */
 
+import { createTraceformError, handleTraceformError } from '../../shared/src/traceformError';
+
 const BRIDGE_SERVER_URL = 'ws://localhost:9901'; // Default bridge server URL (Updated to match server)
 let socket: WebSocket | null = null;
 let reconnectInterval = 1000; // Start with 1 second reconnect interval
@@ -75,7 +77,15 @@ async function loadTargetUrl() {
       // Keep targetUrl as null, getEffectiveTargetUrl will handle default
     }
   } catch (error) {
-    console.error('[Background] Error loading target URL from storage:', error);
+    // Use TraceformError for storage load error
+    const err = createTraceformError(
+      'TF-BG-001',
+      '[Background] Error loading target URL from storage',
+      error,
+      'background.storage.load.error',
+      true // telemetry
+    );
+    handleTraceformError(err, 'Background'); // @ErrorFeedback
   }
   // Now that URL might be loaded, start checks and setup alarm
   startServerCheck();
@@ -165,7 +175,15 @@ async function refreshTargetTab() {
       broadcastToDevtools({ type: "error", message: `No open tab found for ${effectiveUrl}` }); // Use effectiveUrl
     }
   } catch (error: any) { // Added type annotation
-    console.error('Error refreshing target tab:', error);
+    // Use TraceformError for refreshTargetTab error
+    const err = createTraceformError(
+      'TF-BG-002',
+      'Error refreshing target tab',
+      error,
+      'background.refreshTab.error',
+      true // telemetry
+    );
+    handleTraceformError(err, 'Background'); // @ErrorFeedback
     broadcastToDevtools({ type: "error", message: `Error refreshing tab: ${error?.message || error}` }); // Improved error message
   }
 }
@@ -179,6 +197,15 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       const result = await chrome.storage.local.get(['targetUrl']);
       sendResponse({ url: result.targetUrl || null });
     } catch (error) {
+      // Use TraceformError for getStoredTargetUrl error
+      const err = createTraceformError(
+        'TF-BG-003',
+        '[Background] Error getting stored target URL',
+        error,
+        'background.getStoredTargetUrl.error',
+        false // not critical for telemetry
+      );
+      handleTraceformError(err, 'Background'); // @ErrorFeedback
       sendResponse({ url: null, error: error?.toString() });
     }
     return true; // Indicates async response
@@ -193,6 +220,15 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       startServerCheck(); // Restart check interval with new URL
       sendResponse({ success: true });
     } catch (error: any) { // Added type annotation
+      // Use TraceformError for setTargetUrl error
+      const err = createTraceformError(
+        'TF-BG-004',
+        '[Background] Error setting target URL',
+        error,
+        'background.setTargetUrl.error',
+        true // telemetry
+      );
+      handleTraceformError(err, 'Background'); // @ErrorFeedback
       sendResponse({ success: false, error: error?.message || error?.toString() }); // Improved error reporting
     }
     return true;
@@ -203,6 +239,15 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       await refreshTargetTab();
       sendResponse({ success: true });
     } catch (error: any) { // Added type annotation
+      // Use TraceformError for refreshTargetTab error (message handler)
+      const err = createTraceformError(
+        'TF-BG-005',
+        '[Background] Error refreshing target tab (message handler)',
+        error,
+        'background.refreshTab.messageHandler.error',
+        true // telemetry
+      );
+      handleTraceformError(err, 'Background'); // @ErrorFeedback
       sendResponse({ success: false, error: error?.message || error?.toString() }); // Improved error reporting
     }
     return true;
@@ -248,7 +293,15 @@ async function checkServerStatus() {
     }
 
   } catch (error: any) {
-     // Network errors typically mean the server is down or unreachable
+     // Use TraceformError for checkServerStatus fetch error
+     const err = createTraceformError(
+       'TF-BG-006',
+       `Server check for ${targetUrl} failed`,
+       error,
+       'background.serverCheck.error',
+       false // not critical for telemetry
+     );
+     handleTraceformError(err, 'Background'); // @ErrorFeedback
      if (error.name === 'AbortError') {
         console.warn(`Server check for ${targetUrl} timed out.`);
      } else {
@@ -382,7 +435,15 @@ function connectWebSocket() {
         }
       });
     } catch (error: any) { // Added type annotation
-      console.error('Failed to parse WebSocket message:', error);
+      // Use TraceformError for WebSocket message parse error
+      const err = createTraceformError(
+        'TF-BG-007',
+        'Failed to parse WebSocket message',
+        error,
+        'background.websocket.parse.error',
+        true // telemetry
+      );
+      handleTraceformError(err, 'Background'); // @ErrorFeedback
       appendMessageToPanelLog(`[Error] Failed to parse WebSocket message: ${error?.message || error}`);
     }
   };

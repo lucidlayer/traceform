@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { Box, Text, Newline, useInput } from 'ink';
 import Link from 'ink-link'; // For clickable links
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 interface BrowserStepProps {
   onComplete: (success: boolean) => void;
@@ -32,6 +33,15 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
   // Add universal quit handler
   useInput((input, key) => {
     if (input.toLowerCase() === 'q') {
+      // Use TraceformError for user quit
+      const err = createTraceformError(
+        'TF-BS-001',
+        'User quit during BrowserStep',
+        { step: 'BrowserStep' },
+        'browserStep.userQuit',
+        false // not critical for telemetry
+      );
+      handleTraceformError(err, 'BrowserStep'); // @ErrorFeedback
       onComplete(false);
       return;
     }

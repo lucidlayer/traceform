@@ -19,6 +19,8 @@ BUSINESS SOURCE LICENSE 1.1
 [Full, unmodified BUSL 1.1 text goes here. For brevity, insert the official text verbatim from https://mariadb.com/bsl11/ including all sections, without omission or summary. The Parameters block above must appear at the top, as shown.]
 */
 
+import { createTraceformError, handleTraceformError } from '../../shared/src/traceformError';
+
 const OVERLAY_CONTAINER_ID = 'traceform-overlay-container';
 const OVERLAY_CLASS = 'traceform-highlight-overlay';
 const OVERLAY_STYLE_ID = 'traceform-highlight-overlay-style';
@@ -80,10 +82,31 @@ export function highlightElements(traceformId: string): void { // Accept full tr
   // Find all elements matching the full data-traceform-id attribute
   const selector = `[data-traceform-id="${traceformId}"]`; // Use full ID in selector
   console.log(`[Traceform Overlay] Attempting querySelectorAll with selector: ${selector}`); // Added log
-  const elements = document.querySelectorAll<HTMLElement>(selector);
-
+  let elements: NodeListOf<HTMLElement>;
+  try {
+    elements = document.querySelectorAll<HTMLElement>(selector);
+  } catch (queryError) {
+    // Use TraceformError for selector/query failure
+    const err = createTraceformError(
+      'TF-OV-002',
+      '[Overlay] Error querying elements for traceformId',
+      queryError,
+      'overlay.query.error',
+      true // telemetry
+    );
+    handleTraceformError(err, 'OverlayRenderer'); // @ErrorFeedback
+    return;
+  }
   if (elements.length === 0) {
-    console.log(`No elements found for traceformId: ${traceformId}`);
+    // Use TraceformError for no elements found
+    const err = createTraceformError(
+      'TF-OV-001',
+      `No elements found for traceformId: ${traceformId}`,
+      { traceformId },
+      'overlay.noElements',
+      false // not critical for telemetry
+    );
+    handleTraceformError(err, 'OverlayRenderer'); // @ErrorFeedback
     return;
   }
 

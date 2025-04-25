@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Newline } from 'ink';
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 interface ValidateStepProps {
   onComplete: (success: boolean) => void;
@@ -17,7 +18,19 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
   useEffect(() => {
     // Print checklist to console before exiting
     const timer = setTimeout(() => {
-      process.exit(0);
+      try {
+        process.exit(0);
+      } catch (error) {
+        // Use TraceformError for process exit error
+        const err = createTraceformError(
+          'TF-VA-001',
+          'Error during process exit in ValidateStep',
+          error,
+          'validateStep.exit.error',
+          false // not critical for telemetry
+        );
+        handleTraceformError(err, 'ValidateStep'); // @ErrorFeedback
+      }
     }, 2000);
     return () => clearTimeout(timer);
   }, []);

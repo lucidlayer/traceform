@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 const OVERLAY_CONTAINER_ID = 'traceform-overlay-container';
 const OVERLAY_CLASS = 'traceform-highlight-overlay';
+import { createTraceformError, handleTraceformError } from '../shared/src/traceformError';
 // Ensure the overlay container exists
 function getOverlayContainer() {
     let container = document.getElementById(OVERLAY_CONTAINER_ID);
@@ -34,10 +35,31 @@ export function highlightElements(traceformId) {
     const container = getOverlayContainer();
     // Find all elements matching the full data-traceform-id attribute
     const selector = `[data-traceform-id="${traceformId}"]`; // Use full ID in selector
-    console.log(`[Traceform Overlay] Attempting querySelectorAll with selector: ${selector}`); // Added log
-    const elements = document.querySelectorAll(selector);
+    let elements;
+    try {
+        elements = document.querySelectorAll(selector);
+    } catch (queryError) {
+        // Use TraceformError for selector/query failure
+        const err = createTraceformError(
+            'TF-BE-010',
+            '[Overlay] Error querying elements for traceformId',
+            queryError,
+            'browserExt.overlay.query.error',
+            true // telemetry
+        );
+        handleTraceformError(err, 'OverlayRenderer'); // @ErrorFeedback
+        return;
+    }
     if (elements.length === 0) {
-        console.log(`No elements found for traceformId: ${traceformId}`);
+        // Use TraceformError for no elements found
+        const err = createTraceformError(
+            'TF-BE-011',
+            `No elements found for traceformId: ${traceformId}`,
+            { traceformId },
+            'browserExt.overlay.noElements',
+            false // not critical for telemetry
+        );
+        handleTraceformError(err, 'OverlayRenderer'); // @ErrorFeedback
         return;
     }
     console.log(`Highlighting ${elements.length} elements for: ${traceformId}`);

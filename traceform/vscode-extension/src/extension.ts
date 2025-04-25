@@ -23,6 +23,7 @@ import * as vscode from 'vscode';
 import { initializeClient, connectWebSocketClient, sendHighlightCommand, disconnectWebSocketClient } from './client';
 import { startBridgeServer, stopBridgeServer } from './bridgeServer';
 import { SidebarProvider } from './sidebarProvider'; // Import the new WebviewView provider
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 // Create an output channel specifically for this extension
 const outputChannel = vscode.window.createOutputChannel("Traceform");
@@ -42,9 +43,17 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		connectWebSocketClient(); // Initial connection attempt
 
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : String(error);
-		outputChannel.appendLine(`Failed to activate extension: ${errorMessage}`);
-		vscode.window.showErrorMessage(`Traceform failed to start: ${errorMessage}`);
+		// Use TraceformError for activation/startup error
+		const err = createTraceformError(
+			'TF-VSC-001',
+			`Failed to activate extension: ${error instanceof Error ? error.message : String(error)}`,
+			error,
+			'vscodeExt.activate.error',
+			true // telemetry
+		);
+		handleTraceformError(err, 'VSCodeExtension'); // @ErrorFeedback
+		outputChannel.appendLine(`Failed to activate extension: ${error instanceof Error ? error.message : String(error)}`);
+		vscode.window.showErrorMessage(`Traceform failed to start: ${error instanceof Error ? error.message : String(error)}`);
 		// Don't register command if server failed to start
 		return;
 	}
@@ -216,10 +225,28 @@ export async function activate(context: vscode.ExtensionContext) { // Make activ
 		if (success) {
 			vscode.window.setStatusBarMessage(`Traceform: Sent highlight command for ${componentName}`, 3000); // Temporary status bar message
 		} else {
-			// Warning message is already shown by sendHighlightCommand if connection failed
-			// Optionally add another message here if needed
+			// Use TraceformError for failed highlight command
+			const err = createTraceformError(
+				'TF-VSC-002',
+				'Failed to send highlight command (WebSocket not connected)',
+				{ traceformId, componentName },
+				'vscodeExt.highlight.send.error',
+				true // telemetry
+			);
+			handleTraceformError(err, 'VSCodeExtension'); // @ErrorFeedback
 		}
-	});
+	} catch (error) {
+		// Use TraceformError for unexpected error in command
+		const err = createTraceformError(
+			'TF-VSC-003',
+			'Error in findInUI command',
+			error,
+			'vscodeExt.findInUI.error',
+			true // telemetry
+		);
+		handleTraceformError(err, 'VSCodeExtension'); // @ErrorFeedback
+		vscode.window.showErrorMessage('Traceform: Unexpected error in Find in UI command.');
+	}
 
 	// New server control commands
 	const startServerCommand = vscode.commands.registerCommand('traceform.startServer', async () => {

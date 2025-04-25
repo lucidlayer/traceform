@@ -11,6 +11,7 @@ import { useInput } from 'ink';
 import clipboard from 'clipboardy';
 import { execa } from 'execa';
 import Link from 'ink-link';
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 // Type definitions
 export type BabelCheckStatus = 'passed' | 'failed_dependency' | 'failed_config'; // Export the type
@@ -189,6 +190,15 @@ const BabelStep: React.FC<BabelStepProps> = ({ onComplete, stepIndex, totalSteps
         return false;
       }
     } catch (error) {
+      // Use TraceformError for package.json read/parse error
+      const err = createTraceformError(
+        'TF-BB-001',
+        `Error reading or parsing package.json: ${error instanceof Error ? error.message : error}`,
+        error,
+        'babelStep.packageJson.error',
+        true // telemetry
+      );
+      handleTraceformError(err, 'BabelStep'); // @ErrorFeedback
       setStatus(`Error reading or parsing package.json: ${error instanceof Error ? error.message : error}`);
       return false;
     }

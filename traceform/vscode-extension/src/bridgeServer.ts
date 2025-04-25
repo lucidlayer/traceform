@@ -23,6 +23,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import * as vscode from 'vscode';
 import * as net from 'net'; // Import Node.js net module for port checking
 import { EventEmitter } from 'events';
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 // Define a type for our logger to allow console or OutputChannel
 type Logger = Pick<vscode.OutputChannel, 'appendLine'>;
@@ -118,6 +119,15 @@ function isPortInUse(port: number): Promise<boolean> {
       if (err.code === 'EADDRINUSE') {
         resolve(true); // Port is definitely in use
       } else {
+        // Use TraceformError for port check error
+        const errorObj = createTraceformError(
+          'TF-VSC-020',
+          `Error checking port ${port}: ${err.message}`,
+          err,
+          'vscodeExt.bridgeServer.portCheck.error',
+          true // telemetry
+        );
+        handleTraceformError(errorObj, 'BridgeServer'); // @ErrorFeedback
         reject(err); // Other error
       }
     });
@@ -164,6 +174,15 @@ function checkExistingServer(): Promise<boolean> {
 
     tempWs.on('error', (err) => {
       log(`[PING Check] Error connecting or communicating with existing server on port ${PORT}: ${err.message}`); // Use log
+      // Use TraceformError for WebSocket ping error
+      const errorObj = createTraceformError(
+        'TF-VSC-021',
+        `Error connecting or communicating with existing server on port ${PORT}: ${err.message}`,
+        err,
+        'vscodeExt.bridgeServer.ping.error',
+        false // not critical for telemetry
+      );
+      handleTraceformError(errorObj, 'BridgeServer'); // @ErrorFeedback
       clearTimeout(timeout);
       resolve(false); // Assume not responsive or not our server
     });
@@ -210,30 +229,33 @@ export async function startBridgeServer(outputChannel: Logger): Promise<void> { 
            updateStatus('port-conflict'); // Set status
            throw new Error(errorMsg);
         }
-      } catch (pingError) {
-         // Error during the ping check itself
-         const errorMsg = `Port ${PORT} is in use, and failed to verify the existing process: ${pingError instanceof Error ? pingError.message : String(pingError)}`;
-         log(`❌ ${errorMsg}`); // Use log
-         vscode.window.showErrorMessage(errorMsg + ' Please close the conflicting application.');
-         updateStatus('error'); // Set status
-         throw new Error(errorMsg);
+      } catch (err) {
+        // Use TraceformError for checkExistingServer error
+        const errorObj = createTraceformError(
+          'TF-VSC-022',
+          `Error during checkExistingServer: ${err instanceof Error ? err.message : String(err)}`,
+          err,
+          'vscodeExt.bridgeServer.checkExistingServer.error',
+          true // telemetry
+        );
+        handleTraceformError(errorObj, 'BridgeServer'); // @ErrorFeedback
+        throw err;
       }
     } else {
        log(`✅ Port ${PORT} is available.`); // Use log
     }
   } catch (err) {
-     // Catch errors from isPortInUse or the ping check block
-     const errorMsg = `Error during port check/ping for port ${PORT}: ${err instanceof Error ? err.message : String(err)}`;
-     log(`❌ ${errorMsg}`); // Use log
-     // Don't show vscode error message again if it was already shown
-     if (!(err instanceof Error && err.message.includes(`Port ${PORT} is in use`))) {
-        vscode.window.showErrorMessage(errorMsg);
-     }
-     // Ensure status reflects the failure if it wasn't already set
-     if (currentStatus !== 'port-conflict' && currentStatus !== 'error') {
-        updateStatus('error');
-     }
-     throw err; // Rethrow to reject the promise
+    // Use TraceformError for startBridgeServer error
+    const errorObj = createTraceformError(
+      'TF-VSC-023',
+      `Error starting bridge server: ${err instanceof Error ? err.message : String(err)}`,
+      err,
+      'vscodeExt.bridgeServer.start.error',
+      true // telemetry
+    );
+    handleTraceformError(errorObj, 'BridgeServer'); // @ErrorFeedback
+    updateStatus('error');
+    throw err;
   }
   // --- End Port Check ---
 

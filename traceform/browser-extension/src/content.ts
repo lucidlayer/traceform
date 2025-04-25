@@ -20,6 +20,7 @@ BUSINESS SOURCE LICENSE 1.1
 */
 
 import { removeOverlays, highlightElements } from './overlay';
+import { createTraceformError, handleTraceformError } from '../../shared/src/traceformError';
 
 // --- Register Listener Immediately ---
 console.log('[Content Script] Initializing listener...'); // Log initialization
@@ -44,11 +45,27 @@ chrome.runtime.onMessage.addListener(
             highlightElements(message.traceformId); // Pass the full ID
             console.log(`[Content Script] highlightElements completed for: ${message.traceformId}`);
           } catch (highlightError) {
-            console.error('[Content Script] Error during highlightElements:', highlightError);
+            // Use TraceformError and central handler
+            const err = createTraceformError(
+              'TF-CT-002',
+              '[Content Script] Error during highlightElements',
+              highlightError,
+              'content.highlight.error',
+              true // telemetry
+            );
+            handleTraceformError(err, 'ContentScript'); // @ErrorFeedback
             // Optionally send feedback to the DevTools panel about the error
           }
         } else {
-          console.error('[Content Script] Highlight command missing traceformId');
+          // Use TraceformError for missing traceformId
+          const err = createTraceformError(
+            'TF-CT-001',
+            '[Content Script] Highlight command missing traceformId',
+            message,
+            'content.highlight.missingId',
+            true // telemetry
+          );
+          handleTraceformError(err, 'ContentScript'); // @ErrorFeedback
         }
       } else if (message.type === 'CLEAR_HIGHLIGHT') {
         // removeOverlays() is already called above, so this case might become redundant
@@ -62,12 +79,28 @@ chrome.runtime.onMessage.addListener(
       sendResponse({ success: true, processed: true }); // Add processed flag
 
     } catch (error) {
-      console.error("[Content Script] Error processing message:", error); // Updated log prefix
+      // Use TraceformError for generic message processing error
+      const err = createTraceformError(
+        'TF-CT-003',
+        '[Content Script] Error processing message',
+        error,
+        'content.message.error',
+        true // telemetry
+      );
+      handleTraceformError(err, 'ContentScript'); // @ErrorFeedback
       // Attempt to send an error response if possible
       try {
         sendResponse({ success: false, error: error instanceof Error ? error.message : String(error) });
       } catch (sendError) {
-        console.error("Failed to send error response:", sendError);
+        // Use TraceformError for sendResponse failure
+        const err2 = createTraceformError(
+          'TF-CT-004',
+          '[Content Script] Failed to send error response',
+          sendError,
+          'content.sendResponse.error',
+          false // telemetry not critical
+        );
+        handleTraceformError(err2, 'ContentScript');
       }
     }
 

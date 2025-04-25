@@ -21,6 +21,7 @@ BUSINESS SOURCE LICENSE 1.1
 
 import WebSocket from 'ws';
 import * as vscode from 'vscode';
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 // No need to import stopBridgeServer here, extension.ts handles it
 
 // Define a type for our logger to allow console or OutputChannel
@@ -68,6 +69,15 @@ export function connectWebSocketClient() {
 
   socket.on('error', (error) => {
     logger.appendLine(`WebSocket client error: ${error.message}`);
+    // Use TraceformError for WebSocket client error
+    const err = createTraceformError(
+      'TF-VSC-010',
+      `WebSocket client error: ${error.message}`,
+      error,
+      'vscodeExt.client.websocket.error',
+      true // telemetry
+    );
+    handleTraceformError(err, 'VSCodeClient'); // @ErrorFeedback
     // onclose will be called next
     if (connectionStatus !== 'disconnected') {
        updateStatus('Error', `WebSocket Error: ${error.message}`);
@@ -111,6 +121,15 @@ export function sendHighlightCommand(traceformId: string): boolean {
       vscode.window.showWarningMessage('Traceform is still connecting, please wait a moment and try again.');
     } else { // disconnected or error state
       vscode.window.showWarningMessage('Traceform bridge not connected. Attempting to reconnect...');
+      // Use TraceformError for failed send attempt
+      const err = createTraceformError(
+        'TF-VSC-011',
+        'Failed to send highlight command: WebSocket not connected',
+        { traceformId },
+        'vscodeExt.client.sendHighlight.error',
+        true // telemetry
+      );
+      handleTraceformError(err, 'VSCodeClient'); // @ErrorFeedback
       // Trigger a connection attempt if disconnected
       connectWebSocketClient();
     }

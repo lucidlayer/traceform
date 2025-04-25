@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, useInput } from 'ink';
 import Spinner from 'ink-spinner';
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 interface PrerequisitesStepProps {
   onComplete: (success: boolean) => void;
@@ -41,6 +42,15 @@ async function checkCommandVersion(
     // If loops completes, versions are equal up to minVersionParts length, or versionParts is longer (e.g., 18.17.1 vs 18.17.0)
     return { passed: true, message: `${command} v${version} found.`, version };
   } catch (error) {
+    // Use TraceformError for command execution error
+    const err = createTraceformError(
+      'TF-PR-001',
+      `Couldn't run '${command}'. Is it installed and in your PATH?`,
+      error,
+      'prerequisites.command.error',
+      true // telemetry
+    );
+    handleTraceformError(err, 'PrerequisitesStep'); // @ErrorFeedback
     return {
       passed: false,
       message: `Error: Couldn't run '${command}'. Is it installed and in your PATH?`,
@@ -156,6 +166,15 @@ const PrerequisitesStep: React.FC<PrerequisitesStepProps> = ({ onComplete, stepI
   // Add universal quit handler
   useInput((input, key) => {
     if (input.toLowerCase() === 'q') {
+      // Use TraceformError for user quit
+      const err = createTraceformError(
+        'TF-PR-002',
+        'User quit during PrerequisitesStep',
+        { step: 'PrerequisitesStep' },
+        'prerequisites.userQuit',
+        false // not critical for telemetry
+      );
+      handleTraceformError(err, 'PrerequisitesStep'); // @ErrorFeedback
       onComplete(false);
       return;
     }

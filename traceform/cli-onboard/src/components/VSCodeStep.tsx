@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Box, Text, Newline, useInput } from 'ink';
 import Link from 'ink-link'; // For clickable links in supported terminals
+import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 interface VSCodeStepProps {
   onComplete: (success: boolean) => void;
@@ -31,6 +32,15 @@ const VSCodeStep: React.FC<VSCodeStepProps> = ({ onComplete, stepIndex, totalSte
   // Add universal quit handler
   useInput((input, key) => {
     if (input.toLowerCase() === 'q') {
+      // Use TraceformError for user quit
+      const err = createTraceformError(
+        'TF-VS-001',
+        'User quit during VSCodeStep',
+        { step: 'VSCodeStep' },
+        'vscodeStep.userQuit',
+        false // not critical for telemetry
+      );
+      handleTraceformError(err, 'VSCodeStep'); // @ErrorFeedback
       onComplete(false);
       return;
     }
