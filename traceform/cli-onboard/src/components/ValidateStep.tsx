@@ -3,7 +3,7 @@
 */
 
 import React, { useState, useEffect } from 'react';
-import { Box, Text, Newline } from 'ink';
+import { Box, Text, Newline, useInput } from 'ink';
 import { createTraceformError, handleTraceformError } from '../../../shared/src/traceformError';
 
 interface ValidateStepProps {
@@ -35,6 +35,39 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
     return () => clearTimeout(timer);
   }, []);
 
+  // Add user input handling for validation confirmation
+  useInput((input, key) => {
+    if (confirmed === null) {
+      if (key.return) {
+        setConfirmed(true);
+        onComplete(true);
+      } else if (input.toLowerCase() === 'n') {
+        setConfirmed(false);
+        // Use TraceformError for validation failure
+        const err = createTraceformError(
+          'TF-VA-002',
+          'User reported validation failure',
+          { step: 'ValidateStep' },
+          'validateStep.validationFailed',
+          false // not critical for telemetry
+        );
+        handleTraceformError(err, 'ValidateStep'); // @ErrorFeedback
+        onComplete(false);
+      } else if (input.toLowerCase() === 'q') {
+        // Use TraceformError for user quit
+        const err = createTraceformError(
+          'TF-VA-003',
+          'User quit during ValidateStep',
+          { step: 'ValidateStep' },
+          'validateStep.userQuit',
+          false // not critical for telemetry
+        );
+        handleTraceformError(err, 'ValidateStep'); // @ErrorFeedback
+        onComplete(false);
+      }
+    }
+  }, { isActive: confirmed === null });
+
   return (
     <Box flexDirection="column">
       <Text color="cyan">Step {stepIndex} of {totalSteps}</Text>
@@ -46,6 +79,7 @@ const ValidateStep: React.FC<ValidateStepProps> = ({ onComplete, stepIndex, tota
       <Text>4. In VS Code, open a React component file. (e.g., <Text color="cyan">Demo-01\src\components\StockCard.tsx</Text>)</Text>
       <Text>5. Highlight and right-click the component name and select <Text color="yellow">'Traceform: Find Component in UI'</Text>.</Text>
       <Text>6. Check your browser for highlighted components.</Text>
+      {confirmed === null && <Text color="yellow">Press Enter if validation succeeded, N if it failed, or Q to quit</Text>}
       {confirmed === true && (
         <Text color="green" bold>🎉 Congratulations! Your Traceform setup is working correctly!</Text>
       )}

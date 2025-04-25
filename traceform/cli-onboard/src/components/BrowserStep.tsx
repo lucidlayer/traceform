@@ -26,6 +26,19 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
         setConfirmed(true);
         setAnswered(true);
         onComplete(true);
+      } else if (input.toLowerCase() === 'n') {
+        setConfirmed(false);
+        setAnswered(true);
+        // Use TraceformError for user declining installation
+        const err = createTraceformError(
+          'TF-BS-002',
+          'User declined browser extension installation',
+          { step: 'BrowserStep' },
+          'browserStep.userDeclined',
+          false // not critical for telemetry
+        );
+        handleTraceformError(err, 'BrowserStep'); // @ErrorFeedback
+        onComplete(false);
       }
     }
   }, { isActive: confirmed === null });
@@ -55,7 +68,7 @@ const BrowserStep: React.FC<BrowserStepProps> = ({ onComplete, stepIndex, totalS
       <Text>1. Open the Chrome Web Store page</Text>
       <Text color="cyan">https://chromewebstore.google.com/detail/giidcepndnnabhfkopmgcnpnnilkaefa?utm_source=item-share-cb</Text>
       <Text>2. Click "Add to Chrome"</Text>
-      {confirmed === null && <Text color="yellow">Press Enter to continue or Q to quit</Text>}
+      {confirmed === null && <Text color="yellow">Press Enter to continue, N to decline, or Q to quit</Text>}
       {confirmed === true && <Text color="green">✔ Browser Extension step confirmed.</Text>}
       {confirmed === false && <Text color="red">✖ Browser Extension step not confirmed. Please install/enable the extension and restart the wizard.</Text>}
     </Box>
