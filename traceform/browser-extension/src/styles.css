@@ -1,9 +1,0 @@
-/* === Traceform Highlight Overlay === */
-.traceform-highlight-overlay {
-  background: rgba(127, 217, 98, 0.25); /* Light green overlay */
-  border: 2px solid #7fd962; /* Solid green border */
-  border-radius: 4px;
-  pointer-events: none; /* Allow clicks to pass through */
-  box-sizing: border-box;
-  z-index: 1000000; /* Ensure it's on top */
-}
