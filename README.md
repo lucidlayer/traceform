@@ -1,7 +1,7 @@
 <h1 align="center">Traceform</h1>
 <p align="center">Instantly See Where Your React Code Renders, Live</p>
 
-![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](https://github.com/lucidlayer/traceform/blob/main/.github/demo.gif?raw=true)
+![Traceform demo: Instantly highlight every instance of a component from VS Code to browser](.github\demo.gif)
 
 ---
 
