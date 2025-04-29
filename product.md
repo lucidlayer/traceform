@@ -6,9 +6,9 @@ Mapping code to the live UI, especially in complex React projects, is surprising
 
 Traceform fixes this. It's a focused toolchain requiring three parts:
 
-1.  [**Babel Plugin:**](https://www.npmjs.com/package/@lucidlayer/babel-plugin-traceform) Instruments your code (dev only).
+1.  [**Babel Plugin:**](https://www.npmjs.com/package/@lucidlayer/babel-plugin-traceform) Inserts traceable id's to your code.
 2.  [**VS Code Extension:**](https://marketplace.visualstudio.com/items?itemName=LucidLayer.traceform-vscode) Lets you select a component.
-3.  [**Browser Extension:**](https://chromewebstore.google.com/detail/traceform-ui-mapping/giidcepndnnabhfkopmgcnpnnilkaefa) Instantly highlights *all* live instances in your browser.
+3.  [**Browser Extension:**](https://chromewebstore.google.com/detail/traceform-ui-mapping/giidcepndnnabhfkopmgcnpnnilkaefa) Instantly highlights *all* live instances  or ui elements in your browser.
 
 Select code -> See it live. Getting the integration seamless is the hard part.
 
