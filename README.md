@@ -42,19 +42,8 @@ Traceform bridges VS Code and your running React app, instantly highlighting eve
 
 ## Beta / Current Status
 
-Traceform is currently in closed Beta. All claims are based on real, production-scale pilots and team feedback. If time savings is <50%, Traceform is positioned as 'best-in-class for onboarding and legacy debugging.'
+Traceform is currently in closed Beta. 
 
-- Only 10 slots left for our guided Beta. Get guaranteed ROI data for your team in 2 weeks.
-- 👉 Book a 15-min demo
-- 📧 Email traceformhq@gmail.com
-
-This README is reviewed and updated quarterly based on pilot data and buyer feedback.
-
----
-
-## License
-
-Please refer to **LICENSE-STACK.md** for detailed licensing information. Most code is under BUSL-1.1, with select components under MIT or Apache-2.0.
 
 ---
 
